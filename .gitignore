@@ -44,3 +44,4 @@ ChangeLog
 /glib-lcov/
 
 /glibconfig.h
+/win32-fixup.pl
