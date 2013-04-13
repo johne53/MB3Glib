@@ -4901,10 +4901,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gio\gioalias.h"
-				>
-			</File>
-			<File
 				RelativePath="..\gio\gioenums.h"
 				>
 			</File>

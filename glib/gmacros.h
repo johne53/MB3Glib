@@ -321,7 +321,7 @@
 #elif defined(_MSC_FULL_VER) && (_MSC_FULL_VER > 140050320)
 #define G_UNAVAILABLE(maj,min) __declspec(deprecated("is not available before " #maj "." #min))
 #else
-#define G_UNAVAILABLE(maj,min) G_DEPRECATED
+#define G_UNAVAILABLE(maj,min)
 #endif
 
 #ifndef _GLIB_EXTERN
