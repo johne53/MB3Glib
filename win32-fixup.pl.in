@@ -10,6 +10,7 @@ $interface_age = 0;
 $gettext_package = "glib20";
 $current_minus_age = 0;
 $glib_win32_static = "";
+$perl_path = "c:/strawberry/perl/bin/perl.exe";
 $data_root_dir = "F:/+GTK-SOURCES/gnu-win32/src/glib/gio/prefix";
 $generic_include_folder = "F:\\+GTK-SOURCES\\gnu-windows\\include";
 $generic_library_folder = "F:\\+GTK-SOURCES\\gnu-windows\\lib";
@@ -39,6 +40,7 @@ sub process_file
 	    s/\@GETTEXT_PACKAGE\@/$gettext_package/g;
 	    s/\@LT_CURRENT_MINUS_AGE@/$current_minus_age/g;
 	    s/\@GLIB_WIN32_STATIC_COMPILATION_DEFINE@/$glib_win32_static/g;
+	    s/\@PERL_PATH@/$perl_path/g;
 	    s/\@datarootdir@/$data_root_dir/g;
 	    s/\@GenericIncludeFolder@/$generic_include_folder/g;
 	    s/\@GenericLibraryFolder@/$generic_library_folder/g;
@@ -56,6 +58,7 @@ sub process_file
 process_file ("config.h.win32");
 process_file ("glib/glibconfig.h.win32");
 process_file ("gio/gdbus-2.0/codegen/config.py");
+process_file ("gobject/glib-mkenums");
 
 my $command=join(' ',@ARGV);
 if ($command eq -buildall) {
