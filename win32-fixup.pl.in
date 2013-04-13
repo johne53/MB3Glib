@@ -1,12 +1,12 @@
 #! e:/program files/perl/bin/perl.exe
 #  version info can be found in 'configure.ac'
 
-$glib_version = "2.36.0";
+$glib_version = "2.37.0";
 $major = 2;
-$minor = 36;
+$minor = 37;
 $micro = 0;
-$binary_age = 236;
-$interface_age = 0;
+$binary_age = 237;
+$interface_age = 1;
 $gettext_package = "glib20";
 $current_minus_age = 0;
 $glib_win32_static = "";
