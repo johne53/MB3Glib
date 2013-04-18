@@ -13,6 +13,10 @@
 		Value="-2.0-@LT_CURRENT_MINUS_AGE@"
 	/>
 	<UserMacro
+		Name="GlibBuildRootFolder"
+		Value="@GlibBuildRootFolder@"
+	/>
+	<UserMacro
 		Name="GenericIncludeFolder"
 		Value="@GenericIncludeFolder@"
 	/>
@@ -23,6 +27,10 @@
 	<UserMacro
 		Name="GenericWin32LibraryFolder"
 		Value="@GenericWin32LibraryFolder@"
+	/>
+	<UserMacro
+		Name="GenericWin32BinaryFolder"
+		Value="@GenericWin32BinaryFolder@"
 	/>
 	<UserMacro
 		Name="Debug32TestSuiteFolder"

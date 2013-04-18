@@ -46,3 +46,4 @@ ChangeLog
 /glibconfig.h
 /win32-fixup.pl
 /gio/gdbus-2.0/codegen/config.py
+/win32-fixup.pl
