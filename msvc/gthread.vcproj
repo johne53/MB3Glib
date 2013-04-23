@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release 32|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\bin"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -71,8 +71,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix).lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix).dll"
-				AdditionalLibraryDirectories="$(SolutionDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(SolutionDir)\$(ProjectName).def"
+				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
+				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				SubSystem="2"
 			/>
 			<Tool
@@ -105,8 +105,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug 32|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\bin"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -160,8 +160,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)D.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)D.dll"
-				AdditionalLibraryDirectories="$(SolutionDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(SolutionDir)\$(ProjectName).def"
+				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
+				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -195,8 +195,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug 32 with Secure SCL|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\bin"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -250,8 +250,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)SCLD.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)SCLD.dll"
-				AdditionalLibraryDirectories="$(SolutionDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(SolutionDir)\$(ProjectName).def"
+				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
+				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -285,8 +285,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release 32 with Debugging Capability|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\bin"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -339,8 +339,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)RDC.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)RDC.dll"
-				AdditionalLibraryDirectories="$(SolutionDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(SolutionDir)\$(ProjectName).def"
+				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
+				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>

@@ -17,8 +17,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug 32|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\bin"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="1"
 			InheritedPropertySheets=".\glib.vsprops"
 			CharacterSet="2"

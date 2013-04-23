@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release 32|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\lib"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\lib"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -92,8 +92,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug 32|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\lib"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\lib"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -168,8 +168,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug 32 with Secure SCL|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\lib"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\lib"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
@@ -244,8 +244,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release 32 with Debugging Capability|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\lib"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)\lib"
+			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
 			UseOfMFC="0"
