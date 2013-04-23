@@ -1,6 +1,8 @@
 #! e:/program files/perl/bin/perl.exe
 #  version info can be found in 'configure.ac'
 
+require "../local-paths.lib";
+
 $glib_version = "2.36.0";
 $major = 2;
 $minor = 36;
@@ -10,18 +12,6 @@ $interface_age = 0;
 $gettext_package = "glib20";
 $current_minus_age = 0;
 $glib_win32_static = "";
-$perl_path = "c:/strawberry/perl/bin/perl.exe";
-$data_root_dir = "F:/+GTK-SOURCES/gnu-win32/src/glib/gio/prefix";
-$glib_build_root_folder = "F:\\+GTK-SOURCES\\gnu-windows\\src\\MB3Glib";
-$generic_include_folder = "F:\\+GTK-SOURCES\\gnu-windows\\include";
-$generic_library_folder = "F:\\+GTK-SOURCES\\gnu-windows\\lib";
-$generic_win32_library_folder = "F:\\+GTK-SOURCES\\gnu-windows\\lib\\win32";
-$generic_win32_binary_folder = "F:\\+GTK-SOURCES\\gnu-windows\\bin";
-$debug32_testsuite_folder = "..\\..\\..\\..\\gnu-win32\\TestApps\\Debug\\Mixbus\\bin";
-$release32_testsuite_folder = "..\\..\\..\\..\\gnu-win32\\TestApps\\Release\\Mixbus\\bin";
-$debug32_target_folder = "C:\\Program Files\\Mixbus\\bin";
-$release32_target_folder = "E:\\Mixbus\\bin";
-$target_sxs_folder = "F:\\+GTK-SOURCES\\gnu-windows\\include\\ardourext\\sys";
 $gdbus_prefix = "gdbus-2.0";
 
 sub process_file
