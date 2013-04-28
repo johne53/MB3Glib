@@ -138,6 +138,8 @@ g_file_copy_async
 g_file_copy_finish
 g_file_move
 g_file_make_directory
+g_file_make_directory_async
+g_file_make_directory_finish
 g_file_make_directory_with_parents
 g_file_make_symbolic_link
 g_file_query_settable_attributes
@@ -446,6 +448,8 @@ g_icon_hash
 g_icon_equal
 g_icon_to_string
 g_icon_new_for_string
+g_icon_serialize
+g_icon_deserialize
 <SUBSECTION Standard>
 G_ICON
 G_IS_ICON
@@ -510,6 +514,20 @@ G_IS_FILE_ICON_CLASS
 G_FILE_ICON_GET_CLASS
 <SUBSECTION Private>
 g_file_icon_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gbytesicon</FILE>
+<TITLE>GBytesIcon</TITLE>
+GBytesIcon
+g_bytes_icon_new
+g_bytes_icon_get_bytes
+<SUBSECTION Standard>
+G_BYTES_ICON
+G_IS_BYTES_ICON
+G_TYPE_BYTES_ICON
+<SUBSECTION Private>
+g_bytes_icon_get_type
 </SECTION>
 
 <SECTION>
@@ -3773,6 +3791,7 @@ g_menu_prepend_submenu
 
 <SUBSECTION>
 g_menu_remove
+g_menu_remove_all
 
 <SUBSECTION>
 GMenuItem
@@ -3783,6 +3802,7 @@ g_menu_item_new_from_model
 
 <SUBSECTION>
 g_menu_item_set_label
+g_menu_item_set_icon
 g_menu_item_set_action_and_target_value
 g_menu_item_set_action_and_target
 g_menu_item_set_detailed_action
@@ -3819,8 +3839,9 @@ g_menu_model_get_n_items
 
 <SUBSECTION>
 G_MENU_ATTRIBUTE_ACTION
-G_MENU_ATTRIBUTE_LABEL
 G_MENU_ATTRIBUTE_TARGET
+G_MENU_ATTRIBUTE_LABEL
+G_MENU_ATTRIBUTE_ICON
 G_MENU_LINK_SECTION
 G_MENU_LINK_SUBMENU
 
