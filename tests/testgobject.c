@@ -208,7 +208,7 @@ test_object_init (TestObject *tobject)
   priv = TEST_OBJECT_GET_PRIVATE (tobject);
 
   g_assert (priv);
-  g_assert ((gchar *)priv >= (gchar *)tobject + sizeof (TestObject));
+  g_assert ((gchar *)priv + sizeof (TestObjectPrivate) <= (gchar *)tobject);
 
   priv->dummy1 = 54321;
 }
@@ -361,12 +361,12 @@ derived_object_init (DerivedObject *dobject)
   derived_priv = DERIVED_OBJECT_GET_PRIVATE (dobject);
 
   g_assert (derived_priv);
-  g_assert ((gchar *)derived_priv >= (gchar *)TEST_OBJECT_GET_PRIVATE (dobject) + sizeof (TestObjectPrivate));
+  g_assert ((gchar *)derived_priv + sizeof (DerivedObjectPrivate) <= (gchar *)TEST_OBJECT_GET_PRIVATE (dobject));
 
   test_priv = TEST_OBJECT_GET_PRIVATE (dobject);
   
   g_assert (test_priv);
-  g_assert ((gchar *)test_priv >= (gchar *)dobject + sizeof (TestObject));
+  g_assert ((gchar *)test_priv + sizeof (TestObjectPrivate) <= (gchar *)dobject);
 
 }
 
