@@ -668,6 +668,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gbytesicon.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gcancellable.c"
 				>
 				<FileConfiguration
@@ -4718,6 +4722,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gasynchelper.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gbytesicon.h"
 				>
 			</File>
 			<File

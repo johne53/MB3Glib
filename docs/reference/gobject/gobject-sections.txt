@@ -125,6 +125,7 @@ g_type_check_is_value_type
 g_type_check_value
 g_type_check_value_holds
 g_type_instance_get_private
+g_type_class_get_instance_private_offset
 g_type_class_get_private
 g_type_test_flags
 g_type_name_from_instance
@@ -479,6 +480,7 @@ g_param_spec_ref
 g_param_spec_unref
 g_param_spec_sink
 g_param_spec_ref_sink
+g_param_spec_get_default_value
 g_param_value_set_default
 g_param_value_defaults
 g_param_value_validate

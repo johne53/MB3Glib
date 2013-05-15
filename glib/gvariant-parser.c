@@ -223,10 +223,11 @@ token_stream_prepare (TokenStream *stream)
     case '@': case '%':
       /* stop at the first space, comma, colon or unmatched bracket.
        * deals nicely with cases like (%i, %i) or {%i: %i}.
+       * Also: ] and > are never in format strings.
        */
       for (end = stream->stream + 1;
            end != stream->end && *end != ',' &&
-           *end != ':' && *end != '>' && !g_ascii_isspace (*end);
+           *end != ':' && *end != '>' && *end != ']' && !g_ascii_isspace (*end);
            end++)
 
         if (*end == '(' || *end == '{')
@@ -1142,7 +1143,9 @@ variant_get_value (AST                 *ast,
   Variant *variant = (Variant *) ast;
   GVariant *child;
 
-  g_assert (g_variant_type_equal (type, G_VARIANT_TYPE_VARIANT));
+  if (!g_variant_type_equal (type, G_VARIANT_TYPE_VARIANT))
+    return ast_type_error (ast, type, error);
+
   child = ast_resolve (variant->value, error);
 
   if (child == NULL)
@@ -1656,7 +1659,8 @@ bytestring_get_value (AST                 *ast,
 {
   ByteString *string = (ByteString *) ast;
 
-  g_assert (g_variant_type_equal (type, G_VARIANT_TYPE_BYTESTRING));
+  if (!g_variant_type_equal (type, G_VARIANT_TYPE_BYTESTRING))
+    return ast_type_error (ast, type, error);
 
   return g_variant_new_bytestring (string->string);
 }
