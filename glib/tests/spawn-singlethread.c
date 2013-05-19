@@ -194,16 +194,13 @@ main (int   argc,
   g_test_init (&argc, &argv, NULL);
 
   dirname = g_path_get_dirname (argv[0]);
-  echo_prog_path = g_build_filename (dirname, "test-spawn-echo", NULL);
+  echo_prog_path = g_build_filename (dirname, "test-spawn-echo" EXEEXT, NULL);
   if (!g_file_test (echo_prog_path, G_FILE_TEST_EXISTS))
     {
       g_free (echo_prog_path);
-      echo_prog_path = g_build_filename (dirname, "lt-test-spawn-echo", NULL);
+      echo_prog_path = g_build_filename (dirname, "lt-test-spawn-echo" EXEEXT, NULL);
     }
-#ifndef SRCDIR
-#define SRCDIR dirname
-#endif
-  echo_script_path = g_build_filename (SRCDIR, "echo-script", NULL);
+  echo_script_path = g_build_filename (dirname, "echo-script", NULL);
   if (!g_file_test (echo_script_path, G_FILE_TEST_EXISTS))
     {
       gchar *tmp;

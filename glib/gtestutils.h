@@ -104,6 +104,9 @@ void    g_test_init                     (int            *argc,
 #define g_test_verbose()                (g_test_config_vars->test_verbose)
 #define g_test_quiet()                  (g_test_config_vars->test_quiet)
 #define g_test_undefined()              (g_test_config_vars->test_undefined)
+GLIB_AVAILABLE_IN_2_38
+gboolean g_test_subprocess (void);
+
 /* run all tests under toplevel suite (path: /) */
 GLIB_AVAILABLE_IN_ALL
 int     g_test_run                      (void);
@@ -164,15 +167,27 @@ void    g_test_queue_destroy            (GDestroyNotify destroy_func,
                                          gpointer       destroy_data);
 #define g_test_queue_unref(gobject)     g_test_queue_destroy (g_object_unref, gobject)
 
-/* test traps are guards used around forked tests */
 typedef enum {
   G_TEST_TRAP_SILENCE_STDOUT    = 1 << 7,
   G_TEST_TRAP_SILENCE_STDERR    = 1 << 8,
   G_TEST_TRAP_INHERIT_STDIN     = 1 << 9
 } GTestTrapFlags;
-GLIB_AVAILABLE_IN_ALL
+
+GLIB_DEPRECATED_IN_2_38_FOR (g_test_trap_subprocess)
 gboolean g_test_trap_fork               (guint64              usec_timeout,
                                          GTestTrapFlags       test_trap_flags);
+
+typedef enum {
+  G_TEST_SUBPROCESS_INHERIT_STDIN  = 1 << 0,
+  G_TEST_SUBPROCESS_INHERIT_STDOUT = 1 << 1,
+  G_TEST_SUBPROCESS_INHERIT_STDERR = 1 << 2,
+} GTestSubprocessFlags;
+
+GLIB_AVAILABLE_IN_2_38
+void     g_test_trap_subprocess         (const char           *test_path,
+                                         guint64               usec_timeout,
+                                         GTestSubprocessFlags  test_flags);
+
 GLIB_AVAILABLE_IN_ALL
 gboolean g_test_trap_has_passed         (void);
 GLIB_AVAILABLE_IN_ALL

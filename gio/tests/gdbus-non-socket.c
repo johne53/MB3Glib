@@ -219,6 +219,8 @@ test_non_socket (void)
       break;
     }
 
+  /* This is #ifdef G_OS_UNIX anyway, so just use g_test_trap_fork() */
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS;
   if (!g_test_trap_fork (0, 0))
     {
       /* parent */
@@ -229,6 +231,7 @@ test_non_socket (void)
       g_assert_cmpint (kill (first_child, SIGTERM), ==, 0);
       return;
     }
+  G_GNUC_END_IGNORE_DEPRECATIONS;
 
   /* second child */
 

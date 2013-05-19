@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [37])
-m4_define([glib_micro_version], [0])
+m4_define([glib_micro_version], [1])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -258,7 +258,12 @@ AC_ARG_ENABLE(modular_tests,
               AS_HELP_STRING([--disable-modular-tests],
                              [Disable build of test programs (default: no)]),,
               [enable_modular_tests=yes])
-AM_CONDITIONAL(BUILD_MODULAR_TESTS, test x$enable_modular_tests = xyes)
+AC_ARG_ENABLE(installed_tests,
+              AS_HELP_STRING([--enable-installed-tests],
+                             [Install test programs (default: no)]),,
+              [enable_installed_tests=no])
+AM_CONDITIONAL(BUILD_MODULAR_TESTS, test x$enable_modular_tests = xyes || test x$enable_installed_tests=xyes)
+AM_CONDITIONAL(BUILDOPT_INSTALL_TESTS, test x$enable_installed_tests = xyes)
 
 AC_MSG_CHECKING([whether to enable garbage collector friendliness])
 AS_IF([test "x$enable_gc_friendly" = "xyes"], [
