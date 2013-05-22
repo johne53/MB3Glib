@@ -28,6 +28,8 @@
 
 #include "gdbus-tests.h"
 
+static const gchar *datapath;
+
 /* all tests rely on a shared mainloop */
 static GMainLoop *loop = NULL;
 
@@ -86,9 +88,11 @@ test_connection_flush (void)
       gboolean ret;
       gint exit_status;
       guint timeout_mainloop_id;
+      gchar *path;
 
       error = NULL;
-      ret = g_spawn_command_line_sync ("./gdbus-connection-flush-helper",
+      path = g_build_filename (datapath, "gdbus-connection-flush-helper", NULL);
+      ret = g_spawn_command_line_sync (path,
                                        NULL, /* stdout */
                                        NULL, /* stderr */
                                        &exit_status,
@@ -97,6 +101,7 @@ test_connection_flush (void)
       g_spawn_check_exit_status (exit_status, &error);
       g_assert_no_error (error);
       g_assert (ret);
+      g_free (path);
 
       timeout_mainloop_id = g_timeout_add (1000, test_connection_flush_on_timeout, GUINT_TO_POINTER (n));
       g_main_loop_run (loop);
@@ -115,6 +120,18 @@ test_connection_flush (void)
  * is fragmented when shoved across any transport
  */
 #define LARGE_MESSAGE_STRING_LENGTH (20*1024*1024)
+/* the test will fail if the service name has not appeared after this amount of seconds */
+#define LARGE_MESSAGE_TIMEOUT_SECONDS 10
+
+static gboolean
+large_message_timeout_cb (gpointer data)
+{
+  (void)data;
+
+  g_error ("Error: timeout waiting for dbus name to appear\n");
+
+  return FALSE;
+}
 
 static void
 large_message_on_name_appeared (GDBusConnection *connection,
@@ -127,6 +144,8 @@ large_message_on_name_appeared (GDBusConnection *connection,
   const gchar *reply;
   GVariant *result;
   guint n;
+
+  g_assert (g_source_remove (GPOINTER_TO_UINT (user_data)));
 
   request = g_new (gchar, LARGE_MESSAGE_STRING_LENGTH + 1);
   for (n = 0; n < LARGE_MESSAGE_STRING_LENGTH; n++)
@@ -169,18 +188,26 @@ static void
 test_connection_large_message (void)
 {
   guint watcher_id;
+  gchar *path;
+  guint timeout_id;
 
   session_bus_up ();
 
   /* this is safe; testserver will exit once the bus goes away */
-  g_assert (g_spawn_command_line_async ("./gdbus-testserver", NULL));
+  path = g_build_filename (datapath, "gdbus-testserver", NULL);
+  g_assert (g_spawn_command_line_async (path, NULL));
+  g_free (path);
+
+  timeout_id = g_timeout_add_seconds (LARGE_MESSAGE_TIMEOUT_SECONDS,
+                                      large_message_timeout_cb,
+                                      NULL);
 
   watcher_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
                                  "com.example.TestService",
                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
                                  large_message_on_name_appeared,
                                  large_message_on_name_vanished,
-                                 NULL,  /* user_data */
+                                 GUINT_TO_POINTER (timeout_id),  /* user_data */
                                  NULL); /* GDestroyNotify */
   g_main_loop_run (loop);
   g_bus_unwatch_name (watcher_id);
@@ -194,6 +221,11 @@ int
 main (int   argc,
       char *argv[])
 {
+  if (g_getenv ("G_TEST_DATA"))
+    datapath = g_getenv ("G_TEST_DATA");
+  else
+    datapath = SRCDIR;
+
   g_test_init (&argc, &argv, NULL);
 
   /* all the tests rely on a shared main loop */

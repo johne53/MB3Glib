@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "gtestutils.h"
+#include "gmessages-private.h"
 #include "gfileutils.h"
 
 #include <sys/types.h>
@@ -35,6 +36,9 @@
 #include <stdio.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
 #endif
 #ifdef G_OS_WIN32
 #include <io.h>
@@ -54,6 +58,7 @@
 #include "gslice.h"
 #include "gspawn.h"
 #include "glib-private.h"
+#include "gmessages-private.h"
 
 
 /**
@@ -759,6 +764,17 @@ parse_args (gint    *argc_p,
       else if (strcmp ("--GTestSubprocess", argv[i]) == 0)
         {
           test_in_subprocess = TRUE;
+          /* We typically expect these child processes to crash, and some
+           * tests spawn a *lot* of them.  Avoid spamming system crash
+           * collection programs such as systemd-coredump and abrt.
+           */
+#ifdef HAVE_SYS_RESOURCE_H
+          {
+            struct rlimit limit = { 0, 0 };
+            (void) setrlimit (RLIMIT_CORE, &limit);
+          }
+#endif
+          _g_log_set_exit_on_fatal ();
           argv[i] = NULL;
         }
       else if (strcmp ("-p", argv[i]) == 0 || strncmp ("-p=", argv[i], 3) == 0)
@@ -2027,7 +2043,7 @@ g_assertion_message (const char     *domain,
 
   g_test_log (G_TEST_LOG_ERROR, s, NULL, 0, NULL);
   g_free (s);
-  abort();
+  _g_log_abort ();
 }
 
 void
@@ -2236,7 +2252,7 @@ child_read (GIOChannel *io, GIOCondition cond, gpointer user_data)
   GIOStatus status;
   gsize nread, nwrote, total;
   gchar buf[4096];
-  int echo_fd = -1;
+  FILE *echo_file = NULL;
 
   status = g_io_channel_read_chars (io, buf, sizeof (buf), &nread, NULL);
   if (status == G_IO_STATUS_ERROR || status == G_IO_STATUS_EOF)
@@ -2257,25 +2273,22 @@ child_read (GIOChannel *io, GIOCondition cond, gpointer user_data)
     {
       g_string_append_len (data->stdout_str, buf, nread);
       if (data->echo_stdout)
-        echo_fd = STDOUT_FILENO;
+        echo_file = stdout;
     }
   else
     {
       g_string_append_len (data->stderr_str, buf, nread);
       if (data->echo_stderr)
-        echo_fd = STDERR_FILENO;
+        echo_file = stderr;
     }
 
-  if (echo_fd != -1)
+  if (echo_file)
     {
       for (total = 0; total < nread; total += nwrote)
         {
-          do
-            nwrote = write (echo_fd, buf + total, nread - total);
-          while (nwrote == -1 && errno == EINTR);
-          if (nwrote == -1)
+          nwrote = fwrite (buf + total, 1, nread - total, echo_file);
+          if (nwrote == 0)
             g_error ("write failed: %s", g_strerror (errno));
-          total += nwrote;
         }
     }
 

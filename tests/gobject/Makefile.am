@@ -60,20 +60,37 @@ test_programs =					\
 	defaultiface				\
 	dynamictype				\
 	override				\
-	performance				\
-	performance-threaded			\
 	singleton				\
 	references
+
+performance_programs = 				\
+	performance				\
+	performance-threaded
 
 performance_LDADD = $(libgobject) $(libgthread)
 performance_threaded_LDADD = $(libgobject) $(libgthread)
 check_PROGRAMS = $(test_programs)
+noinst_PROGRAMS = $(performance_programs)
 
-TESTS = $(test_programs)
+TESTS = $(test_programs) $(performance_programs)
 TESTS_ENVIRONMENT = srcdir=$(srcdir) \
 	LIBCHARSET_ALIAS_DIR=$(top_builddir)/glib/libcharset \
 	MALLOC_CHECK_=2	\
 	MALLOC_PERTURB_=$$(($${RANDOM:-256} % 256))
+
+if BUILDOPT_INSTALL_TESTS
+insttestdir = $(pkglibexecdir)/installed-tests
+insttest_PROGRAMS = $(test_programs)
+
+testmetadir = $(datadir)/installed-tests/$(PACKAGE)
+testmeta_DATA = $(test_programs:=.test)
+
+%.test: % Makefile
+	$(AM_V_GEN) (echo '[Test]' > $@.tmp; \
+	 echo 'Type=session' >> $@.tmp; \
+	 echo 'Exec=env G_TEST_DATA=$(pkglibexecdir)/installed-tests $(pkglibexecdir)/installed-tests/$<' >> $@.tmp; \
+	 mv $@.tmp $@)
+endif
 
 ########################################################################
 
@@ -94,3 +111,5 @@ distclean-local:
 	if test $(srcdir) = .; then :; else	\
 	    rm -f $(BUILT_EXTRA_DIST);		\
 	fi
+
+

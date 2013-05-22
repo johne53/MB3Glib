@@ -59,7 +59,7 @@
 #include <locale.h>
 #include <errno.h>
 
-#include "gmessages.h"
+#include "gmessages-private.h"
 
 #include "glib-init.h"
 #include "gbacktrace.h"
@@ -238,12 +238,23 @@ static GLogDomain    *g_log_domains = NULL;
 static GPrintFunc     glib_print_func = NULL;
 static GPrintFunc     glib_printerr_func = NULL;
 static GPrivate       g_log_depth;
+static gboolean       exit_on_fatal;
 static GLogFunc       default_log_func = g_log_default_handler;
 static gpointer       default_log_data = NULL;
 static GTestLogFatalFunc fatal_log_func = NULL;
 static gpointer          fatal_log_data;
 
 /* --- functions --- */
+
+void
+_g_log_abort (void)
+{
+  if (exit_on_fatal)
+    _exit (1);
+  else
+    abort ();
+}
+
 #ifdef G_OS_WIN32
 #  include <windows.h>
 static gboolean win32_keep_fatal_message = FALSE;
@@ -641,7 +652,7 @@ g_log_remove_handler (const gchar *log_domain,
 	}
     } 
   g_mutex_unlock (&g_messages_lock);
-  g_warning ("%s: could not find handler with id `%d' for domain \"%s\"",
+  g_warning ("%s: could not find handler with id '%d' for domain \"%s\"",
 	     G_STRLOC, handler_id, log_domain);
 }
 
@@ -955,7 +966,11 @@ g_logv (const gchar   *log_domain,
                 && !fatal_log_func (log_domain, test_level, msg, fatal_log_data);
             }
 
-	  if ((test_level & G_LOG_FLAG_FATAL) && !masquerade_fatal)
+          if ((test_level & G_LOG_FLAG_FATAL) && exit_on_fatal && !masquerade_fatal)
+            {
+              _g_log_abort ();
+            }
+	  else if ((test_level & G_LOG_FLAG_FATAL) && !masquerade_fatal)
             {
 #ifdef G_OS_WIN32
               if (win32_keep_fatal_message)
@@ -1018,7 +1033,7 @@ g_return_if_fail_warning (const char *log_domain,
 {
   g_log (log_domain,
 	 G_LOG_LEVEL_CRITICAL,
-	 "%s: assertion `%s' failed",
+	 "%s: assertion '%s' failed",
 	 pretty_function,
 	 expression);
 }
@@ -1060,7 +1075,7 @@ g_assert_warning (const char *log_domain,
 	 line, 
 	 pretty_function,
 	 expression);
-  abort ();
+  _g_log_abort ();
 }
 
 /**
@@ -1551,4 +1566,10 @@ g_printf_string_upper_bound (const gchar *format,
 {
   gchar c;
   return _g_vsnprintf (&c, 1, format, args) + 1;
+}
+
+void
+_g_log_set_exit_on_fatal (void)
+{
+  exit_on_fatal = TRUE;
 }
