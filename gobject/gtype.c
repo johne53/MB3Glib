@@ -398,11 +398,11 @@ lookup_type_node_I (register GType utype)
 /**
  * g_type_get_type_registration_serial:
  *
- * Returns an opaque serial number that represents the state of the set of registered
- * types. Any time a type is registred this serial changes, which means you can
- * cache information based on type lookups (such as g_type_from_name) and know if
- * the cache is still valid at a later time by comparing the current serial with
- * the one at the type lookup.
+ * Returns an opaque serial number that represents the state of the set of
+ * registered types. Any time a type is registered this serial changes,
+ * which means you can cache information based on type lookups (such as
+ * g_type_from_name()) and know if the cache is still valid at a later
+ * time by comparing the current serial with the one at the type lookup.
  *
  * Since: 2.36
  *
@@ -4700,4 +4700,14 @@ g_type_ensure (GType type)
    */
   if (G_UNLIKELY (type == (GType)-1))
     g_error ("can't happen");
+}
+
+gboolean
+g_type_is_in_init (GType type)
+{
+  TypeNode *node;
+
+  node = lookup_type_node_I (type);
+
+  return node->data->class.init_state != INITIALIZED;
 }

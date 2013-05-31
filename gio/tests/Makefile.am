@@ -16,6 +16,7 @@ AM_CPPFLAGS = 				\
 	-I$(top_srcdir)/gio		\
 	$(DBUS1_CFLAGS)			\
 	-DSRCDIR=\""$(srcdir)"\" 	\
+	-DBUILDDIR=\""$(abs_builddir)"\" 	\
 	-DTEST_SERVICES=\""$(abs_top_builddir)/gio/tests/services"\"
 
 AM_CFLAGS = $(GLIB_WARN_CFLAGS)
@@ -429,7 +430,6 @@ desktop_test_files = \
 
 EXTRA_DIST += \
 	socket-common.c			\
-	org.gtk.test.gschema		\
 	org.gtk.test.gschema.xml	\
 	de.po				\
 	$(schema_test_files)		\
@@ -526,10 +526,10 @@ xfail_tests = desktop-app-info.test
 developer_only_tests = gsettings.test
 testmeta_DATA = $(filter-out $(xfail_tests) $(developer_only_tests),$(test_progs:=.test))
 
-%.test: % Makefile
+%.test: %$(EXEEXT) Makefile
 	$(AM_V_GEN) (echo '[Test]' > $@.tmp; \
 	 echo 'Type=session' >> $@.tmp; \
-	 echo 'Exec=env G_TEST_DATA=$(pkglibexecdir)/installed-tests $(pkglibexecdir)/installed-tests/$<' >> $@.tmp; \
+	 echo 'Exec=$(pkglibexecdir)/installed-tests/$<' >> $@.tmp; \
 	 mv $@.tmp $@)
 
 %.desktop.insttest: %.desktop

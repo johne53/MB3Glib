@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [37])
-m4_define([glib_micro_version], [1])
+m4_define([glib_micro_version], [2])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -2869,7 +2869,7 @@ AS_IF([ test "x$use_gcov" = "xyes"], [
     AC_MSG_ERROR([ccache must be disabled when --enable-gcov option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
   fi
 
-  ltp_version_list="1.6 1.7 1.8 1.9"
+  ltp_version_list="1.6 1.7 1.8 1.9 1.10"
   AC_CHECK_PROG(LTP, lcov, lcov)
   AC_CHECK_PROG(LTP_GENHTML, genhtml, genhtml)
 

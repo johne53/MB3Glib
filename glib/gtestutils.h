@@ -372,6 +372,23 @@ void    g_test_assert_expected_messages_internal (const char     *domain,
                                                   int             line,
                                                   const char     *func);
 
+typedef enum
+{
+  G_TEST_DIST,
+  G_TEST_BUILT
+} GTestFileType;
+
+GLIB_AVAILABLE_IN_2_38
+gchar * g_test_build_filename                    (GTestFileType   file_type,
+                                                  const gchar    *first_path,
+                                                  ...) G_GNUC_NULL_TERMINATED;
+GLIB_AVAILABLE_IN_2_38
+const gchar *g_test_get_dir                      (GTestFileType   file_type);
+GLIB_AVAILABLE_IN_2_38
+const gchar *g_test_get_filename                 (GTestFileType   file_type,
+                                                  const gchar    *first_path,
+                                                  ...) G_GNUC_NULL_TERMINATED;
+
 #define g_test_assert_expected_messages() g_test_assert_expected_messages_internal (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC)
 
 G_END_DECLS

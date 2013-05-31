@@ -540,8 +540,10 @@ g_object_class_install_property (GObjectClass *class,
   g_return_if_fail (G_IS_PARAM_SPEC (pspec));
 
   if (CLASS_HAS_DERIVED_CLASS (class))
-    g_error ("Attempt to add property %s::%s to class after it was derived",
-	     G_OBJECT_CLASS_NAME (class), pspec->name);
+    g_error ("Attempt to add property %s::%s to class after it was derived", G_OBJECT_CLASS_NAME (class), pspec->name);
+
+  if (!g_type_is_in_init (G_OBJECT_CLASS_TYPE (class)))
+    g_critical ("Attempt to add property %s::%s after class was initialised", G_OBJECT_CLASS_NAME (class), pspec->name);
 
   class->flags |= CLASS_HAS_PROPS_FLAG;
 
@@ -652,6 +654,9 @@ g_object_class_install_properties (GObjectClass  *oclass,
   if (CLASS_HAS_DERIVED_CLASS (oclass))
     g_error ("Attempt to add properties to %s after it was derived",
              G_OBJECT_CLASS_NAME (oclass));
+
+  if (!g_type_is_in_init (G_OBJECT_CLASS_TYPE (oclass)))
+    g_critical ("Attempt to add properties %s after it was initialised", G_OBJECT_CLASS_NAME (oclass));
 
   oclass_type = G_OBJECT_CLASS_TYPE (oclass);
   parent_type = g_type_parent (oclass_type);
@@ -3335,7 +3340,7 @@ g_object_dup_qdata (GObject        *object,
  *
  * If the previous value was replaced then ownership of the
  * old value (@oldval) is passed to the caller, including
- * the registred destroy notify for it (passed out in @old_destroy).
+ * the registered destroy notify for it (passed out in @old_destroy).
  * Its up to the caller to free this as he wishes, which may
  * or may not include using @old_destroy as sometimes replacement
  * should not destroy the object in the normal way.
@@ -3544,7 +3549,7 @@ g_object_dup_data (GObject        *object,
  *
  * If the previous value was replaced then ownership of the
  * old value (@oldval) is passed to the caller, including
- * the registred destroy notify for it (passed out in @old_destroy).
+ * the registered destroy notify for it (passed out in @old_destroy).
  * Its up to the caller to free this as he wishes, which may
  * or may not include using @old_destroy as sometimes replacement
  * should not destroy the object in the normal way.

@@ -544,14 +544,56 @@ _g_local_file_output_stream_new (int fd)
   return G_FILE_OUTPUT_STREAM (stream);
 }
 
+static void
+set_error_from_open_errno (const char *filename,
+                           GError    **error)
+{
+  int errsv = errno;
+  
+  if (errsv == EINVAL)
+    /* This must be an invalid filename, on e.g. FAT */
+    g_set_error_literal (error, G_IO_ERROR,
+                         G_IO_ERROR_INVALID_FILENAME,
+                         _("Invalid filename"));
+  else
+    {
+      char *display_name = g_filename_display_name (filename);
+      g_set_error (error, G_IO_ERROR,
+                   g_io_error_from_errno (errsv),
+                   _("Error opening file '%s': %s"),
+		       display_name, g_strerror (errsv));
+      g_free (display_name);
+    }
+}
+
+static GFileOutputStream *
+output_stream_open (const char    *filename,
+                    gint           open_flags,
+                    guint          mode,
+                    GCancellable  *cancellable,
+                    GError       **error)
+{
+  GLocalFileOutputStream *stream;
+  gint fd;
+
+  fd = g_open (filename, open_flags, mode);
+  if (fd == -1)
+    {
+      set_error_from_open_errno (filename, error);
+      return NULL;
+    }
+  
+  stream = g_object_new (G_TYPE_LOCAL_FILE_OUTPUT_STREAM, NULL);
+  stream->priv->fd = fd;
+  return G_FILE_OUTPUT_STREAM (stream);
+}
+
 GFileOutputStream *
 _g_local_file_output_stream_open  (const char        *filename,
 				   gboolean          readable,
 				   GCancellable      *cancellable,
 				   GError           **error)
 {
-  GLocalFileOutputStream *stream;
-  int fd;
   int open_flags;
 
   if (g_cancellable_set_error_if_cancelled (cancellable, error))
@@ -563,31 +605,7 @@ _g_local_file_output_stream_open  (const char        *filename,
   else
     open_flags |= O_WRONLY;
 
-  fd = g_open (filename, open_flags, 0666);
-  if (fd == -1)
-    {
-      int errsv = errno;
-
-      if (errsv == EINVAL)
-	/* This must be an invalid filename, on e.g. FAT */
-	g_set_error_literal (error, G_IO_ERROR,
-                             G_IO_ERROR_INVALID_FILENAME,
-                             _("Invalid filename"));
-      else
-	{
-	  char *display_name = g_filename_display_name (filename);
-	  g_set_error (error, G_IO_ERROR,
-		       g_io_error_from_errno (errsv),
-		       _("Error opening file '%s': %s"),
-		       display_name, g_strerror (errsv));
-	  g_free (display_name);
-	}
-      return NULL;
-    }
-  
-  stream = g_object_new (G_TYPE_LOCAL_FILE_OUTPUT_STREAM, NULL);
-  stream->priv->fd = fd;
-  return G_FILE_OUTPUT_STREAM (stream);
+  return output_stream_open (filename, open_flags, 0666, cancellable, error);
 }
 
 GFileOutputStream *
@@ -597,9 +615,7 @@ _g_local_file_output_stream_create  (const char        *filename,
 				     GCancellable      *cancellable,
 				     GError           **error)
 {
-  GLocalFileOutputStream *stream;
   int mode;
-  int fd;
   int open_flags;
 
   if (g_cancellable_set_error_if_cancelled (cancellable, error))
@@ -616,31 +632,7 @@ _g_local_file_output_stream_create  (const char        *filename,
   else
     open_flags |= O_WRONLY;
 
-  fd = g_open (filename, open_flags, mode);
-  if (fd == -1)
-    {
-      int errsv = errno;
-
-      if (errsv == EINVAL)
-	/* This must be an invalid filename, on e.g. FAT */
-	g_set_error_literal (error, G_IO_ERROR,
-                             G_IO_ERROR_INVALID_FILENAME,
-                             _("Invalid filename"));
-      else
-	{
-	  char *display_name = g_filename_display_name (filename);
-	  g_set_error (error, G_IO_ERROR,
-		       g_io_error_from_errno (errsv),
-		       _("Error opening file '%s': %s"),
-		       display_name, g_strerror (errsv));
-	  g_free (display_name);
-	}
-      return NULL;
-    }
-  
-  stream = g_object_new (G_TYPE_LOCAL_FILE_OUTPUT_STREAM, NULL);
-  stream->priv->fd = fd;
-  return G_FILE_OUTPUT_STREAM (stream);
+  return output_stream_open (filename, open_flags, mode, cancellable, error);
 }
 
 GFileOutputStream *
@@ -649,9 +641,7 @@ _g_local_file_output_stream_append  (const char        *filename,
 				     GCancellable      *cancellable,
 				     GError           **error)
 {
-  GLocalFileOutputStream *stream;
   int mode;
-  int fd;
 
   if (g_cancellable_set_error_if_cancelled (cancellable, error))
     return NULL;
@@ -661,32 +651,8 @@ _g_local_file_output_stream_append  (const char        *filename,
   else
     mode = 0666;
 
-  fd = g_open (filename, O_CREAT | O_APPEND | O_WRONLY | O_BINARY, mode);
-  if (fd == -1)
-    {
-      int errsv = errno;
-
-      if (errsv == EINVAL)
-	/* This must be an invalid filename, on e.g. FAT */
-	g_set_error_literal (error, G_IO_ERROR,
-                             G_IO_ERROR_INVALID_FILENAME,
-                             _("Invalid filename"));
-      else
-	{
-	  char *display_name = g_filename_display_name (filename);
-	  g_set_error (error, G_IO_ERROR,
-		       g_io_error_from_errno (errsv),
-		       _("Error opening file '%s': %s"),
-		       display_name, g_strerror (errsv));
-	  g_free (display_name);
-	}
-      return NULL;
-    }
-  
-  stream = g_object_new (G_TYPE_LOCAL_FILE_OUTPUT_STREAM, NULL);
-  stream->priv->fd = fd;
-  
-  return G_FILE_OUTPUT_STREAM (stream);
+  return output_stream_open (filename, O_CREAT | O_APPEND | O_WRONLY | O_BINARY, mode,
+                             cancellable, error);
 }
 
 static char *
@@ -1152,22 +1118,7 @@ _g_local_file_output_stream_replace (const char        *filename,
     }
   else if (fd == -1)
     {
-      int errsv = errno;
-
-      if (errsv == EINVAL)
-	/* This must be an invalid filename, on e.g. FAT */
-	g_set_error_literal (error, G_IO_ERROR,
-                             G_IO_ERROR_INVALID_FILENAME,
-                             _("Invalid filename"));
-      else
-	{
-	  char *display_name = g_filename_display_name (filename);
-	  g_set_error (error, G_IO_ERROR,
-		       g_io_error_from_errno (errsv),
-		       _("Error opening file '%s': %s"),
-		       display_name, g_strerror (errsv));
-	  g_free (display_name);
-	}
+      set_error_from_open_errno (filename, error);
       return NULL;
     }
   

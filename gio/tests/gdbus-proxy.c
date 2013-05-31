@@ -26,8 +26,6 @@
 
 #include "gdbus-tests.h"
 
-static const gchar *datapath;
-
 /* all tests rely on a shared mainloop */
 static GMainLoop *loop = NULL;
 
@@ -764,7 +762,6 @@ test_proxy (void)
   GDBusProxy *proxy;
   GDBusConnection *connection;
   GError *error;
-  gchar *path;
 
   error = NULL;
   connection = g_bus_get_sync (G_BUS_TYPE_SESSION,
@@ -783,9 +780,7 @@ test_proxy (void)
   g_assert_no_error (error);
 
   /* this is safe; testserver will exit once the bus goes away */
-  path = g_build_filename (datapath, "gdbus-testserver", NULL);
-  g_assert (g_spawn_command_line_async (path, NULL));
-  g_free (path);
+  g_assert (g_spawn_command_line_async (g_test_get_filename (G_TEST_BUILT, "gdbus-testserver", NULL), NULL));
 
   _g_assert_property_notify (proxy, "g-name-owner");
 
@@ -836,8 +831,6 @@ fail_test (gpointer user_data)
 static void
 test_async (void)
 {
-  gchar *path;
-
   g_dbus_proxy_new_for_bus (G_BUS_TYPE_SESSION,
                             G_DBUS_PROXY_FLAGS_NONE,
                             NULL,                      /* GDBusInterfaceInfo */
@@ -849,9 +842,7 @@ test_async (void)
                             NULL);
 
   /* this is safe; testserver will exit once the bus goes away */
-  path = g_build_filename (datapath, "gdbus-testserver", NULL);
-  g_assert (g_spawn_command_line_async (path, NULL));
-  g_free (path);
+  g_assert (g_spawn_command_line_async (g_test_get_filename (G_TEST_BUILT, "gdbus-testserver", NULL), NULL));
 
   g_timeout_add (10000, fail_test, NULL);
   g_main_loop_run (loop);
@@ -920,11 +911,6 @@ main (int   argc,
 {
   gint ret;
   GDBusNodeInfo *introspection_data = NULL;
-
-  if (g_getenv ("G_TEST_DATA"))
-    datapath = g_getenv ("G_TEST_DATA");
-  else
-    datapath = SRCDIR;
 
   g_test_init (&argc, &argv, NULL);
 

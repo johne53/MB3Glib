@@ -11,19 +11,14 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-static const gchar *datapath;
-
 static void
 test_basic (void)
 {
   GMappedFile *file;
   GError *error;
-  gchar *path;
 
   error = NULL;
-  path = g_build_filename (datapath, "empty", NULL);
-  file = g_mapped_file_new (path, FALSE, &error);
-  g_free (path);
+  file = g_mapped_file_new (g_test_get_filename (G_TEST_DIST, "empty", NULL), FALSE, &error);
   g_assert_no_error (error);
 
   g_mapped_file_ref (file);
@@ -37,12 +32,9 @@ test_empty (void)
 {
   GMappedFile *file;
   GError *error;
-  gchar *path;
 
   error = NULL;
-  path = g_build_filename (datapath, "empty", NULL);
-  file = g_mapped_file_new (path, FALSE, &error);
-  g_free (path);
+  file = g_mapped_file_new (g_test_get_filename (G_TEST_DIST, "empty", NULL), FALSE, &error);
   g_assert_no_error (error);
 
   g_assert (g_mapped_file_get_contents (file) == NULL);
@@ -87,13 +79,11 @@ test_writable (void)
   gsize len;
   const gchar *old = "MMMMMMMMMMMMMMMMMMMMMMMMM";
   const gchar *new = "abcdefghijklmnopqrstuvxyz";
-  char *srcpath;
   gchar *tmp_copy_path;
 
-  srcpath = g_build_filename (datapath, "4096-random-bytes", NULL);
   tmp_copy_path = g_build_filename (g_get_user_runtime_dir (), "glib-test-4096-random-bytes", NULL);
 
-  g_file_get_contents (srcpath, &contents, &len, &error);
+  g_file_get_contents (g_test_get_filename (G_TEST_DIST, "4096-random-bytes", NULL), &contents, &len, &error);
   g_assert_no_error (error);
   g_file_set_contents (tmp_copy_path, contents, len, &error);
   g_assert_no_error (error);
@@ -120,7 +110,6 @@ test_writable (void)
 
   g_mapped_file_free (file);
 
-  g_free (srcpath);
   g_free (tmp_copy_path);
 }
 
@@ -134,13 +123,11 @@ test_writable_fd (void)
   const gchar *new = "abcdefghijklmnopqrstuvxyz";
   gsize len;
   int fd;
-  char *srcpath;
   gchar *tmp_copy_path;
 
-  srcpath = g_build_filename (datapath, "4096-random-bytes", NULL);
   tmp_copy_path = g_build_filename (g_get_user_runtime_dir (), "glib-test-4096-random-bytes", NULL);
 
-  g_file_get_contents (srcpath, &contents, &len, &error);
+  g_file_get_contents (g_test_get_filename (G_TEST_DIST, "4096-random-bytes", NULL), &contents, &len, &error);
   g_assert_no_error (error);
   g_file_set_contents (tmp_copy_path, contents, len, &error);
   g_assert_no_error (error);
@@ -173,7 +160,6 @@ if ((-1) != fd) /* Added by JE - 07-10-2010 */
 
   g_mapped_file_free (file);
 
-  g_free (srcpath);
   g_free (tmp_copy_path);
 }
 
@@ -183,12 +169,9 @@ test_gbytes (void)
   GMappedFile *file;
   GBytes *bytes;
   GError *error;
-  gchar *path;
 
   error = NULL;
-  path = g_build_filename (datapath, "empty", NULL);
-  file = g_mapped_file_new (path, FALSE, &error);
-  g_free (path);
+  file = g_mapped_file_new (g_test_get_filename (G_TEST_DIST, "empty", NULL), FALSE, &error);
   g_assert_no_error (error);
 
   bytes = g_mapped_file_get_bytes (file);
@@ -201,11 +184,6 @@ test_gbytes (void)
 int
 main (int argc, char *argv[])
 {
-  if (g_getenv ("G_TEST_DATA"))
-    datapath = g_getenv ("G_TEST_DATA");
-  else
-    datapath = SRCDIR;
-
   g_test_init (&argc, &argv, NULL);
 
   g_test_add_func ("/mappedfile/basic", test_basic);

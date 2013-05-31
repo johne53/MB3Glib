@@ -275,6 +275,7 @@ enum {
   COMPLEX_SIGNAL_EMPTY,
   COMPLEX_SIGNAL_GENERIC,
   COMPLEX_SIGNAL_GENERIC_EMPTY,
+  COMPLEX_SIGNAL_ARGS,
   COMPLEX_LAST_SIGNAL
 };
 
@@ -380,6 +381,15 @@ complex_object_class_init (ComplexObjectClass *class)
 		  NULL, NULL,
 		  NULL,
 		  G_TYPE_NONE, 0);
+
+  complex_signals[COMPLEX_SIGNAL_ARGS] =
+    g_signal_new ("signal-args",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (ComplexObjectClass, signal),
+                  NULL, NULL,
+                  g_cclosure_marshal_VOID__UINT_POINTER,
+                  G_TYPE_NONE, 2, G_TYPE_UINT, G_TYPE_POINTER);
 
   g_object_class_install_property (object_class,
 				   PROP_VAL1,
@@ -599,7 +609,7 @@ test_type_check_teardown (PerformanceTest *test,
 }
 
 /*************************************************************
- * Test signal unhandled emissions performance
+ * Test signal emissions performance (common code)
  *************************************************************/
 
 #define NUM_EMISSIONS_PER_ROUND 10000
@@ -609,6 +619,34 @@ struct EmissionTest {
   int n_checks;
   int signal_id;
 };
+
+static void
+test_emission_run (PerformanceTest *test,
+                             gpointer _data)
+{
+  struct EmissionTest *data = _data;
+  GObject *object = data->object;
+  int i;
+
+  for (i = 0; i < data->n_checks; i++)
+    g_signal_emit (object, data->signal_id, 0);
+}
+
+static void
+test_emission_run_args (PerformanceTest *test,
+                        gpointer _data)
+{
+  struct EmissionTest *data = _data;
+  GObject *object = data->object;
+  int i;
+
+  for (i = 0; i < data->n_checks; i++)
+    g_signal_emit (object, data->signal_id, 0, 0, NULL);
+}
+
+/*************************************************************
+ * Test signal unhandled emissions performance
+ *************************************************************/
 
 static gpointer
 test_emission_unhandled_setup (PerformanceTest *test)
@@ -629,20 +667,6 @@ test_emission_unhandled_init (PerformanceTest *test,
   struct EmissionTest *data = _data;
 
   data->n_checks = factor * NUM_EMISSIONS_PER_ROUND;
-}
-
-static void
-test_emission_unhandled_run (PerformanceTest *test,
-                             gpointer _data)
-{
-  struct EmissionTest *data = _data;
-  GObject *object = data->object;
-  int i;
-
-  for (i = 0; i < data->n_checks; i++)
-    g_signal_emit (object,
-		   data->signal_id,
-		   0);
 }
 
 static void
@@ -701,6 +725,9 @@ test_emission_handled_setup (PerformanceTest *test)
   g_signal_connect (data->object, "signal-generic-empty",
                     G_CALLBACK (test_emission_handled_handler),
                     NULL);
+  g_signal_connect (data->object, "signal-args",
+                    G_CALLBACK (test_emission_handled_handler),
+                    NULL);
 
   return data;
 }
@@ -713,20 +740,6 @@ test_emission_handled_init (PerformanceTest *test,
   struct EmissionTest *data = _data;
 
   data->n_checks = factor * NUM_EMISSIONS_PER_ROUND;
-}
-
-static void
-test_emission_handled_run (PerformanceTest *test,
-                           gpointer _data)
-{
-  struct EmissionTest *data = _data;
-  GObject *object = data->object;
-  int i;
-
-  for (i = 0; i < data->n_checks; i++)
-    g_signal_emit (object,
-		   data->signal_id,
-		   0);
 }
 
 static void
@@ -796,7 +809,7 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL),
     test_emission_unhandled_setup,
     test_emission_unhandled_init,
-    test_emission_unhandled_run,
+    test_emission_run,
     test_emission_unhandled_finish,
     test_emission_unhandled_teardown,
     test_emission_unhandled_print_result
@@ -806,7 +819,7 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL_EMPTY),
     test_emission_unhandled_setup,
     test_emission_unhandled_init,
-    test_emission_unhandled_run,
+    test_emission_run,
     test_emission_unhandled_finish,
     test_emission_unhandled_teardown,
     test_emission_unhandled_print_result
@@ -816,7 +829,7 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL_GENERIC),
     test_emission_unhandled_setup,
     test_emission_unhandled_init,
-    test_emission_unhandled_run,
+    test_emission_run,
     test_emission_unhandled_finish,
     test_emission_unhandled_teardown,
     test_emission_unhandled_print_result
@@ -826,7 +839,17 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL_GENERIC_EMPTY),
     test_emission_unhandled_setup,
     test_emission_unhandled_init,
-    test_emission_unhandled_run,
+    test_emission_run,
+    test_emission_unhandled_finish,
+    test_emission_unhandled_teardown,
+    test_emission_unhandled_print_result
+  },
+  {
+    "emit-unhandled-args",
+    GINT_TO_POINTER (COMPLEX_SIGNAL_ARGS),
+    test_emission_unhandled_setup,
+    test_emission_unhandled_init,
+    test_emission_run_args,
     test_emission_unhandled_finish,
     test_emission_unhandled_teardown,
     test_emission_unhandled_print_result
@@ -836,7 +859,7 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL),
     test_emission_handled_setup,
     test_emission_handled_init,
-    test_emission_handled_run,
+    test_emission_run,
     test_emission_handled_finish,
     test_emission_handled_teardown,
     test_emission_handled_print_result
@@ -846,7 +869,7 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL_EMPTY),
     test_emission_handled_setup,
     test_emission_handled_init,
-    test_emission_handled_run,
+    test_emission_run,
     test_emission_handled_finish,
     test_emission_handled_teardown,
     test_emission_handled_print_result
@@ -856,7 +879,7 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL_GENERIC),
     test_emission_handled_setup,
     test_emission_handled_init,
-    test_emission_handled_run,
+    test_emission_run,
     test_emission_handled_finish,
     test_emission_handled_teardown,
     test_emission_handled_print_result
@@ -866,7 +889,17 @@ static PerformanceTest tests[] = {
     GINT_TO_POINTER (COMPLEX_SIGNAL_GENERIC_EMPTY),
     test_emission_handled_setup,
     test_emission_handled_init,
-    test_emission_handled_run,
+    test_emission_run,
+    test_emission_handled_finish,
+    test_emission_handled_teardown,
+    test_emission_handled_print_result
+  },
+  {
+    "emit-handled-args",
+    GINT_TO_POINTER (COMPLEX_SIGNAL_ARGS),
+    test_emission_handled_setup,
+    test_emission_handled_init,
+    test_emission_run_args,
     test_emission_handled_finish,
     test_emission_handled_teardown,
     test_emission_handled_print_result
