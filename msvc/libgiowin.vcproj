@@ -44,7 +44,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;.."
-				PreprocessorDefinitions="_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
+				PreprocessorDefinitions="LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -145,81 +145,6 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)\$(ProjectName).lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug 32 with Secure SCL|Win32"
-			OutputDirectory="$(ProjectDir)$(ConfigurationName)\lib"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
-			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
-				Optimization="0"
-				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;.."
-				PreprocessorDefinitions="_SECURE_SCL=1;_HAS_ITERATOR_DEBUGGING=1;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				StructMemberAlignment="0"
-				RuntimeTypeInfo="false"
-				PrecompiledHeaderFile=""
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="2057"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)SCLD.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -343,15 +268,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -391,15 +307,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -423,15 +330,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -471,15 +369,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -503,15 +392,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

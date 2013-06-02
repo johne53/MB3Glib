@@ -46,7 +46,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..;../glib"
-				PreprocessorDefinitions="_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;GLIB_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib\&quot;;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
+				PreprocessorDefinitions="LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;GLIB_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib\&quot;;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -147,82 +147,6 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)\$(ProjectName).lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug 32 with Secure SCL|Win32"
-			OutputDirectory="$(ProjectDir)$(ConfigurationName)\lib"
-			IntermediateDirectory="$(ProjectDir)$(ConfigurationName)\obj\$(ProjectName)"
-			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops;.\glib.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				Description="Prepare configuration files"
-				CommandLine="cd ..&#x0D;&#x0A;copy /Y &quot;config.h.win32&quot; &quot;config.h&quot;&#x0D;&#x0A;copy /Y &quot;glib\glibconfig.h.win32&quot; &quot;glibconfig.h&quot;&#x0D;&#x0A;copy /Y &quot;glib\glibconfig.h.win32&quot; &quot;$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h&quot;&#x0D;&#x0A;"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
-				Optimization="0"
-				AdditionalIncludeDirectories=".;..;../glib"
-				PreprocessorDefinitions="_SECURE_SCL=1;_HAS_ITERATOR_DEBUGGING=1;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;GLIB_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib\&quot;;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				StructMemberAlignment="0"
-				RuntimeTypeInfo="false"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="2057"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\$(ProjectName)SCLD.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -347,15 +271,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -379,15 +294,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -427,15 +333,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -459,15 +356,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -507,15 +395,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -539,15 +418,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -587,15 +457,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -619,15 +480,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -667,15 +519,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -699,15 +542,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -747,15 +581,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -779,15 +604,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -827,15 +643,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release 32 with Debugging Capability|Win32"
 					>
 					<Tool
@@ -859,15 +666,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug 32 with Secure SCL|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

@@ -45,7 +45,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\src\glib;&quot;$(GenericLibraryFolder)\glib-2.0\include&quot;"
-				PreprocessorDefinitions="_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0;WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
+				PreprocessorDefinitions="WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -96,87 +96,6 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy /Y &quot;$(OutDir)\$(TargetName).exe&quot; &quot;$(Debug32TestSuiteFolder)\$(TargetName).exe&quot;"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug 32 with Secure SCL|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
-			IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
-			ConfigurationType="1"
-			InheritedPropertySheets=".\glib.vsprops;$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\src\glib;&quot;$(GenericLibraryFolder)\glib-2.0\include&quot;"
-				PreprocessorDefinitions="_SECURE_SCL=1;_HAS_ITERATOR_DEBUGGING=1;WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)SCLD.lib $(DllPrefix)gobject$(DllSuffix)SCLD.lib"
-				OutputFile="$(OutDir)\$(ProjectName)SCLD.exe"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-				UseFAT32Workaround="true"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;$(OutDir)\$(TargetName).exe&quot; &quot;$(Debug32TestSuiteFolder)\$(TargetName).exe&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
