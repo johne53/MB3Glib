@@ -60,6 +60,7 @@
 #include "gfileoutputstream.h"
 #include "glocalfileoutputstream.h"
 #include "glocalfileiostream.h"
+#include "glocalfile.h"
 #include "gcancellable.h"
 #include "gasyncresult.h"
 #include "gioerror.h"
@@ -2510,7 +2511,7 @@ copy_symlink (GFile           *destination,
   return TRUE;
 }
 
-static GInputStream *
+static GFileInputStream *
 open_source_for_copy (GFile           *source,
                       GFile           *destination,
                       GFileCopyFlags   flags,
@@ -2518,14 +2519,14 @@ open_source_for_copy (GFile           *source,
                       GError         **error)
 {
   GError *my_error;
-  GInputStream *in;
+  GFileInputStream *ret;
   GFileInfo *info;
   GFileType file_type;
 
   my_error = NULL;
-  in = (GInputStream *)g_file_read (source, cancellable, &my_error);
-  if (in != NULL)
-    return in;
+  ret = g_file_read (source, cancellable, &my_error);
+  if (ret != NULL)
+    return ret;
 
   /* There was an error opening the source, try to set a good error for it: */
   if (my_error->domain == G_IO_ERROR && my_error->code == G_IO_ERROR_IS_DIRECTORY)
@@ -2588,26 +2589,48 @@ open_source_for_copy (GFile           *source,
 
 static gboolean
 should_copy (GFileAttributeInfo *info,
-             gboolean            as_move,
+             gboolean            copy_all_attributes,
              gboolean            skip_perms)
 {
   if (skip_perms && strcmp(info->name, "unix::mode") == 0)
         return FALSE;
 
-  if (as_move)
+  if (copy_all_attributes)
     return info->flags & G_FILE_ATTRIBUTE_INFO_COPY_WHEN_MOVED;
   return info->flags & G_FILE_ATTRIBUTE_INFO_COPY_WITH_FILE;
 }
 
-static char *
-build_attribute_list_for_copy (GFileAttributeInfoList *attributes,
-                               GFileAttributeInfoList *namespaces,
-                               gboolean                as_move,
-                               gboolean                skip_perms)
+static gboolean
+build_attribute_list_for_copy (GFile                  *file,
+                               GFileCopyFlags          flags,
+                               char                  **out_attributes,
+                               GCancellable           *cancellable,
+                               GError                **error)
 {
+  gboolean ret = FALSE;
+  GFileAttributeInfoList *attributes = NULL, *namespaces = NULL;
   GString *s;
   gboolean first;
   int i;
+  gboolean copy_all_attributes;
+  gboolean skip_perms;
+
+  copy_all_attributes = flags & G_FILE_COPY_ALL_METADATA;
+  skip_perms = (flags & G_FILE_COPY_TARGET_DEFAULT_PERMS) != 0;
+
+  /* Ignore errors here, if the target supports no attributes there is
+   * nothing to copy.  We still honor the cancellable though.
+   */
+  attributes = g_file_query_settable_attributes (file, cancellable, NULL);
+  if (g_cancellable_set_error_if_cancelled (cancellable, error))
+    goto out;
+
+  namespaces = g_file_query_writable_namespaces (file, cancellable, NULL);
+  if (g_cancellable_set_error_if_cancelled (cancellable, error))
+    goto out;
+
+  if (attributes == NULL && namespaces == NULL)
+    goto out;
 
   first = TRUE;
   s = g_string_new ("");
@@ -2616,7 +2639,7 @@ build_attribute_list_for_copy (GFileAttributeInfoList *attributes,
     {
       for (i = 0; i < attributes->n_infos; i++)
         {
-          if (should_copy (&attributes->infos[i], as_move, skip_perms))
+          if (should_copy (&attributes->infos[i], copy_all_attributes, skip_perms))
             {
               if (first)
                 first = FALSE;
@@ -2632,7 +2655,7 @@ build_attribute_list_for_copy (GFileAttributeInfoList *attributes,
     {
       for (i = 0; i < namespaces->n_infos; i++)
         {
-          if (should_copy (&namespaces->infos[i], as_move, FALSE))
+          if (should_copy (&namespaces->infos[i], copy_all_attributes, FALSE))
             {
               if (first)
                 first = FALSE;
@@ -2645,7 +2668,18 @@ build_attribute_list_for_copy (GFileAttributeInfoList *attributes,
         }
     }
 
-  return g_string_free (s, FALSE);
+  ret = TRUE;
+  *out_attributes = g_string_free (s, FALSE);
+  s = NULL;
+ out:
+  if (s)
+    g_string_free (s, TRUE);
+  if (attributes)
+    g_file_attribute_info_list_unref (attributes);
+  if (namespaces)
+    g_file_attribute_info_list_unref (namespaces);
+  
+  return ret;
 }
 
 /**
@@ -2676,28 +2710,16 @@ g_file_copy_attributes (GFile           *source,
                         GCancellable    *cancellable,
                         GError         **error)
 {
-  GFileAttributeInfoList *attributes, *namespaces;
   char *attrs_to_read;
   gboolean res;
   GFileInfo *info;
-  gboolean as_move;
   gboolean source_nofollow_symlinks;
-  gboolean skip_perms;
 
-  as_move = flags & G_FILE_COPY_ALL_METADATA;
+  if (!build_attribute_list_for_copy (destination, flags, &attrs_to_read,
+                                      cancellable, error))
+    return FALSE;
+
   source_nofollow_symlinks = flags & G_FILE_COPY_NOFOLLOW_SYMLINKS;
-  skip_perms = (flags & G_FILE_COPY_TARGET_DEFAULT_PERMS) != 0;
-
-  /* Ignore errors here, if the target supports no attributes there is
-   * nothing to copy
-   */
-  attributes = g_file_query_settable_attributes (destination, cancellable, NULL);
-  namespaces = g_file_query_writable_namespaces (destination, cancellable, NULL);
-
-  if (attributes == NULL && namespaces == NULL)
-    return TRUE;
-
-  attrs_to_read = build_attribute_list_for_copy (attributes, namespaces, as_move, skip_perms);
 
   /* Ignore errors here, if we can't read some info (e.g. if it doesn't exist)
    * we just don't copy it.
@@ -2719,9 +2741,6 @@ g_file_copy_attributes (GFile           *source,
                                              error);
       g_object_unref (info);
     }
-
-  g_file_attribute_info_list_unref (attributes);
-  g_file_attribute_info_list_unref (namespaces);
 
   return res;
 }
@@ -3012,10 +3031,13 @@ file_copy_fallback (GFile                  *source,
                     GError                **error)
 {
   gboolean ret = FALSE;
+  GFileInputStream *file_in = NULL;
   GInputStream *in = NULL;
   GOutputStream *out = NULL;
   GFileInfo *info = NULL;
   const char *target;
+  char *attrs_to_read;
+  gboolean do_set_attributes = FALSE;
 
   /* need to know the file type */
   info = g_file_query_info (source,
@@ -3052,11 +3074,54 @@ file_copy_fallback (GFile                  *source,
 
   /* Everything else should just fall back on a regular copy. */
 
-  in = open_source_for_copy (source, destination, flags, cancellable, error);
-  if (!in)
+  file_in = open_source_for_copy (source, destination, flags, cancellable, error);
+  if (!file_in)
+    goto out;
+  in = G_INPUT_STREAM (file_in);
+
+  if (!build_attribute_list_for_copy (destination, flags, &attrs_to_read,
+                                      cancellable, error))
     goto out;
 
-  if (flags & G_FILE_COPY_OVERWRITE)
+  if (attrs_to_read != NULL)
+    {
+      /* Ok, ditch the previous lightweight info (on Unix we just
+       * called lstat()); at this point we gather all the information
+       * we need about the source from the opened file descriptor.
+       */
+      g_object_unref (info);
+
+      info = g_file_input_stream_query_info (file_in, attrs_to_read,
+                                             cancellable, error);
+      g_free (attrs_to_read);
+      if (!info)
+        goto out;
+
+      do_set_attributes = TRUE;
+    }
+
+  /* In the local file path, we pass down the source info which
+   * includes things like unix::mode, to ensure that the target file
+   * is not created with different permissions from the source file.
+   *
+   * If a future API like g_file_replace_with_info() is added, switch
+   * this code to use that.
+   */
+  if (G_IS_LOCAL_FILE (destination))
+    {
+      if (flags & G_FILE_COPY_OVERWRITE)
+        out = (GOutputStream*)_g_local_file_output_stream_replace (_g_local_file_get_filename (G_LOCAL_FILE (destination)),
+                                                                   FALSE, NULL,
+                                                                   flags & G_FILE_COPY_BACKUP,
+                                                                   G_FILE_CREATE_REPLACE_DESTINATION,
+                                                                   info,
+                                                                   cancellable, error);
+      else
+        out = (GOutputStream*)_g_local_file_output_stream_create (_g_local_file_get_filename (G_LOCAL_FILE (destination)),
+                                                                  FALSE, 0, info,
+                                                                  cancellable, error);
+    }
+  else if (flags & G_FILE_COPY_OVERWRITE)
     {
       out = (GOutputStream *)g_file_replace (destination,
                                              NULL,
@@ -3151,10 +3216,15 @@ file_copy_fallback (GFile                  *source,
     }
 
   /* Ignore errors here. Failure to copy metadata is not a hard error */
-  if (ret)
-    (void) g_file_copy_attributes (source, destination,
-                                   flags, cancellable, NULL);
-
+  /* TODO: set these attributes /before/ we do the rename() on Unix */
+  if (ret && do_set_attributes)
+    {
+      g_file_set_attributes_from_info (destination,
+                                       info,
+                                       G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                       cancellable,
+                                       error);
+    }
 
   g_clear_object (&info);
 

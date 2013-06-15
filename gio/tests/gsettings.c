@@ -427,6 +427,7 @@ test_delay_apply (void)
   GSettings *settings;
   GSettings *settings2;
   gchar *str;
+  gboolean writable;
 
   settings = g_settings_new ("org.gtk.test");
   settings2 = g_settings_new ("org.gtk.test");
@@ -447,6 +448,9 @@ test_delay_apply (void)
 
   g_assert (changed_cb_called);
   g_assert (!changed_cb_called2);
+
+  writable = g_settings_is_writable (settings, "greeting");
+  g_assert (writable);
 
   g_settings_get (settings, "greeting", "s", &str);
   g_assert_cmpstr (str, ==, "greetings from test_delay_apply");
@@ -482,6 +486,13 @@ test_delay_apply (void)
   g_assert (!g_settings_get_has_unapplied (settings));
   g_assert (!g_settings_get_has_unapplied (settings2));
 
+  g_settings_reset (settings, "greeting");
+  g_settings_apply (settings);
+
+  g_settings_get (settings, "greeting", "s", &str);
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_free (str);
+
   g_object_unref (settings2);
   g_object_unref (settings);
 }
@@ -500,6 +511,10 @@ test_delay_revert (void)
   settings2 = g_settings_new ("org.gtk.test");
 
   g_settings_set (settings2, "greeting", "s", "top o' the morning");
+
+  g_settings_get (settings, "greeting", "s", &str);
+  g_assert_cmpstr (str, ==, "top o' the morning");
+  g_free (str);
 
   g_settings_delay (settings);
 
@@ -660,14 +675,20 @@ test_l10n (void)
   str = NULL;
 
   setlocale (LC_MESSAGES, "de_DE");
-  str = g_settings_get_string (settings, "error-message");
+  /* Only do the test if translation is actually working... */
+  if (g_str_equal (dgettext ("test", "\"Unnamed\""), "\"Unbenannt\""))
+    {
+      str = g_settings_get_string (settings, "error-message");
+
+      g_assert_cmpstr (str, ==, "Unbenannt");
+      g_object_unref (settings);
+      g_free (str);
+      str = NULL;
+    }
+  else
+    g_printerr ("warning: translation is not working... skipping test. ");
+
   setlocale (LC_MESSAGES, locale);
-
-  g_assert_cmpstr (str, ==, "Unbenannt");
-  g_object_unref (settings);
-  g_free (str);
-  str = NULL;
-
   g_free (locale);
 }
 
@@ -701,14 +722,20 @@ test_l10n_context (void)
   str = NULL;
 
   setlocale (LC_MESSAGES, "de_DE");
-  g_settings_get (settings, "backspace", "s", &str);
+  /* Only do the test if translation is actually working... */
+  if (g_str_equal (dgettext ("test", "\"Unnamed\""), "\"Unbenannt\""))
+    {
+      g_settings_get (settings, "backspace", "s", &str);
+
+      g_assert_cmpstr (str, ==, "Löschen");
+      g_object_unref (settings);
+      g_free (str);
+      str = NULL;
+    }
+  else
+    g_printerr ("warning: translation is not working... skipping test.  ");
+
   setlocale (LC_MESSAGES, locale);
-
-  g_assert_cmpstr (str, ==, "Löschen");
-  g_object_unref (settings);
-  g_free (str);
-  str = NULL;
-
   g_free (locale);
 }
 
@@ -1519,6 +1546,13 @@ test_no_write_binding (void)
   g_test_trap_assert_passed ();
 }
 
+static void
+key_changed_cb (GSettings *settings, const gchar *key, gpointer data)
+{
+  gboolean *b = data;
+  (*b) = TRUE;
+}
+
 /*
  * Test that using a keyfile works
  */
@@ -1529,6 +1563,11 @@ test_keyfile (void)
   GSettings *settings;
   GKeyFile *keyfile;
   gchar *str;
+  gboolean writable;
+  GError *error = NULL;
+  gchar *data;
+  gsize len;
+  gboolean called = FALSE;
 
   g_remove ("gsettings.store");
 
@@ -1536,16 +1575,46 @@ test_keyfile (void)
   settings = g_settings_new_with_backend ("org.gtk.test", kf_backend);
   g_object_unref (kf_backend);
 
+  g_settings_reset (settings, "greeting");
+  str = g_settings_get_string (settings, "greeting");
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_free (str);
+
+  writable = g_settings_is_writable (settings, "greeting");
+  g_assert (writable);
   g_settings_set (settings, "greeting", "s", "see if this works");
+
+  str = g_settings_get_string (settings, "greeting");
+  g_assert_cmpstr (str, ==, "see if this works");
+  g_free (str);
+
+  g_settings_delay (settings);
+  g_settings_set (settings, "farewell", "s", "cheerio");
+  g_settings_apply (settings);
 
   keyfile = g_key_file_new ();
   g_assert (g_key_file_load_from_file (keyfile, "gsettings.store", 0, NULL));
 
   str = g_key_file_get_string (keyfile, "tests", "greeting", NULL);
   g_assert_cmpstr (str, ==, "'see if this works'");
-
   g_free (str);
+
+  str = g_key_file_get_string (keyfile, "tests", "farewell", NULL);
+  g_assert_cmpstr (str, ==, "'cheerio'");
+  g_free (str);
+
+  g_signal_connect (settings, "changed::greeting", G_CALLBACK (key_changed_cb), &called);
+
+  g_key_file_set_string (keyfile, "tests", "greeting", "howdy");
+  data = g_key_file_to_data (keyfile, &len, NULL);
+  g_file_set_contents ("gsettings.store", data, len, &error);
+  g_assert_no_error (error);
+  while (!called)
+    g_main_context_iteration (NULL, FALSE);
+
   g_key_file_free (keyfile);
+  g_free (data);
+
   g_object_unref (settings);
 }
 
@@ -1576,24 +1645,6 @@ test_child_schema (void)
 
   g_object_unref (child);
   g_object_unref (settings);
-}
-
-static gboolean
-glib_translations_work (void)
-{
-  gboolean works;
-  gchar *locale;
-  gchar *orig = "Unnamed";
-
-  locale = g_strdup (setlocale (LC_MESSAGES, NULL));
-  if (!setlocale (LC_MESSAGES, "de"))
-    works = FALSE;
-  else
-    works = dgettext ("glib20", orig) != orig;
-  setlocale (LC_MESSAGES, locale);
-  g_free (locale);
-
-  return works;
 }
 
 #include "../strinfo.c"
@@ -2239,6 +2290,47 @@ test_actions (void)
   g_object_unref (toggle);
 }
 
+static void
+test_null_backend (void)
+{
+  GSettingsBackend *backend;
+  GSettings *settings;
+  gchar *str;
+  gboolean writable;
+
+  backend = g_null_settings_backend_new ();
+  settings = g_settings_new_with_backend ("org.gtk.test", backend);
+
+  g_object_get (settings, "schema", &str, NULL);
+  g_assert_cmpstr (str, ==, "org.gtk.test");
+  g_free (str);
+
+  g_settings_get (settings, "greeting", "s", &str);
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_free (str);
+
+  g_settings_set (settings, "greeting", "s", "goodbye world");
+  g_settings_get (settings, "greeting", "s", &str);
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_free (str);
+
+  writable = g_settings_is_writable (settings, "greeting");
+  g_assert (!writable);
+
+  g_object_unref (settings);
+  g_object_unref (backend);
+}
+
+static void
+test_memory_backend (void)
+{
+  GSettingsBackend *backend;
+
+  backend = g_memory_settings_backend_new ();
+  g_assert (G_IS_SETTINGS_BACKEND (backend));
+  g_object_unref (backend);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -2251,51 +2343,37 @@ main (int argc, char *argv[])
 
   if (!g_test_subprocess ())
     {
-      const gchar *glib_mkenums;
-      const gchar *glib_compile_schemas;
-      gchar *cmdline;
-
       backend_set = g_getenv ("GSETTINGS_BACKEND") != NULL;
 
-      g_setenv ("XDG_DATA_DIRS", g_test_get_dir (G_TEST_DIST), TRUE);
+      g_setenv ("XDG_DATA_DIRS", ".", TRUE);
       g_setenv ("GSETTINGS_SCHEMA_DIR", ".", TRUE);
 
       if (!backend_set)
         g_setenv ("GSETTINGS_BACKEND", "memory", TRUE);
 
-      if (g_getenv ("GLIB_MKENUMS"))
-        glib_mkenums = g_getenv ("GLIB_MKENUMS");
-      else
-        glib_mkenums = "glib-mkenums";
-
-      cmdline = g_strdup_printf ("%s --template %s/enums.xml.template %s/testenum.h", glib_mkenums,
-                                g_test_get_dir (G_TEST_DIST), g_test_get_dir (G_TEST_DIST));
-
-      g_assert (g_spawn_command_line_sync (cmdline, &enums, NULL, &result, NULL));
+      g_remove ("org.gtk.test.enums.xml");
+      g_assert (g_spawn_command_line_sync ("../../gobject/glib-mkenums "
+                                           "--template " SRCDIR "/enums.xml.template "
+                                           SRCDIR "/testenum.h",
+                                           &enums, NULL, &result, NULL));
       g_assert (result == 0);
       g_assert (g_file_set_contents ("org.gtk.test.enums.xml", enums, -1, NULL));
       g_free (enums);
 
-      g_free (cmdline);
-
-      if (g_getenv ("GLIB_COMPILE_SCHEMAS"))
-        glib_compile_schemas = g_getenv ("GLIB_COMPILE_SCHEMAS");
-      else
-        glib_compile_schemas = "glib-compile-schemas";
-
-      cmdline = g_strdup_printf ("%s --targetdir=. --schema-file=org.gtk.test.enums.xml --schema-file=%s/org.gtk.test.gschema.xml", glib_compile_schemas, g_test_get_dir (G_TEST_DIST));
-      g_assert (g_spawn_command_line_sync (cmdline, NULL, NULL, &result, NULL));
+      g_remove ("gschemas.compiled");
+      g_assert (g_spawn_command_line_sync ("../glib-compile-schemas --targetdir=. "
+                                           "--schema-file=org.gtk.test.enums.xml "
+                                           "--schema-file=" SRCDIR "/org.gtk.test.gschema.xml",
+                                           NULL, NULL, &result, NULL));
       g_assert (result == 0);
-      g_free (cmdline);
 
-      g_mkdir ("schema-source", 0777);
       g_remove ("schema-source/gschemas.compiled");
-
-      cmdline = g_strdup_printf ("%s --targetdir=schema-source --schema-file=%s/org.gtk.schemasourcecheck.gschema.xml", glib_compile_schemas, g_test_get_dir (G_TEST_DIST));
-      g_assert (g_spawn_command_line_sync (cmdline, NULL, NULL, &result, NULL));
+      g_mkdir ("schema-source", 0777);
+      g_assert (g_spawn_command_line_sync ("../glib-compile-schemas --targetdir=schema-source "
+                                           "--schema-file=" SRCDIR "/org.gtk.schemasourcecheck.gschema.xml",
+                                           NULL, NULL, &result, NULL));
       g_assert (result == 0);
-      g_free (cmdline);
-    }
+   }
 
   g_test_add_func ("/gsettings/basic", test_basic);
 
@@ -2316,11 +2394,8 @@ main (int argc, char *argv[])
   g_test_add_func ("/gsettings/complex-types", test_complex_types);
   g_test_add_func ("/gsettings/changes", test_changes);
 
-  if (glib_translations_work ())
-    {
-      g_test_add_func ("/gsettings/l10n", test_l10n);
-      g_test_add_func ("/gsettings/l10n-context", test_l10n_context);
-    }
+  g_test_add_func ("/gsettings/l10n", test_l10n);
+  g_test_add_func ("/gsettings/l10n-context", test_l10n_context);
 
   g_test_add_func ("/gsettings/delay-apply", test_delay_apply);
   g_test_add_func ("/gsettings/delay-revert", test_delay_revert);
@@ -2367,6 +2442,8 @@ main (int argc, char *argv[])
   g_test_add_func ("/gsettings/get-range", test_get_range);
   g_test_add_func ("/gsettings/schema-source", test_schema_source);
   g_test_add_func ("/gsettings/actions", test_actions);
+  g_test_add_func ("/gsettings/null-backend", test_null_backend);
+  g_test_add_func ("/gsettings/memory-backend", test_memory_backend);
 
   result = g_test_run ();
 

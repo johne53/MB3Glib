@@ -1004,6 +1004,27 @@ rename_file (const char  *old_name,
   return TRUE;
 }
 
+/* format string must have two '%s':
+ *
+ *   - the place for the filename
+ *   - the place for the strerror
+ */
+static void
+format_error_message (GError      **error,
+                      const gchar  *filename,
+                      const gchar  *format_string)
+{
+  gint saved_errno = errno;
+  gchar *display_name;
+
+  display_name = g_filename_display_name (filename);
+
+  g_set_error (error, G_FILE_ERROR, g_file_error_from_errno (saved_errno),
+               format_string, display_name, g_strerror (saved_errno));
+
+  g_free (display_name);
+}
+
 static gchar *
 write_to_temp_file (const gchar  *contents,
 		    gssize        length,
@@ -1011,93 +1032,53 @@ write_to_temp_file (const gchar  *contents,
 		    GError      **err)
 {
   gchar *tmp_name;
-  gchar *display_name;
   gchar *retval;
-  FILE *file;
   gint fd;
-  int save_errno;
 
   retval = NULL;
-  
+
   tmp_name = g_strdup_printf ("%s.XXXXXX", dest_file);
 
   errno = 0;
   fd = g_mkstemp_full (tmp_name, O_RDWR | O_BINARY, 0666);
-  save_errno = errno;
 
-  display_name = g_filename_display_name (tmp_name);
-      
   if (fd == -1)
     {
-      g_set_error (err,
-		   G_FILE_ERROR,
-		   g_file_error_from_errno (save_errno),
-		   _("Failed to create file '%s': %s"),
-		   display_name, g_strerror (save_errno));
-      
+      format_error_message (err, tmp_name, _("Failed to create file '%s': %s"));
       goto out;
     }
 
-  errno = 0;
-  file = fdopen (fd, "wb");
-  if (!file)
-    {
-      save_errno = errno;
-      g_set_error (err,
-		   G_FILE_ERROR,
-		   g_file_error_from_errno (save_errno),
-		   _("Failed to open file '%s' for writing: fdopen() failed: %s"),
-		   display_name,
-		   g_strerror (save_errno));
-
-      close (fd);
-      g_unlink (tmp_name);
-      
-      goto out;
-    }
-
+#ifdef HAVE_FALLOCATE
   if (length > 0)
     {
-      gsize n_written;
-      
-      errno = 0;
-
-      n_written = fwrite (contents, 1, length, file);
-
-      if (n_written < length)
-	{
-	  save_errno = errno;
-      
- 	  g_set_error (err,
-		       G_FILE_ERROR,
-		       g_file_error_from_errno (save_errno),
-		       _("Failed to write file '%s': fwrite() failed: %s"),
-		       display_name,
-		       g_strerror (save_errno));
-
-	  fclose (file);
-	  g_unlink (tmp_name);
-	  
-	  goto out;
-	}
+      /* We do this on a 'best effort' basis... It may not be supported
+       * on the underlying filesystem.
+       */
+      (void) fallocate (fd, 0, 0, length);
     }
+#endif
+  while (length > 0)
+    {
+      gssize s;
 
-  errno = 0;
-  if (fflush (file) != 0)
-    { 
-      save_errno = errno;
-      
-      g_set_error (err,
-		   G_FILE_ERROR,
-		   g_file_error_from_errno (save_errno),
-		   _("Failed to write file '%s': fflush() failed: %s"),
-		   display_name, 
-		   g_strerror (save_errno));
+      s = write (fd, contents, length);
 
-      fclose (file);
-      g_unlink (tmp_name);
-      
-      goto out;
+      if (s < 0)
+        {
+          if (errno == EINTR)
+            continue;
+
+          format_error_message (err, tmp_name, _("Failed to write file '%s': write() failed: %s"));
+          close (fd);
+          g_unlink (tmp_name);
+
+          goto out;
+        }
+
+      g_assert (s <= length);
+
+      contents += s;
+      length -= s;
     }
 
 #ifdef BTRFS_SUPER_MAGIC
@@ -1107,13 +1088,20 @@ write_to_temp_file (const gchar  *contents,
     /* On Linux, on btrfs, skip the fsync since rename-over-existing is
      * guaranteed to be atomic and this is the only case in which we
      * would fsync() anyway.
+     *
+     * ext3 and ext4 are also safe in this respect under the default
+     * mount options (and if someone picks non-default options to
+     * improve their performance at the cost of reliability, who are we
+     * to argue?)
+     *
+     * Note: EXT[234]_SUPER_MAGIC are equal.
      */
 
-    if (fstatfs (fd, &buf) == 0 && buf.f_type == BTRFS_SUPER_MAGIC)
+    if (fstatfs (fd, &buf) == 0 && (buf.f_type == BTRFS_SUPER_MAGIC || buf.f_type == EXT3_SUPER_MAGIC))
       goto no_fsync;
   }
 #endif
-  
+
 #ifdef HAVE_FSYNC
   {
     struct stat statbuf;
@@ -1125,23 +1113,13 @@ write_to_temp_file (const gchar  *contents,
      * the new and the old file on some filesystems. (I.E. those that don't
      * guarantee the data is written to the disk before the metadata.)
      */
-    if (g_lstat (dest_file, &statbuf) == 0 &&
-	statbuf.st_size > 0 &&
-	fsync (fileno (file)) != 0)
+    if (g_lstat (dest_file, &statbuf) == 0 && statbuf.st_size > 0 && fsync (fd) != 0)
       {
-	save_errno = errno;
+        format_error_message (err, tmp_name, _("Failed to write file '%s': fsync() failed: %s"));
+        close (fd);
+        g_unlink (tmp_name);
 
-	g_set_error (err,
-		     G_FILE_ERROR,
-		     g_file_error_from_errno (save_errno),
-		     _("Failed to write file '%s': fsync() failed: %s"),
-		     display_name,
-		     g_strerror (save_errno));
-
-        fclose (file);
-	g_unlink (tmp_name);
-
-	goto out;
+        goto out;
       }
   }
 #endif
@@ -1149,30 +1127,20 @@ write_to_temp_file (const gchar  *contents,
 #ifdef BTRFS_SUPER_MAGIC
  no_fsync:
 #endif
-  
-  errno = 0;
-  if (fclose (file) == EOF)
-    { 
-      save_errno = errno;
-      
-      g_set_error (err,
-		   G_FILE_ERROR,
-		   g_file_error_from_errno (save_errno),
-		   _("Failed to close file '%s': fclose() failed: %s"),
-		   display_name, 
-		   g_strerror (save_errno));
 
+  errno = 0;
+  if (!g_close (fd, err))
+    {
       g_unlink (tmp_name);
-      
+
       goto out;
     }
 
   retval = g_strdup (tmp_name);
-  
+
  out:
   g_free (tmp_name);
-  g_free (display_name);
-  
+
   return retval;
 }
 
