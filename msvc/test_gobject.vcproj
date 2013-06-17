@@ -45,7 +45,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\src\glib;&quot;$(GenericLibraryFolder)\glib-2.0\include&quot;"
-				PreprocessorDefinitions="WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
+				PreprocessorDefinitions="WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_LOG_DOMAIN=\&quot;Glib\&quot;;G_ENABLE_DEBUG;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -128,7 +128,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\..\src\glib;&quot;$(GenericLibraryFolder)\glib-2.0\include&quot;"
-				PreprocessorDefinitions="_SECURE_SCL=0;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
+				PreprocessorDefinitions="_SECURE_SCL=0;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_LOG_DOMAIN=\&quot;Glib\&quot;;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
 				StringPooling="false"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -210,7 +210,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\src\glib;&quot;$(GenericLibraryFolder)\glib-2.0\include&quot;"
-				PreprocessorDefinitions="_SECURE_SCL=0;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
+				PreprocessorDefinitions="_SECURE_SCL=0;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_LOG_DOMAIN=\&quot;Glib\&quot;;G_OS_WIN32;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
 				StringPooling="false"
 				MinimalRebuild="true"
 				RuntimeLibrary="2"
@@ -328,7 +328,7 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			>
 			<File
-				RelativePath="..\tests\testgobject.c"
+				RelativePath="..\tests\gobject\testgobject.c"
 				>
 			</File>
 		</Filter>
