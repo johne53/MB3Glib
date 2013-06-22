@@ -575,7 +575,7 @@ log_warning_error_tests (void)
 #ifdef __GNUC__
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
                          "*g_print*assertion*failed*");
-#else
+#else   /* This section (and __GNUC__ test) added by JE - 16-06-2013 */
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
                          "*assertion*failed*");
 #endif
