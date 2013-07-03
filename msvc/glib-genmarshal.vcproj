@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)D.lib"
+				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)D.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
