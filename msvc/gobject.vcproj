@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)D.lib libffi-5D.lib"
+				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)D.lib libffi32-5D.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-debug.def"
@@ -167,7 +167,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix).lib libffi-5.lib"
+				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix).lib libffi32-5.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix).dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
@@ -259,7 +259,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)RDC.lib libffi-5RDC.lib"
+				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)RDC.lib libffi32-5RDC.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
