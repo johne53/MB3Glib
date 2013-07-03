@@ -69,8 +69,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)D.lib"
-				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)D.dll"
+				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)D.lib"
+				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				GenerateDebugInformation="true"
@@ -159,8 +159,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix).lib"
-				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix).dll"
+				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix).lib"
+				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix).dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				SubSystem="2"
@@ -247,8 +247,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(DllPrefix)glib$(DllSuffix)RDC.lib"
-				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)$(DllSuffix)RDC.dll"
+				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)RDC.lib"
+				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
 				GenerateDebugInformation="true"
