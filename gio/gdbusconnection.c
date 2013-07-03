@@ -507,6 +507,18 @@ static gboolean handle_generic_unlocked (GDBusConnection *connection,
 static void purge_all_signal_subscriptions (GDBusConnection *connection);
 static void purge_all_filters (GDBusConnection *connection);
 
+static void schedule_method_call (GDBusConnection            *connection,
+                                  GDBusMessage               *message,
+                                  guint                       registration_id,
+                                  guint                       subtree_registration_id,
+                                  const GDBusInterfaceInfo   *interface_info,
+                                  const GDBusMethodInfo      *method_info,
+                                  const GDBusPropertyInfo    *property_info,
+                                  GVariant                   *parameters,
+                                  const GDBusInterfaceVTable *vtable,
+                                  GMainContext               *main_context,
+                                  gpointer                    user_data);
+
 #define _G_ENSURE_LOCK(name) do {                                       \
     if (G_UNLIKELY (G_TRYLOCK(name)))                                   \
       {                                                                 \
@@ -4195,20 +4207,6 @@ invoke_set_property_in_idle_cb (gpointer _data)
                  NULL,
                  &value);
 
-  /* Fail with org.freedesktop.DBus.Error.InvalidArgs if the type
-   * of the given value is wrong
-   */
-  if (g_strcmp0 (g_variant_get_type_string (value), data->property_info->signature) != 0)
-    {
-      reply = g_dbus_message_new_method_error (data->message,
-                                               "org.freedesktop.DBus.Error.InvalidArgs",
-                                               _("Error setting property '%s': Expected type '%s' but got '%s'"),
-                                               data->property_info->name,
-                                               data->property_info->signature,
-                                               g_variant_get_type_string (value));
-      goto out;
-    }
-
   if (!data->vtable->set_property (data->connection,
                                    g_dbus_message_get_sender (data->message),
                                    g_dbus_message_get_path (data->message),
@@ -4232,7 +4230,6 @@ invoke_set_property_in_idle_cb (gpointer _data)
       reply = g_dbus_message_new_method_reply (data->message);
     }
 
- out:
   g_assert (reply != NULL);
   g_dbus_connection_send_message (data->connection, reply, G_DBUS_SEND_MESSAGE_FLAGS_NONE, NULL, NULL);
   g_object_unref (reply);
@@ -4275,17 +4272,8 @@ validate_and_maybe_schedule_property_getset (GDBusConnection            *connect
                    &property_name,
                    NULL);
 
-
-  if (is_get)
-    {
-      if (vtable == NULL || vtable->get_property == NULL)
-        goto out;
-    }
-  else
-    {
-      if (vtable == NULL || vtable->set_property == NULL)
-        goto out;
-    }
+  if (vtable == NULL)
+    goto out;
 
   /* Check that the property exists - if not fail with org.freedesktop.DBus.Error.InvalidArgs
    */
@@ -4326,6 +4314,57 @@ validate_and_maybe_schedule_property_getset (GDBusConnection            *connect
       g_object_unref (reply);
       handled = TRUE;
       goto out;
+    }
+
+  if (!is_get)
+    {
+      GVariant *value;
+
+      /* Fail with org.freedesktop.DBus.Error.InvalidArgs if the type
+       * of the given value is wrong
+       */
+      g_variant_get_child (g_dbus_message_get_body (message), 2, "v", &value);
+      if (g_strcmp0 (g_variant_get_type_string (value), property_info->signature) != 0)
+        {
+          reply = g_dbus_message_new_method_error (message,
+                                                   "org.freedesktop.DBus.Error.InvalidArgs",
+                                                   _("Error setting property '%s': Expected type '%s' but got '%s'"),
+                                                   property_name, property_info->signature,
+                                                   g_variant_get_type_string (value));
+          g_dbus_connection_send_message_unlocked (connection, reply, G_DBUS_SEND_MESSAGE_FLAGS_NONE, NULL, NULL);
+          g_variant_unref (value);
+          g_object_unref (reply);
+          handled = TRUE;
+          goto out;
+        }
+
+      g_variant_unref (value);
+    }
+
+  /* If the vtable pointer for get_property() resp. set_property() is
+   * NULL then dispatch the call via the method_call() handler.
+   */
+  if (is_get)
+    {
+      if (vtable->get_property == NULL)
+        {
+          schedule_method_call (connection, message, registration_id, subtree_registration_id,
+                                interface_info, NULL, property_info, g_dbus_message_get_body (message),
+                                vtable, main_context, user_data);
+          handled = TRUE;
+          goto out;
+        }
+    }
+  else
+    {
+      if (vtable->set_property == NULL)
+        {
+          schedule_method_call (connection, message, registration_id, subtree_registration_id,
+                                interface_info, NULL, property_info, g_dbus_message_get_body (message),
+                                vtable, main_context, user_data);
+          handled = TRUE;
+          goto out;
+        }
     }
 
   /* ok, got the property info - call user code in an idle handler */
@@ -4499,6 +4538,21 @@ invoke_get_all_properties_in_idle_cb (gpointer _data)
   return FALSE;
 }
 
+static gboolean
+interface_has_readable_properties (GDBusInterfaceInfo *interface_info)
+{
+  gint i;
+
+  if (!interface_info->properties)
+    return FALSE;
+
+  for (i = 0; interface_info->properties[i]; i++)
+    if (interface_info->properties[i]->flags & G_DBUS_PROPERTY_INFO_FLAGS_READABLE)
+      return TRUE;
+
+  return FALSE;
+}
+
 /* called in any thread with connection's lock held */
 static gboolean
 validate_and_maybe_schedule_property_get_all (GDBusConnection            *connection,
@@ -4511,18 +4565,26 @@ validate_and_maybe_schedule_property_get_all (GDBusConnection            *connec
                                               gpointer                    user_data)
 {
   gboolean handled;
-  const char *interface_name;
   GSource *idle_source;
   PropertyGetAllData *property_get_all_data;
 
   handled = FALSE;
 
-  g_variant_get (g_dbus_message_get_body (message),
-                 "(&s)",
-                 &interface_name);
-
-  if (vtable == NULL || vtable->get_property == NULL)
+  if (vtable == NULL)
     goto out;
+
+  /* If the vtable pointer for get_property() is NULL but we have a
+   * non-zero number of readable properties, then dispatch the call via
+   * the method_call() handler.
+   */
+  if (vtable->get_property == NULL && interface_has_readable_properties (interface_info))
+    {
+      schedule_method_call (connection, message, registration_id, subtree_registration_id,
+                            interface_info, NULL, NULL, g_dbus_message_get_body (message),
+                            vtable, main_context, user_data);
+      handled = TRUE;
+      goto out;
+    }
 
   /* ok, got the property info - call user in an idle handler */
   property_get_all_data = g_new0 (PropertyGetAllData, 1);
@@ -4817,6 +4879,50 @@ call_in_idle_cb (gpointer user_data)
 }
 
 /* called in GDBusWorker thread with connection's lock held */
+static void
+schedule_method_call (GDBusConnection            *connection,
+                      GDBusMessage               *message,
+                      guint                       registration_id,
+                      guint                       subtree_registration_id,
+                      const GDBusInterfaceInfo   *interface_info,
+                      const GDBusMethodInfo      *method_info,
+                      const GDBusPropertyInfo    *property_info,
+                      GVariant                   *parameters,
+                      const GDBusInterfaceVTable *vtable,
+                      GMainContext               *main_context,
+                      gpointer                    user_data)
+{
+  GDBusMethodInvocation *invocation;
+  GSource *idle_source;
+
+  invocation = _g_dbus_method_invocation_new (g_dbus_message_get_sender (message),
+                                              g_dbus_message_get_path (message),
+                                              g_dbus_message_get_interface (message),
+                                              g_dbus_message_get_member (message),
+                                              method_info,
+                                              property_info,
+                                              connection,
+                                              message,
+                                              parameters,
+                                              user_data);
+
+  /* TODO: would be nicer with a real MethodData like we already
+   * have PropertyData and PropertyGetAllData... */
+  g_object_set_data (G_OBJECT (invocation), "g-dbus-interface-vtable", (gpointer) vtable);
+  g_object_set_data (G_OBJECT (invocation), "g-dbus-registration-id", GUINT_TO_POINTER (registration_id));
+  g_object_set_data (G_OBJECT (invocation), "g-dbus-subtree-registration-id", GUINT_TO_POINTER (subtree_registration_id));
+
+  idle_source = g_idle_source_new ();
+  g_source_set_priority (idle_source, G_PRIORITY_DEFAULT);
+  g_source_set_callback (idle_source,
+                         call_in_idle_cb,
+                         invocation,
+                         g_object_unref);
+  g_source_attach (idle_source, main_context);
+  g_source_unref (idle_source);
+}
+
+/* called in GDBusWorker thread with connection's lock held */
 static gboolean
 validate_and_maybe_schedule_method_call (GDBusConnection            *connection,
                                          GDBusMessage               *message,
@@ -4827,11 +4933,9 @@ validate_and_maybe_schedule_method_call (GDBusConnection            *connection,
                                          GMainContext               *main_context,
                                          gpointer                    user_data)
 {
-  GDBusMethodInvocation *invocation;
-  const GDBusMethodInfo *method_info;
+  GDBusMethodInfo *method_info;
   GDBusMessage *reply;
   GVariant *parameters;
-  GSource *idle_source;
   gboolean handled;
   GVariantType *in_type;
 
@@ -4892,32 +4996,10 @@ validate_and_maybe_schedule_method_call (GDBusConnection            *connection,
   g_variant_type_free (in_type);
 
   /* schedule the call in idle */
-  invocation = _g_dbus_method_invocation_new (g_dbus_message_get_sender (message),
-                                              g_dbus_message_get_path (message),
-                                              g_dbus_message_get_interface (message),
-                                              g_dbus_message_get_member (message),
-                                              method_info,
-                                              connection,
-                                              message,
-                                              parameters,
-                                              user_data);
+  schedule_method_call (connection, message, registration_id, subtree_registration_id,
+                        interface_info, method_info, NULL, parameters,
+                        vtable, main_context, user_data);
   g_variant_unref (parameters);
-
-  /* TODO: would be nicer with a real MethodData like we already
-   * have PropertyData and PropertyGetAllData... */
-  g_object_set_data (G_OBJECT (invocation), "g-dbus-interface-vtable", (gpointer) vtable);
-  g_object_set_data (G_OBJECT (invocation), "g-dbus-registration-id", GUINT_TO_POINTER (registration_id));
-  g_object_set_data (G_OBJECT (invocation), "g-dbus-subtree-registration-id", GUINT_TO_POINTER (subtree_registration_id));
-
-  idle_source = g_idle_source_new ();
-  g_source_set_priority (idle_source, G_PRIORITY_DEFAULT);
-  g_source_set_callback (idle_source,
-                         call_in_idle_cb,
-                         invocation,
-                         g_object_unref);
-  g_source_attach (idle_source, main_context);
-  g_source_unref (idle_source);
-
   handled = TRUE;
 
  out:

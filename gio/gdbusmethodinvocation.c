@@ -86,6 +86,7 @@ struct _GDBusMethodInvocation
   gchar           *interface_name;
   gchar           *method_name;
   GDBusMethodInfo *method_info;
+  GDBusPropertyInfo *property_info;
   GDBusConnection *connection;
   GDBusMessage    *message;
   GVariant        *parameters;
@@ -165,6 +166,11 @@ g_dbus_method_invocation_get_object_path (GDBusMethodInvocation *invocation)
  *
  * Gets the name of the D-Bus interface the method was invoked on.
  *
+ * If this method call is a property Get, Set or GetAll call that has
+ * been redirected to the method call handler then
+ * "org.freedesktop.DBus.Properties" will be returned.  See
+ * #GDBusInterfaceVTable for more information.
+ *
  * Returns: A string. Do not free, it is owned by @invocation.
  *
  * Since: 2.26
@@ -182,6 +188,11 @@ g_dbus_method_invocation_get_interface_name (GDBusMethodInvocation *invocation)
  *
  * Gets information about the method call, if any.
  *
+ * If this method invocation is a property Get, Set or GetAll call that
+ * has been redirected to the method call handler then %NULL will be
+ * returned.  See g_dbus_method_invocation_get_property_info() and
+ * #GDBusInterfaceVTable for more information.
+ *
  * Returns: A #GDBusMethodInfo or %NULL. Do not free, it is owned by @invocation.
  *
  * Since: 2.26
@@ -191,6 +202,33 @@ g_dbus_method_invocation_get_method_info (GDBusMethodInvocation *invocation)
 {
   g_return_val_if_fail (G_IS_DBUS_METHOD_INVOCATION (invocation), NULL);
   return invocation->method_info;
+}
+
+/**
+ * g_dbus_method_invocation_get_property_info:
+ * @invocation: A #GDBusMethodInvocation
+ *
+ * Gets information about the property that this method call is for, if
+ * any.
+ *
+ * This will only be set in the case of an invocation in response to a
+ * property Get or Set call that has been directed to the method call
+ * handler for an object on account of its property_get() or
+ * property_set() vtable pointers being unset.
+ *
+ * See #GDBusInterfaceVTable for more information.
+ *
+ * If the call was GetAll, %NULL will be returned.
+ *
+ * Returns: (transfer none): a #GDBusPropertyInfo or %NULL
+ *
+ * Since: 2.38
+ */
+const GDBusPropertyInfo *
+g_dbus_method_invocation_get_property_info (GDBusMethodInvocation *invocation)
+{
+  g_return_val_if_fail (G_IS_DBUS_METHOD_INVOCATION (invocation), NULL);
+  return invocation->property_info;
 }
 
 /**
@@ -293,6 +331,7 @@ g_dbus_method_invocation_get_user_data (GDBusMethodInvocation *invocation)
  * @interface_name: The name of the D-Bus interface the method was invoked on.
  * @method_name: The name of the method that was invoked.
  * @method_info: (allow-none): Information about the method call or %NULL.
+ * @property_info: (allow-none): Information about the property or %NULL.
  * @connection: The #GDBusConnection the method was invoked on.
  * @message: The D-Bus message as a #GDBusMessage.
  * @parameters: The parameters as a #GVariant tuple.
@@ -305,15 +344,16 @@ g_dbus_method_invocation_get_user_data (GDBusMethodInvocation *invocation)
  * Since: 2.26
  */
 GDBusMethodInvocation *
-_g_dbus_method_invocation_new (const gchar           *sender,
-                               const gchar           *object_path,
-                               const gchar           *interface_name,
-                               const gchar           *method_name,
-                               const GDBusMethodInfo *method_info,
-                               GDBusConnection       *connection,
-                               GDBusMessage          *message,
-                               GVariant              *parameters,
-                               gpointer               user_data)
+_g_dbus_method_invocation_new (const gchar             *sender,
+                               const gchar             *object_path,
+                               const gchar             *interface_name,
+                               const gchar             *method_name,
+                               const GDBusMethodInfo   *method_info,
+                               const GDBusPropertyInfo *property_info,
+                               GDBusConnection         *connection,
+                               GDBusMessage            *message,
+                               GVariant                *parameters,
+                               gpointer                 user_data)
 {
   GDBusMethodInvocation *invocation;
 
@@ -332,6 +372,8 @@ _g_dbus_method_invocation_new (const gchar           *sender,
   invocation->method_name = g_strdup (method_name);
   if (method_info)
     invocation->method_info = g_dbus_method_info_ref ((GDBusMethodInfo *)method_info);
+  if (property_info)
+    invocation->property_info = g_dbus_property_info_ref ((GDBusPropertyInfo *)property_info);
   invocation->connection = g_object_ref (connection);
   invocation->message = g_object_ref (message);
   invocation->parameters = g_variant_ref (parameters);
@@ -374,6 +416,67 @@ g_dbus_method_invocation_return_value_internal (GDBusMethodInvocation *invocatio
           goto out;
         }
       g_variant_type_free (type);
+    }
+
+  /* property_info is only non-NULL if set that way from
+   * GDBusConnection, so this must be the case of async property
+   * handling on either 'Get', 'Set' or 'GetAll'.
+   */
+  if (invocation->property_info != NULL)
+    {
+      if (g_str_equal (invocation->method_name, "Get"))
+        {
+          GVariant *nested;
+
+          if (!g_variant_is_of_type (parameters, G_VARIANT_TYPE ("(v)")))
+            {
+              g_warning ("Type of return value for property 'Get' call should be '(v)' but got '%s'",
+                         g_variant_get_type_string (parameters));
+              goto out;
+            }
+
+          /* Go deeper and make sure that the value inside of the
+           * variant matches the property type.
+           */
+          g_variant_get (parameters, "(v)", &nested);
+          if (!g_str_equal (g_variant_get_type_string (nested), invocation->property_info->signature))
+            {
+              g_warning ("Value returned from property 'Get' call for '%s' should be '%s' but is '%s'",
+                         invocation->property_info->name, invocation->property_info->signature,
+                         g_variant_get_type_string (nested));
+              g_variant_unref (nested);
+              goto out;
+            }
+          g_variant_unref (nested);
+        }
+
+      else if (g_str_equal (invocation->method_name, "GetAll"))
+        {
+          if (!g_variant_is_of_type (parameters, G_VARIANT_TYPE ("(a{sv})")))
+            {
+              g_warning ("Type of return value for property 'GetAll' call should be '(a{sv})' but got '%s'",
+                         g_variant_get_type_string (parameters));
+              goto out;
+            }
+
+          /* Could iterate the list of properties and make sure that all
+           * of them are actually on the interface and with the correct
+           * types, but let's not do that for now...
+           */
+        }
+
+      else if (g_str_equal (invocation->method_name, "Set"))
+        {
+          if (!g_variant_is_of_type (parameters, G_VARIANT_TYPE_UNIT))
+            {
+              g_warning ("Type of return value for property 'Set' call should be '()' but got '%s'",
+                         g_variant_get_type_string (parameters));
+              goto out;
+            }
+        }
+
+      else
+        g_assert_not_reached ();
     }
 
   if (G_UNLIKELY (_g_dbus_debug_return ()))
