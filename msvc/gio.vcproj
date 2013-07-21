@@ -2398,6 +2398,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gpropertyaction.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gproxy.c"
 				>
 			</File>
@@ -4042,6 +4046,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gpollfilemonitor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gpropertyaction.h"
 				>
 			</File>
 			<File
