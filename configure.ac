@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [37])
-m4_define([glib_micro_version], [4])
+m4_define([glib_micro_version], [5])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -2382,6 +2382,24 @@ AS_IF([ test x"$have_threads" = xposix], [
             [AC_MSG_RESULT(yes)
              AC_DEFINE(HAVE_PTHREAD_CONDATTR_SETCLOCK,1,
                 [Have function pthread_condattr_setclock])],
+            [AC_MSG_RESULT(no)])
+        AC_MSG_CHECKING(for pthread_cond_timedwait_monotonic)
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM(
+                [#include <pthread.h>],
+                [pthread_cond_timedwait_monotonic(NULL, NULL, NULL)])],
+            [AC_MSG_RESULT(yes)
+             AC_DEFINE(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC,1,
+                [Have function pthread_cond_timedwait_monotonic])],
+            [AC_MSG_RESULT(no)])
+        AC_MSG_CHECKING(for pthread_cond_timedwait_monotonic_np)
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM(
+                [#include <pthread.h>],
+                [pthread_cond_timedwait_monotonic_np(NULL, NULL, NULL)])],
+            [AC_MSG_RESULT(yes)
+             AC_DEFINE(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC_NP,1,
+                [Have function pthread_cond_timedwait_monotonic_np])],
             [AC_MSG_RESULT(no)])
         CPPFLAGS="$glib_save_CPPFLAGS"
 ])

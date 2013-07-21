@@ -2717,6 +2717,26 @@ test_container (void)
 }
 
 static void
+test_string (void)
+{
+  /* Test some different methods of creating strings */
+  GVariant *v;
+
+  v = g_variant_new_string ("foo");
+  g_assert_cmpstr (g_variant_get_string (v, NULL), ==, "foo");
+  g_variant_unref (v);
+
+
+  v = g_variant_new_take_string (g_strdup ("foo"));
+  g_assert_cmpstr (g_variant_get_string (v, NULL), ==, "foo");
+  g_variant_unref (v);
+
+  v = g_variant_new_printf ("%s %d", "foo", 123);
+  g_assert_cmpstr (g_variant_get_string (v, NULL), ==, "foo 123");
+  g_variant_unref (v);
+}
+
+static void
 test_utf8 (void)
 {
   const gchar invalid[] = "hello\xffworld";
@@ -3726,6 +3746,7 @@ test_parses (void)
     const gchar *tests[] = { "inf", "-inf", "nan" };
     GVariant *value;
     gchar *printed;
+    gchar *printed_down;
     gint i;
 
     for (i = 0; i < G_N_ELEMENTS (tests); i++)
@@ -3733,8 +3754,11 @@ test_parses (void)
         GError *error = NULL;
         value = g_variant_parse (NULL, tests[i], NULL, NULL, &error);
         printed = g_variant_print (value, FALSE);
-        g_assert (g_str_has_prefix (printed, tests[i]));
+        /* Canonicalize to lowercase; https://bugzilla.gnome.org/show_bug.cgi?id=704585 */
+        printed_down = g_ascii_strdown (printed, -1);
+        g_assert (g_str_has_prefix (printed_down, tests[i]));
         g_free (printed);
+        g_free (printed_down);
         g_variant_unref (value);
       }
   }
@@ -4332,6 +4356,7 @@ main (int argc, char **argv)
       g_free (testname);
     }
 
+  g_test_add_func ("/gvariant/string", test_string);
   g_test_add_func ("/gvariant/utf8", test_utf8);
   g_test_add_func ("/gvariant/containers", test_containers);
   g_test_add_func ("/gvariant/format-strings", test_format_strings);

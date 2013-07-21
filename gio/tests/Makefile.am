@@ -226,11 +226,13 @@ uninstalled_test_programs += \
 	$(NULL)
 
 dist_test_data += \
+	appinfo-test-actions.desktop		\
 	appinfo-test-gnome.desktop		\
 	appinfo-test-notgnome.desktop		\
 	appinfo-test.desktop			\
 	appinfo-test2.desktop			\
 	file.c					\
+	org.gtk.test.dbusappinfo.desktop	\
 	$(NULL)
 
 test_extra_programs += \
@@ -310,6 +312,7 @@ gdbus_sessionbus_sources = gdbus-sessionbus.c gdbus-sessionbus.h gdbus-tests.h g
 
 test_programs += \
 	actions					\
+	dbus-appinfo				\
 	gapplication				\
 	gdbus-auth				\
 	gdbus-bz627724				\
@@ -332,6 +335,7 @@ test_programs += \
 
 gdbus_proxy_threads_CFLAGS = $(AM_CFLAGS) $(DBUS1_CFLAGS)
 actions_SOURCES                          = $(gdbus_sessionbus_sources) actions.c
+dbus_appinfo_SOURCES                     = $(gdbus_sessionbus_sources) dbus-appinfo.c
 gapplication_SOURCES                     = $(gdbus_sessionbus_sources) gapplication.c
 gdbus_auth_SOURCES                       = $(gdbus_sessionbus_sources) gdbus-auth.c
 gdbus_bz627724_SOURCES                   = $(gdbus_sessionbus_sources) gdbus-bz627724.c

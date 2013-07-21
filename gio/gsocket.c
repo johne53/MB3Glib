@@ -2916,19 +2916,6 @@ g_socket_is_closed (GSocket *socket)
 #ifdef G_OS_WIN32
 /* Broken source, used on errors */
 static gboolean
-broken_prepare  (GSource *source,
-		 gint    *timeout)
-{
-  return FALSE;
-}
-
-static gboolean
-broken_check (GSource *source)
-{
-  return FALSE;
-}
-
-static gboolean
 broken_dispatch (GSource     *source,
 		 GSourceFunc  callback,
 		 gpointer     user_data)
@@ -2938,8 +2925,8 @@ broken_dispatch (GSource     *source,
 
 static GSourceFuncs broken_funcs =
 {
-  broken_prepare,
-  broken_check,
+  NULL,
+  NULL,
   broken_dispatch,
   NULL
 };
@@ -3231,7 +3218,6 @@ static GSourceFuncs socket_source_funcs =
   socket_source_dispatch,
   socket_source_finalize,
   (GSourceFunc)socket_source_closure_callback,
-  (GSourceDummyMarshal)g_cclosure_marshal_generic,
 };
 
 static GSource *
