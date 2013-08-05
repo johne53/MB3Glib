@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [37])
-m4_define([glib_micro_version], [5])
+m4_define([glib_micro_version], [6])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -111,6 +111,7 @@ AC_SUBST(LT_CURRENT_MINUS_AGE)
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP
+AC_USE_SYSTEM_EXTENSIONS
 
 AM_CONDITIONAL(HAVE_GCC, [test "$GCC" = "yes"])
 
@@ -230,11 +231,6 @@ if test "x$glib_have_cocoa" = "xyes"; then
   AC_DEFINE(HAVE_COCOA, 1, [define to 1 if Cocoa is available])
   LDFLAGS="$LDFLAGS -Wl,-framework,Foundation"
 fi
-
-gl_GLIBC21
-AS_IF([test "x$GLIBC21" = "xyes"], [
-  AC_DEFINE([_GNU_SOURCE], 1, [Make all glibc extensions visible])
-])
 
 dnl declare --enable-* args and collect ac_help strings
 AC_ARG_ENABLE(debug,
@@ -437,33 +433,6 @@ AS_IF([ test x"$glib_native_win32" = xyes], [
      AC_MSG_ERROR([*** No iconv() implementation found in C library or libiconv])
   fi
 ])
-
-AC_ARG_ENABLE(iconv-cache, 
-              [AS_HELP_STRING([--enable-iconv-cache=@<:@yes/no/auto@:>@],
-                              [cache iconv descriptors [default=auto]])],,
-              [enable_iconv_cache=auto])
-
-AC_MSG_CHECKING([whether to cache iconv descriptors])
-case $enable_iconv_cache in
-  auto)
-    if test $ac_cv_gnu_library_2_1 = yes; then
-      enable_iconv_cache=no
-    else 
-      enable_iconv_cache=yes
-    fi
-  ;;
-  yes|no) 
-  ;;
-  *) AC_MSG_ERROR([Value given to --enable-iconv-cache must be one of yes, no or auto])
-  ;;
-esac
-
-if test $enable_iconv_cache = yes; then
-   AC_DEFINE(NEED_ICONV_CACHE,1,[Do we cache iconv descriptors])
-fi
-
-AC_MSG_RESULT($enable_iconv_cache)
-
 
 dnl
 dnl zlib support

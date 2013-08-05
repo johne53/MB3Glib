@@ -24,7 +24,6 @@ test_source (GSource *one, GCallback quit_callback)
   g_main_loop_run (loop);
 
   g_source_destroy (one);
-  g_closure_unref (closure);
   g_main_loop_unref (loop);
 }
 
@@ -105,7 +104,7 @@ test_closure_child (void)
   GError *error = NULL;
   gchar *argv[3];
 
-  g_assert (getenv ("DO_NOT_ACCIDENTALLY_RECURSE") == NULL);
+  g_assert (g_getenv ("DO_NOT_ACCIDENTALLY_RECURSE") == NULL);
   g_setenv ("DO_NOT_ACCIDENTALLY_RECURSE", "1", TRUE);
 
   if (g_path_is_absolute (g_get_prgname ()))
@@ -166,8 +165,18 @@ test_closure_fd (void)
 static gboolean
 send_usr1 (gpointer user_data)
 {
-  kill (0, SIGUSR1);
+  kill (getpid (), SIGUSR1);
   return FALSE;
+}
+
+static gboolean
+closure_quit_callback (gpointer     user_data)
+{
+  GMainLoop *loop = user_data;
+
+  g_main_loop_quit (loop);
+
+  return TRUE;
 }
 
 static void
@@ -178,7 +187,7 @@ test_closure_signal (void)
   g_idle_add_full (G_PRIORITY_LOW, send_usr1, NULL, NULL);
 
   source = g_unix_signal_source_new (SIGUSR1);
-  test_source (source, G_CALLBACK (fd_quit_callback));
+  test_source (source, G_CALLBACK (closure_quit_callback));
   g_source_unref (source);
 }
 #endif
