@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [37])
-m4_define([glib_micro_version], [6])
+m4_define([glib_micro_version], [8])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -2454,7 +2454,7 @@ AC_CACHE_CHECK([for lock-free atomic intrinsics], glib_cv_g_atomic_lock_free, [
       glib_cv_g_atomic_lock_free=yes
       ;;
     *)
-      AC_TRY_COMPILE([],
+      AC_TRY_LINK([],
                      [volatile int atomic = 2;\
                       __sync_bool_compare_and_swap (&atomic, 2, 3);],
                      [glib_cv_g_atomic_lock_free=yes],
@@ -2462,7 +2462,7 @@ AC_CACHE_CHECK([for lock-free atomic intrinsics], glib_cv_g_atomic_lock_free, [
       if test "$glib_cv_g_atomic_lock_free" = "no"; then
         SAVE_CFLAGS="${CFLAGS}"
         CFLAGS="-march=i486"
-        AC_TRY_COMPILE([],
+        AC_TRY_LINK([],
                        [volatile int atomic = 2;\
                         __sync_bool_compare_and_swap (&atomic, 2, 3);],
                        [AC_MSG_ERROR([GLib must be build with -march=i486 or later.])],
@@ -2480,7 +2480,7 @@ case $host in
     # Some compilers support atomic operations but do not define
     # __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4, like clang
     if test x"$glib_cv_g_atomic_lock_free" = xyes; then
-      AC_TRY_COMPILE([],
+      AC_TRY_LINK([],
                      [__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4;],
                      [],
                      [AC_DEFINE(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4, 1, [ compiler supports atomic operations])])

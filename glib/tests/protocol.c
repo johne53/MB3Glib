@@ -121,7 +121,7 @@ static void
 test_message (void)
 {
   gchar* argv[] = {
-          argv0,
+          (gchar*)argv0,
           NULL,
           "--GTestSubprocess",
           "-p", "/glib/testing/protocol/debug",
@@ -193,6 +193,8 @@ test_message (void)
         {
         case G_TEST_LOG_START_BINARY:
         case G_TEST_LOG_START_CASE:
+        case G_TEST_LOG_START_SUITE:
+        case G_TEST_LOG_STOP_SUITE:
           /* ignore */
           break;
         case G_TEST_LOG_STOP_CASE:
@@ -241,7 +243,7 @@ test_error (void)
   for (i = 0; i < G_N_ELEMENTS (tests); i++)
     {
       gchar* argv[] = {
-              argv0,
+              (gchar*)argv0,
               NULL,
               "--GTestSubprocess",
               "-p", tests[i],
@@ -302,6 +304,8 @@ test_error (void)
             {
             case G_TEST_LOG_START_BINARY:
             case G_TEST_LOG_START_CASE:
+            case G_TEST_LOG_START_SUITE:
+            case G_TEST_LOG_STOP_SUITE:
               /* ignore */
               break;
             case G_TEST_LOG_STOP_CASE:

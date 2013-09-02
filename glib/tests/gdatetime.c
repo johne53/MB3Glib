@@ -128,6 +128,17 @@ test_GDateTime_new_from_unix (void)
 }
 
 static void
+test_GDateTime_invalid (void)
+{
+  GDateTime *dt;
+
+  g_test_bug ("702674");
+
+  dt = g_date_time_new_utc (2013, -2147483647, 31, 17, 15, 48);
+  g_assert (dt == NULL);
+}
+
+static void
 test_GDateTime_compare (void)
 {
   GDateTime *dt1, *dt2;
@@ -550,8 +561,8 @@ test_GDateTime_diff (void)
 #define TEST_DIFF(y,m,d,y2,m2,d2,u) G_STMT_START { \
   GDateTime *dt1, *dt2; \
   GTimeSpan  ts = 0; \
-  dt1 = g_date_time_new_local (y, m, d, 0, 0, 0); \
-  dt2 = g_date_time_new_local (y2, m2, d2, 0, 0, 0); \
+  dt1 = g_date_time_new_utc (y, m, d, 0, 0, 0); \
+  dt2 = g_date_time_new_utc (y2, m2, d2, 0, 0, 0); \
   ts = g_date_time_difference (dt2, dt1); \
   g_assert_cmpint (ts, ==, u); \
   g_date_time_unref (dt1); \
@@ -801,7 +812,6 @@ test_GDateTime_printf (void)
   gchar dst[64];
   struct tm tt;
   time_t t;
-  gchar t_str[16];
 
 #define TEST_PRINTF(f,o)                        G_STMT_START {  \
 GDateTime *__dt = g_date_time_new_local (2009, 10, 24, 0, 0, 0);\
@@ -844,7 +854,6 @@ GDateTime *__dt = g_date_time_new_local (2009, 10, 24, 0, 0, 0);\
   tt.tm_min = 0;
   tt.tm_hour = 0;
   t = mktime (&tt);
-  g_sprintf (t_str, "%ld", t);
 
   TEST_PRINTF ("%a", "Sat");
   TEST_PRINTF ("%A", "Saturday");
@@ -876,7 +885,6 @@ GDateTime *__dt = g_date_time_new_local (2009, 10, 24, 0, 0, 0);\
   TEST_PRINTF_TIME (13, 13, 13, "%r", "01:13:13 PM");
   TEST_PRINTF ("%R", "00:00");
   TEST_PRINTF_TIME (13, 13, 31, "%R", "13:13");
-  //TEST_PRINTF ("%s", t_str);
   TEST_PRINTF ("%S", "00");
   TEST_PRINTF ("%t", "	");
   TEST_PRINTF ("%u", "6");
@@ -1233,12 +1241,50 @@ test_z (void)
   g_test_bug ("642935");
 
   tz = g_time_zone_new ("-08:00");
-  dt = g_date_time_new (tz, 0, 0, 0, 0, 0, 0);
+  dt = g_date_time_new (tz, 1, 1, 1, 0, 0, 0);
+
   p = g_date_time_format (dt, "%z");
   g_assert_cmpstr (p, ==, "-0800");
+  g_free (p);
+
+  p = g_date_time_format (dt, "%:z");
+  g_assert_cmpstr (p, ==, "-08:00");
+  g_free (p);
+
+  p = g_date_time_format (dt, "%::z");
+  g_assert_cmpstr (p, ==, "-08:00:00");
+  g_free (p);
+
+  p = g_date_time_format (dt, "%:::z");
+  g_assert_cmpstr (p, ==, "-08");
+  g_free (p);
+
   g_date_time_unref (dt);
   g_time_zone_unref (tz);
+
+  tz = g_time_zone_new ("+00:00");
+  dt = g_date_time_new (tz, 1, 1, 1, 0, 0, 0);
+  p = g_date_time_format (dt, "%:::z");
+  g_assert_cmpstr (p, ==, "+00");
   g_free (p);
+  g_date_time_unref (dt);
+  g_time_zone_unref (tz);
+
+  tz = g_time_zone_new ("+08:23");
+  dt = g_date_time_new (tz, 1, 1, 1, 0, 0, 0);
+  p = g_date_time_format (dt, "%:::z");
+  g_assert_cmpstr (p, ==, "+08:23");
+  g_free (p);
+  g_date_time_unref (dt);
+  g_time_zone_unref (tz);
+
+  tz = g_time_zone_new ("+08:23:45");
+  dt = g_date_time_new (tz, 1, 1, 1, 0, 0, 0);
+  p = g_date_time_format (dt, "%:::z");
+  g_assert_cmpstr (p, ==, "+08:23:45");
+  g_free (p);
+  g_date_time_unref (dt);
+  g_time_zone_unref (tz);
 }
 
 static void
@@ -1540,6 +1586,7 @@ main (gint   argc,
 
   /* GDateTime Tests */
 
+  g_test_add_func ("/GDateTime/invalid", test_GDateTime_invalid);
   g_test_add_func ("/GDateTime/add_days", test_GDateTime_add_days);
   g_test_add_func ("/GDateTime/add_full", test_GDateTime_add_full);
   g_test_add_func ("/GDateTime/add_hours", test_GDateTime_add_hours);

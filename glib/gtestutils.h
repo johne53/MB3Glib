@@ -66,14 +66,27 @@ typedef void (*GTestFixtureFunc) (gpointer      fixture,
 #define g_assert_error(err, dom, c)	do { if (!err || (err)->domain != dom || (err)->code != c) \
                                                g_assertion_message_error (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
                                                  #err, err, dom, c); } while (0)
+#define g_assert_true(expr)             do { if G_LIKELY (expr) ; else \
+                                               g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
+                                                                    #expr); \
+                                           } while (0)
+#define g_assert_false(expr)            do { if G_LIKELY (!(expr)) ; else \
+                                               g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
+                                                                    #expr); \
+                                           } while (0)
+#define g_assert_null(expr)              do { if G_LIKELY ((expr) == NULL) ; else \
+                                               g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
+                                                                    #expr); \
+                                           } while (0)
 #ifdef G_DISABLE_ASSERT
 #define g_assert_not_reached()          do { (void) 0; } while (0)
 #define g_assert(expr)                  do { (void) 0; } while (0)
 #else /* !G_DISABLE_ASSERT */
-#define g_assert_not_reached()          do { g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, NULL); } while (0)
+#define g_assert_not_reached()          do { g_assertion_message_expr (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, NULL); } while (0)
 #define g_assert(expr)                  do { if G_LIKELY (expr) ; else \
                                                g_assertion_message_expr (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
-                                                 #expr); } while (0)
+                                                                         #expr); \
+                                           } while (0)
 #endif /* !G_DISABLE_ASSERT */
 
 GLIB_AVAILABLE_IN_ALL
@@ -129,6 +142,14 @@ void    g_test_add_data_func_full       (const char     *testpath,
 /* tell about failure */
 GLIB_AVAILABLE_IN_2_30
 void    g_test_fail                     (void);
+GLIB_AVAILABLE_IN_2_38
+void    g_test_incomplete               (const gchar *msg);
+GLIB_AVAILABLE_IN_2_38
+void    g_test_skip                     (const gchar *msg);
+GLIB_AVAILABLE_IN_2_38
+gboolean g_test_failed                  (void);
+GLIB_AVAILABLE_IN_2_38
+void    g_test_set_nonfatal_assertions  (void);
 
 /* hook up a test with fixture under test path */
 #define g_test_add(testpath, Fixture, tdata, fsetup, ftest, fteardown) \
@@ -246,7 +267,7 @@ void    g_assertion_message             (const char     *domain,
                                          const char     *file,
                                          int             line,
                                          const char     *func,
-                                         const char     *message) G_GNUC_NORETURN;
+                                         const char     *message);
 GLIB_AVAILABLE_IN_ALL
 void    g_assertion_message_expr        (const char     *domain,
                                          const char     *file,
@@ -261,7 +282,7 @@ void    g_assertion_message_cmpstr      (const char     *domain,
                                          const char     *expr,
                                          const char     *arg1,
                                          const char     *cmp,
-                                         const char     *arg2) G_GNUC_NORETURN;
+                                         const char     *arg2);
 GLIB_AVAILABLE_IN_ALL
 void    g_assertion_message_cmpnum      (const char     *domain,
                                          const char     *file,
@@ -271,7 +292,7 @@ void    g_assertion_message_cmpnum      (const char     *domain,
                                          long double     arg1,
                                          const char     *cmp,
                                          long double     arg2,
-                                         char            numtype) G_GNUC_NORETURN;
+                                         char            numtype);
 GLIB_AVAILABLE_IN_ALL
 void    g_assertion_message_error       (const char     *domain,
                                          const char     *file,
@@ -280,7 +301,7 @@ void    g_assertion_message_error       (const char     *domain,
                                          const char     *expr,
                                          const GError   *error,
                                          GQuark          error_domain,
-                                         int             error_code) G_GNUC_NORETURN;
+                                         int             error_code);
 GLIB_AVAILABLE_IN_ALL
 void    g_test_add_vtable               (const char     *testpath,
                                          gsize           data_size,
@@ -309,7 +330,9 @@ typedef enum {
   G_TEST_LOG_STOP_CASE,         /* d:status d:nforks d:elapsed */
   G_TEST_LOG_MIN_RESULT,        /* s:blurb d:result */
   G_TEST_LOG_MAX_RESULT,        /* s:blurb d:result */
-  G_TEST_LOG_MESSAGE            /* s:blurb */
+  G_TEST_LOG_MESSAGE,           /* s:blurb */
+  G_TEST_LOG_START_SUITE,
+  G_TEST_LOG_STOP_SUITE
 } GTestLogType;
 
 typedef struct {

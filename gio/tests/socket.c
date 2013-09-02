@@ -100,11 +100,7 @@ create_server (GSocketFamily family,
 #if defined (IPPROTO_IPV6) && defined (IPV6_V6ONLY)
   if (v4mapped)
     {
-      int fd, v6_only;
-
-      fd = g_socket_get_fd (server);
-      v6_only = 0;
-      setsockopt (fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6_only, sizeof (v6_only));
+      g_socket_set_option (data->server, IPPROTO_IPV6, IPV6_V6ONLY, FALSE, NULL);
       if (! g_socket_speaks_ipv4 (data->server))
         {
           g_object_unref (data->server);
@@ -824,6 +820,158 @@ test_unix_connection_ancillary_data (void)
 }
 #endif /* G_OS_UNIX */
 
+static void
+test_reuse_tcp (void)
+{
+  GSocket *sock1, *sock2;
+  GError *error = NULL;
+  GInetAddress *iaddr;
+  GSocketAddress *addr;
+
+  sock1 = g_socket_new (G_SOCKET_FAMILY_IPV4,
+                        G_SOCKET_TYPE_STREAM,
+                        G_SOCKET_PROTOCOL_DEFAULT,
+                        &error);
+  g_assert_no_error (error);
+
+  iaddr = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
+  addr = g_inet_socket_address_new (iaddr, 0);
+  g_object_unref (iaddr);
+  g_socket_bind (sock1, addr, TRUE, &error);
+  g_object_unref (addr);
+  g_assert_no_error (error);
+
+  g_socket_listen (sock1, &error);
+  g_assert_no_error (error);
+
+  sock2 = g_socket_new (G_SOCKET_FAMILY_IPV4,
+                        G_SOCKET_TYPE_STREAM,
+                        G_SOCKET_PROTOCOL_DEFAULT,
+                        &error);
+  g_assert_no_error (error);
+
+  addr = g_socket_get_local_address (sock1, &error);
+  g_assert_no_error (error);
+  g_socket_bind (sock2, addr, TRUE, &error);
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_ADDRESS_IN_USE);
+  g_object_unref (addr);
+
+  g_object_unref (sock1);
+  g_object_unref (sock2);
+}
+
+static void
+test_reuse_udp (void)
+{
+  GSocket *sock1, *sock2;
+  GError *error = NULL;
+  GInetAddress *iaddr;
+  GSocketAddress *addr;
+
+  sock1 = g_socket_new (G_SOCKET_FAMILY_IPV4,
+                        G_SOCKET_TYPE_DATAGRAM,
+                        G_SOCKET_PROTOCOL_DEFAULT,
+                        &error);
+  g_assert_no_error (error);
+
+  iaddr = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
+  addr = g_inet_socket_address_new (iaddr, 0);
+  g_object_unref (iaddr);
+  g_socket_bind (sock1, addr, TRUE, &error);
+  g_object_unref (addr);
+  g_assert_no_error (error);
+
+  sock2 = g_socket_new (G_SOCKET_FAMILY_IPV4,
+                        G_SOCKET_TYPE_DATAGRAM,
+                        G_SOCKET_PROTOCOL_DEFAULT,
+                        &error);
+  g_assert_no_error (error);
+
+  addr = g_socket_get_local_address (sock1, &error);
+  g_assert_no_error (error);
+  g_socket_bind (sock2, addr, TRUE, &error);
+  g_object_unref (addr);
+  g_assert_no_error (error);
+
+  g_object_unref (sock1);
+  g_object_unref (sock2);
+}
+
+static void
+test_datagram_get_available (void)
+{
+  GError *err = NULL;
+  GSocket *server, *client;
+  GInetAddress *addr;
+  GSocketAddress *saddr;
+  gchar data[] = "0123456789abcdef";
+  gchar buf[34];
+  gssize nread;
+
+  server = g_socket_new (G_SOCKET_FAMILY_IPV4,
+                                G_SOCKET_TYPE_DATAGRAM,
+                                G_SOCKET_PROTOCOL_DEFAULT,
+                                &err);
+  g_assert_no_error (err);
+  g_assert (G_IS_SOCKET (server));
+
+  client = g_socket_new (G_SOCKET_FAMILY_IPV4,
+			 G_SOCKET_TYPE_DATAGRAM,
+			 G_SOCKET_PROTOCOL_DEFAULT,
+			 &err);
+  g_assert_no_error (err);
+  g_assert (G_IS_SOCKET (client));
+
+  addr = g_inet_address_new_any (G_SOCKET_FAMILY_IPV4);
+  saddr = g_inet_socket_address_new (addr, 0);
+
+  g_socket_bind (server, saddr, TRUE, &err);
+  g_assert_no_error (err);
+  g_object_unref (saddr);
+  g_object_unref (addr);
+
+  saddr = g_socket_get_local_address (server, &err);
+  g_assert_no_error (err);
+
+  g_socket_send_to (client, saddr, data, sizeof (data), NULL, &err);
+  g_assert_no_error (err);
+
+  while (!g_socket_condition_wait (server, G_IO_IN, NULL, NULL))
+    ;
+  g_assert_cmpint (g_socket_get_available_bytes (server), ==, sizeof (data));
+
+  g_socket_send_to (client, saddr, data, sizeof (data), NULL, &err);
+  g_assert_no_error (err);
+
+  /* g_socket_condition_wait() won't help here since the socket is
+   * definitely already readable. So there's a race condition here, but
+   * at least the failure mode is passes-when-it-shouldn't, not
+   * fails-when-it-shouldn't.
+   */
+  g_usleep (100000);
+  g_assert_cmpint (g_socket_get_available_bytes (server), ==, sizeof (data));
+
+  g_assert_cmpint (sizeof (buf), >=, 2 * sizeof (data));
+  nread = g_socket_receive (server, buf, sizeof (buf), NULL, &err);
+  g_assert_cmpint (nread, ==, sizeof (data));
+  g_assert_no_error (err);
+
+  g_assert_cmpint (g_socket_get_available_bytes (server), ==, sizeof (data));
+
+  nread = g_socket_receive (server, buf, sizeof (buf), NULL, &err);
+  g_assert_cmpint (nread, ==, sizeof (data));
+  g_assert_no_error (err);
+
+  g_assert_cmpint (g_socket_get_available_bytes (server), ==, 0);
+
+  g_socket_close (server, &err);
+  g_assert_no_error (err);
+
+  g_object_unref (saddr);
+  g_object_unref (server);
+  g_object_unref (client);
+}
+
 int
 main (int   argc,
       char *argv[])
@@ -845,6 +993,9 @@ main (int   argc,
   g_test_add_func ("/socket/unix-connection", test_unix_connection);
   g_test_add_func ("/socket/unix-connection-ancillary-data", test_unix_connection_ancillary_data);
 #endif
+  g_test_add_func ("/socket/reuse/tcp", test_reuse_tcp);
+  g_test_add_func ("/socket/reuse/udp", test_reuse_udp);
+  g_test_add_func ("/socket/datagram_get_available", test_datagram_get_available);
 
   return g_test_run();
 }

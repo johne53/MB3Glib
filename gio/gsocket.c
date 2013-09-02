@@ -172,6 +172,7 @@ struct _GSocketPrivate
   int             current_errors;
   int             selected_events;
   GList          *requested_conditions; /* list of requested GIOCondition * */
+  GMutex          win32_source_lock;
 #endif
 
   struct {
@@ -759,6 +760,7 @@ g_socket_finalize (GObject *object)
     }
 
   g_assert (socket->priv->requested_conditions == NULL);
+  g_mutex_clear (&socket->priv->win32_source_lock);
 #endif
 
   for (i = 0; i < RECV_ADDR_CACHE_SIZE; i++)
@@ -895,14 +897,14 @@ g_socket_class_init (GSocketClass *klass)
   /**
    * GSocket:broadcast:
    *
-   * Whether the socket should allow sending to and receiving from broadcast addresses.
+   * Whether the socket should allow sending to broadcast addresses.
    *
    * Since: 2.32
    */
   g_object_class_install_property (gobject_class, PROP_BROADCAST,
 				   g_param_spec_boolean ("broadcast",
 							 P_("Broadcast"),
-							 P_("Whether to allow sending to and receiving from broadcast addresses"),
+							 P_("Whether to allow sending to broadcast addresses"),
 							 FALSE,
 							 G_PARAM_READWRITE |
                                                          G_PARAM_STATIC_STRINGS));
@@ -970,6 +972,7 @@ g_socket_init (GSocket *socket)
   socket->priv->construct_error = NULL;
 #ifdef G_OS_WIN32
   socket->priv->event = WSA_INVALID_EVENT;
+  g_mutex_init (&socket->priv->win32_source_lock);
 #endif
 }
 
@@ -1387,7 +1390,7 @@ g_socket_set_ttl (GSocket  *socket,
  *
  * Gets the broadcast setting on @socket; if %TRUE,
  * it is possible to send packets to broadcast
- * addresses or receive from broadcast addresses.
+ * addresses.
  *
  * Returns: the broadcast setting on @socket
  *
@@ -1415,11 +1418,11 @@ g_socket_get_broadcast (GSocket *socket)
 /**
  * g_socket_set_broadcast:
  * @socket: a #GSocket.
- * @broadcast: whether @socket should allow sending to and receiving
- *     from broadcast addresses
+ * @broadcast: whether @socket should allow sending to broadcast
+ *     addresses
  *
- * Sets whether @socket should allow sending to and receiving from
- * broadcast addresses. This is %FALSE by default.
+ * Sets whether @socket should allow sending to broadcast addresses.
+ * This is %FALSE by default.
  *
  * Since: 2.32
  */
@@ -1853,14 +1856,20 @@ g_socket_listen (GSocket  *socket,
  * In certain situations, you may also want to bind a socket that will be
  * used to initiate connections, though this is not normally required.
  *
- * @allow_reuse should be %TRUE for server sockets (sockets that you will
- * eventually call g_socket_accept() on), and %FALSE for client sockets.
- * (Specifically, if it is %TRUE, then g_socket_bind() will set the
- * %SO_REUSEADDR flag on the socket, allowing it to bind @address even if
- * that address was previously used by another socket that has not yet been
- * fully cleaned-up by the kernel. Failing to set this flag on a server
- * socket may cause the bind call to return %G_IO_ERROR_ADDRESS_IN_USE if
- * the server program is stopped and then immediately restarted.)
+ * If @socket is a TCP socket, then @allow_reuse controls the setting
+ * of the <literal>SO_REUSEADDR</literal> socket option; normally it
+ * should be %TRUE for server sockets (sockets that you will
+ * eventually call g_socket_accept() on), and %FALSE for client
+ * sockets. (Failing to set this flag on a server socket may cause
+ * g_socket_bind() to return %G_IO_ERROR_ADDRESS_IN_USE if the server
+ * program is stopped and then immediately restarted.)
+ *
+ * If @socket is a UDP socket, then @allow_reuse determines whether or
+ * not other UDP sockets can be bound to the same address at the same
+ * time. In particular, you can have several UDP sockets bound to the
+ * same address, and they will all receive all of the multicast and
+ * broadcast packets sent to that address. (The behavior of unicast
+ * UDP packets to an address with multiple listeners is not defined.)
  *
  * Returns: %TRUE on success, %FALSE on error.
  *
@@ -1873,26 +1882,47 @@ g_socket_bind (GSocket         *socket,
 	       GError         **error)
 {
   struct sockaddr_storage addr;
+  gboolean so_reuseaddr;
+#ifdef SO_REUSEPORT
+  gboolean so_reuseport;
+#endif
 
   g_return_val_if_fail (G_IS_SOCKET (socket) && G_IS_SOCKET_ADDRESS (address), FALSE);
 
   if (!check_socket (socket, error))
     return FALSE;
 
-  /* SO_REUSEADDR on Windows means something else and is not what we want.
-     It always allows the unix variant of SO_REUSEADDR anyway */
-#ifndef G_OS_WIN32
-  {
-    reuse_address = !!reuse_address;
-    /* Ignore errors here, the only likely error is "not supported", and
-       this is a "best effort" thing mainly */
-    g_socket_set_option (socket, SOL_SOCKET, SO_REUSEADDR,
-			 reuse_address, NULL);
-  }
-#endif
-
   if (!g_socket_address_to_native (address, &addr, sizeof addr, error))
     return FALSE;
+
+  /* On Windows, SO_REUSEADDR has the semantics we want for UDP
+   * sockets, but has nasty side effects we don't want for TCP
+   * sockets.
+   *
+   * On other platforms, we set SO_REUSEPORT, if it exists, for
+   * UDP sockets, and SO_REUSEADDR for all sockets, hoping that
+   * if SO_REUSEPORT doesn't exist, then SO_REUSEADDR will have
+   * the desired semantics on UDP (as it does on Linux, although
+   * Linux has SO_REUSEPORT too as of 3.9).
+   */
+
+#ifdef G_OS_WIN32
+  so_reuseaddr = reuse_address && (socket->priv->type == G_SOCKET_TYPE_DATAGRAM);
+#else
+  so_reuseaddr = !!reuse_address;
+#endif
+
+#ifdef SO_REUSEPORT
+  so_reuseport = reuse_address && (socket->priv->type == G_SOCKET_TYPE_DATAGRAM);
+#endif
+
+  /* Ignore errors here, the only likely error is "not supported", and
+   * this is a "best effort" thing mainly.
+   */
+  g_socket_set_option (socket, SOL_SOCKET, SO_REUSEADDR, so_reuseaddr, NULL);
+#ifdef SO_REUSEPORT
+  g_socket_set_option (socket, SOL_SOCKET, SO_REUSEPORT, so_reuseport, NULL);
+#endif
 
   if (bind (socket->priv->fd, (struct sockaddr *) &addr,
 	    g_socket_address_get_native_size (address)) < 0)
@@ -1906,6 +1936,60 @@ g_socket_bind (GSocket         *socket,
 
   return TRUE;
 }
+
+#if !defined(HAVE_IF_NAMETOINDEX) && defined(G_OS_WIN32)
+static guint
+if_nametoindex (const gchar *iface)
+{
+  PIP_ADAPTER_ADDRESSES addresses = NULL, p;
+  gulong addresses_len = 0;
+  guint idx = 0;
+  DWORD res;
+
+  res = GetAdaptersAddresses (AF_UNSPEC, 0, NULL, NULL, &addresses_len);
+  if (res != NO_ERROR && res != ERROR_BUFFER_OVERFLOW)
+    {
+      if (res == ERROR_NO_DATA)
+        errno = ENXIO;
+      else
+        errno = EINVAL;
+      return 0;
+    }
+
+  addresses = g_malloc (addresses_len);
+  res = GetAdaptersAddresses (AF_UNSPEC, 0, NULL, addresses, &addresses_len);
+
+  if (res != NO_ERROR)
+    {
+      g_free (addresses);
+      if (res == ERROR_NO_DATA)
+        errno = ENXIO;
+      else
+        errno = EINVAL;
+      return 0;
+    }
+
+  p = addresses;
+  while (p)
+    {
+      if (strcmp (p->AdapterName, iface) == 0)
+        {
+          idx = p->IfIndex;
+          break;
+        }
+      p = p->Next;
+    }
+
+  if (p == NULL)
+    errno = ENXIO;
+
+  g_free (addresses);
+
+  return idx;
+}
+
+#define HAVE_IF_NAMETOINDEX 1
+#endif
 
 static gboolean
 g_socket_multicast_group_operation (GSocket       *socket,
@@ -1942,6 +2026,11 @@ g_socket_multicast_group_operation (GSocket       *socket,
         mc_req.imr_ifindex = if_nametoindex (iface);
       else
         mc_req.imr_ifindex = 0;  /* Pick any.  */
+#elif defined(G_OS_WIN32)
+      if (iface)
+        mc_req.imr_interface.s_addr = g_htonl (if_nametoindex (iface));
+      else
+        mc_req.imr_interface.s_addr = g_htonl (INADDR_ANY);
 #else
       mc_req.imr_interface.s_addr = g_htonl (INADDR_ANY);
 #endif
@@ -2368,24 +2457,44 @@ g_socket_check_connect_result (GSocket  *socket,
  *
  * Get the amount of data pending in the OS input buffer.
  *
+ * If @socket is a UDP or SCTP socket, this will return the size of
+ * just the next packet, even if additional packets are buffered after
+ * that one.
+ *
+ * Note that on Windows, this function is rather inefficient in the
+ * UDP case, and so if you know any plausible upper bound on the size
+ * of the incoming packet, it is better to just do a
+ * g_socket_receive() with a buffer of that size, rather than calling
+ * g_socket_get_available_bytes() first and then doing a receive of
+ * exactly the right size.
+ *
  * Returns: the number of bytes that can be read from the socket
- * without blocking or -1 on error.
+ * without blocking or truncating, or -1 on error.
  *
  * Since: 2.32
  */
 gssize
 g_socket_get_available_bytes (GSocket *socket)
 {
-  gulong avail = 0;
+#ifdef G_OS_WIN32
+  const gint bufsize = 64 * 1024;
+  static guchar *buf = NULL;
+#endif
+  gint avail;
 
   g_return_val_if_fail (G_IS_SOCKET (socket), -1);
 
-#ifndef G_OS_WIN32
+#if defined (SO_NREAD)
+  if (!g_socket_get_option (socket, SOL_SOCKET, SO_NREAD, &avail, NULL))
+      return -1;
+#elif !defined (G_OS_WIN32)
   if (ioctl (socket->priv->fd, FIONREAD, &avail) < 0)
-    return -1;
+    avail = -1;
 #else
-  if (ioctlsocket (socket->priv->fd, FIONREAD, &avail) == SOCKET_ERROR)
-    return -1;
+  if (G_UNLIKELY (g_once_init_enter (&buf)))
+    g_once_init_leave (&buf, g_malloc (bufsize));
+
+  avail = recv (socket->priv->fd, buf, bufsize, MSG_PEEK);
 #endif
 
   return avail;
@@ -2988,24 +3097,28 @@ static void
 add_condition_watch (GSocket      *socket,
 		     GIOCondition *condition)
 {
+  g_mutex_lock (&socket->priv->win32_source_lock);
   g_assert (g_list_find (socket->priv->requested_conditions, condition) == NULL);
 
   socket->priv->requested_conditions =
     g_list_prepend (socket->priv->requested_conditions, condition);
 
   update_select_events (socket);
+  g_mutex_unlock (&socket->priv->win32_source_lock);
 }
 
 static void
 remove_condition_watch (GSocket      *socket,
 			GIOCondition *condition)
 {
+  g_mutex_lock (&socket->priv->win32_source_lock);
   g_assert (g_list_find (socket->priv->requested_conditions, condition) != NULL);
 
   socket->priv->requested_conditions =
     g_list_remove (socket->priv->requested_conditions, condition);
 
   update_select_events (socket);
+  g_mutex_unlock (&socket->priv->win32_source_lock);
 }
 
 static GIOCondition
@@ -3238,7 +3351,7 @@ socket_source_new (GSocket      *socket,
     }
 #endif
 
-  condition |= G_IO_HUP | G_IO_ERR;
+  condition |= G_IO_HUP | G_IO_ERR | G_IO_NVAL;
 
   source = g_source_new (&socket_source_funcs, sizeof (GSocketSource));
   g_source_set_name (source, "GSocket");

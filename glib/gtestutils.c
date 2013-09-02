@@ -349,18 +349,64 @@
  */
 
 /**
+ * g_assert_true:
+ * @expr: the expression to check
+ *
+ * Debugging macro to check that an expression is true.
+ *
+ * If the assertion fails (i.e. the expression is not true),
+ * an error message is logged and the application is either
+ * terminated or the testcase marked as failed.
+ *
+ * See g_test_set_nonfatal_assertions().
+ *
+ * Since: 2.38
+ */
+
+/**
+ * g_assert_false:
+ * @expr: the expression to check
+ *
+ * Debugging macro to check an expression is false.
+ *
+ * If the assertion fails (i.e. the expression is not false),
+ * an error message is logged and the application is either
+ * terminated or the testcase marked as failed.
+ *
+ * See g_test_set_nonfatal_assertions().
+ *
+ * Since: 2.38
+ */
+
+/**
+ * g_assert_null:
+ * @expr: the expression to check
+ *
+ * Debugging macro to check an expression is %NULL.
+ *
+ * If the assertion fails (i.e. the expression is not %NULL),
+ * an error message is logged and the application is either
+ * terminated or the testcase marked as failed.
+ *
+ * See g_test_set_nonfatal_assertions().
+ *
+ * Since: 2.38
+ */
+
+/**
  * g_assert_cmpstr:
  * @s1: a string (may be %NULL)
  * @cmp: The comparison operator to use.
  *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
  * @s2: another string (may be %NULL)
  *
- * Debugging macro to terminate the application with a warning
- * message if a string comparison fails. The strings are compared
- * using g_strcmp0().
+ * Debugging macro to compare two strings. If the comparison fails,
+ * an error message is logged and the application is either terminated
+ * or the testcase marked as failed.
+ * The strings are compared using g_strcmp0().
  *
  * The effect of <literal>g_assert_cmpstr (s1, op, s2)</literal> is
- * the same as <literal>g_assert (g_strcmp0 (s1, s2) op 0)</literal>.
+ * the same as <literal>g_assert_true (g_strcmp0 (s1, s2) op 0)</literal>.
  * The advantage of this macro is that it can produce a message that
  * includes the actual values of @s1 and @s2.
  *
@@ -378,11 +424,10 @@
  *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
  * @n2: another integer
  *
- * Debugging macro to terminate the application with a warning
- * message if an integer comparison fails.
+ * Debugging macro to compare two integers.
  *
  * The effect of <literal>g_assert_cmpint (n1, op, n2)</literal> is
- * the same as <literal>g_assert (n1 op n2)</literal>. The advantage
+ * the same as <literal>g_assert_true (n1 op n2)</literal>. The advantage
  * of this macro is that it can produce a message that includes the
  * actual values of @n1 and @n2.
  *
@@ -396,11 +441,10 @@
  *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
  * @n2: another unsigned integer
  *
- * Debugging macro to terminate the application with a warning
- * message if an unsigned integer comparison fails.
+ * Debugging macro to compare two unsigned integers.
  *
  * The effect of <literal>g_assert_cmpuint (n1, op, n2)</literal> is
- * the same as <literal>g_assert (n1 op n2)</literal>. The advantage
+ * the same as <literal>g_assert_true (n1 op n2)</literal>. The advantage
  * of this macro is that it can produce a message that includes the
  * actual values of @n1 and @n2.
  *
@@ -414,8 +458,7 @@
  *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
  * @n2: another unsigned integer
  *
- * Debugging macro to terminate the application with a warning
- * message if an unsigned integer comparison fails.
+ * Debugging macro to compare to unsigned integers.
  *
  * This is a variant of g_assert_cmpuint() that displays the numbers
  * in hexadecimal notation in the message.
@@ -430,11 +473,10 @@
  *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
  * @n2: another floating point number
  *
- * Debugging macro to terminate the application with a warning
- * message if a floating point number comparison fails.
+ * Debugging macro to compare two floating point numbers.
  *
  * The effect of <literal>g_assert_cmpfloat (n1, op, n2)</literal> is
- * the same as <literal>g_assert (n1 op n2)</literal>. The advantage
+ * the same as <literal>g_assert_true (n1 op n2)</literal>. The advantage
  * of this macro is that it can produce a message that includes the
  * actual values of @n1 and @n2.
  *
@@ -445,11 +487,10 @@
  * g_assert_no_error:
  * @err: a #GError, possibly %NULL
  *
- * Debugging macro to terminate the application with a warning
- * message if a method has returned a #GError.
+ * Debugging macro to check that a #GError is not set.
  *
  * The effect of <literal>g_assert_no_error (err)</literal> is
- * the same as <literal>g_assert (err == NULL)</literal>. The advantage
+ * the same as <literal>g_assert_true (err == NULL)</literal>. The advantage
  * of this macro is that it can produce a message that includes
  * the error message and code.
  *
@@ -462,11 +503,11 @@
  * @dom: the expected error domain (a #GQuark)
  * @c: the expected error code
  *
- * Debugging macro to terminate the application with a warning
- * message if a method has not returned the correct #GError.
+ * Debugging macro to check that a method has returned
+ * the correct #GError.
  *
  * The effect of <literal>g_assert_error (err, dom, c)</literal> is
- * the same as <literal>g_assert (err != NULL &amp;&amp; err->domain
+ * the same as <literal>g_assert_true (err != NULL &amp;&amp; err->domain
  * == dom &amp;&amp; err->code == c)</literal>. The advantage of this
  * macro is that it can produce a message that includes the incorrect
  * error message and code.
@@ -496,6 +537,7 @@
  * analysis systems like Apport and ABRT to fish out assertion messages from
  * core dumps, instead of having to catch them on screen output.
  */
+GLIB_VAR char *__glib_assert_msg;
 char *__glib_assert_msg = NULL;
 
 /* --- constants --- */
@@ -536,6 +578,13 @@ static void     gtest_default_log_handler       (const gchar    *log_domain,
                                                  gpointer        unused_data);
 
 
+typedef enum {
+  G_TEST_RUN_SUCCESS,
+  G_TEST_RUN_SKIPPED,
+  G_TEST_RUN_FAILURE,
+  G_TEST_RUN_INCOMPLETE
+} GTestResult;
+
 /* --- variables --- */
 static int         test_log_fd = -1;
 static gboolean    test_mode_fatal = TRUE;
@@ -547,7 +596,8 @@ static gchar      *test_run_name = "";
 static GSList    **test_filename_free_list;
 static guint       test_run_forks = 0;
 static guint       test_run_count = 0;
-static guint       test_run_success = FALSE;
+static GTestResult test_run_success = G_TEST_RUN_FAILURE;
+static gchar      *test_run_msg = NULL;
 static guint       test_skip_count = 0;
 static GTimer     *test_user_timer = NULL;
 static double      test_user_stamp = 0;
@@ -561,6 +611,8 @@ static char       *test_trap_last_stdout = NULL;
 static char       *test_trap_last_stderr = NULL;
 static char       *test_uri_base = NULL;
 static gboolean    test_debug_log = FALSE;
+static gboolean    test_tap_log = FALSE;
+static gboolean    test_nonfatal_assertions = FALSE;
 static DestroyEntry *test_destroy_queue = NULL;
 static char       *test_argv0 = NULL;
 static char       *test_argv0_dirname;
@@ -594,6 +646,8 @@ g_test_log_type_name (GTestLogType log_type)
     case G_TEST_LOG_MIN_RESULT:         return "minperf";
     case G_TEST_LOG_MAX_RESULT:         return "maxperf";
     case G_TEST_LOG_MESSAGE:            return "message";
+    case G_TEST_LOG_START_SUITE:        return "start suite";
+    case G_TEST_LOG_STOP_SUITE:         return "stop suite";
     }
   return "???";
 }
@@ -647,7 +701,7 @@ g_test_log (GTestLogType lbit,
             guint        n_args,
             long double *largs)
 {
-  gboolean fail = lbit == G_TEST_LOG_STOP_CASE && largs[0] != 0;
+  gboolean fail;
   GTestLogMsg msg;
   gchar *astrings[3] = { NULL, NULL, NULL };
   guint8 *dbuffer;
@@ -656,28 +710,67 @@ g_test_log (GTestLogType lbit,
   switch (lbit)
     {
     case G_TEST_LOG_START_BINARY:
-      if (g_test_verbose())
+      if (test_tap_log)
+        g_print ("# random seed: %s\n", string2);
+      else if (g_test_verbose())
         g_print ("GTest: random seed: %s\n", string2);
       break;
+    case G_TEST_LOG_START_SUITE:
+      if (test_tap_log)
+        {
+          if (string1[0] != 0)
+            g_print ("# Start of %s tests\n", string1);
+        }
+      break;
+    case G_TEST_LOG_STOP_SUITE:
+      if (test_tap_log)
+        {
+          if (string1[0] != 0)
+            g_print ("# End of %s tests\n", string1);
+          else
+            g_print ("1..%d\n", test_run_count);
+        }
+      break;
     case G_TEST_LOG_STOP_CASE:
-      if (g_test_verbose())
+      fail = largs[0] != G_TEST_RUN_SUCCESS && largs[0] != G_TEST_RUN_SKIPPED;
+      if (test_tap_log)
+        {
+          g_print ("%s %d %s", fail ? "not ok" : "ok", test_run_count, string1);
+          if (largs[0] == G_TEST_RUN_INCOMPLETE)
+            g_print (" # TODO %s\n", string2 ? string2 : "");
+          else if (largs[0] == G_TEST_RUN_SKIPPED)
+            g_print (" # SKIP %s\n", string2 ? string2 : "");
+          else
+            g_print ("\n");
+        }
+      else if (g_test_verbose())
         g_print ("GTest: result: %s\n", fail ? "FAIL" : "OK");
       else if (!g_test_quiet())
         g_print ("%s\n", fail ? "FAIL" : "OK");
       if (fail && test_mode_fatal)
-        abort();
+        {
+          if (test_tap_log)
+            g_print ("Bail out!\n");
+          abort();
+        }
       break;
     case G_TEST_LOG_MIN_RESULT:
-      if (g_test_verbose())
+      if (test_tap_log)
+        g_print ("# min perf: %s\n", string1);
+      else if (g_test_verbose())
         g_print ("(MINPERF:%s)\n", string1);
       break;
     case G_TEST_LOG_MAX_RESULT:
-      if (g_test_verbose())
+      if (test_tap_log)
+        g_print ("# max perf: %s\n", string1);
+      else if (g_test_verbose())
         g_print ("(MAXPERF:%s)\n", string1);
       break;
     case G_TEST_LOG_MESSAGE:
     case G_TEST_LOG_ERROR:
-      if (g_test_verbose())
+      if (test_tap_log)
+        g_print ("# %s\n", string1);
+      else if (g_test_verbose())
         g_print ("(MSG: %s)\n", string1);
       break;
     default: ;
@@ -697,7 +790,9 @@ g_test_log (GTestLogType lbit,
   switch (lbit)
     {
     case G_TEST_LOG_START_CASE:
-      if (g_test_verbose())
+      if (test_tap_log)
+        ;
+      else if (g_test_verbose())
         g_print ("GTest: run: %s\n", string1);
       else if (!g_test_quiet())
         g_print ("%s: ", string1);
@@ -739,6 +834,11 @@ parse_args (gint    *argc_p,
       else if (strcmp (argv[i], "--debug-log") == 0)
         {
           test_debug_log = TRUE;
+          argv[i] = NULL;
+        }
+      else if (strcmp (argv[i], "--tap") == 0)
+        {
+          test_tap_log = TRUE;
           argv[i] = NULL;
         }
       else if (strcmp ("--GTestLogFD", argv[i]) == 0 || strncmp ("--GTestLogFD=", argv[i], 13) == 0)
@@ -1565,7 +1665,104 @@ g_test_add_vtable (const char       *testpath,
 void
 g_test_fail (void)
 {
-  test_run_success = FALSE;
+  test_run_success = G_TEST_RUN_FAILURE;
+}
+
+/**
+ * g_test_incomplete:
+ * @msg: (allow-none): explanation
+ *
+ * Indicates that a test failed because of some incomplete
+ * functionality. This function can be called multiple times
+ * from the same test.
+ *
+ * Calling this function will not stop the test from running, you
+ * need to return from the test function yourself. So you can
+ * produce additional diagnostic messages or even continue running
+ * the test.
+ *
+ * If not called from inside a test, this function does nothing.
+ *
+ * Since: 2.38
+ */
+void
+g_test_incomplete (const gchar *msg)
+{
+  test_run_success = G_TEST_RUN_INCOMPLETE;
+  g_free (test_run_msg);
+  test_run_msg = g_strdup (msg);
+}
+
+/**
+ * g_test_skip:
+ * @msg: (allow-none): explanation
+ *
+ * Indicates that a test was skipped.
+ *
+ * Calling this function will not stop the test from running, you
+ * need to return from the test function yourself. So you can
+ * produce additional diagnostic messages or even continue running
+ * the test.
+ *
+ * If not called from inside a test, this function does nothing.
+ *
+ * Since: 2.38
+ */
+void
+g_test_skip (const gchar *msg)
+{
+  test_run_success = G_TEST_RUN_SKIPPED;
+  g_free (test_run_msg);
+  test_run_msg = g_strdup (msg);
+}
+
+/**
+ * g_test_failed:
+ *
+ * Returns whether a test has already failed. This will
+ * be the case when g_test_fail(), g_test_incomplete()
+ * or g_test_skip() have been called, but also if an
+ * assertion has failed.
+ *
+ * This can be useful to return early from a test if
+ * continuing after a failed assertion might be harmful.
+ *
+ * The return value of this function is only meaningful
+ * if it is called from inside a test function.
+ *
+ * Returns: %TRUE if the test has failed
+ *
+ * Since: 2.38
+ */
+gboolean
+g_test_failed (void)
+{
+  return test_run_success != G_TEST_RUN_SUCCESS;
+}
+
+/**
+ * g_test_set_nonfatal_assertions:
+ *
+ * Changes the behaviour of g_assert_cmpstr(), g_assert_cmpint(),
+ * g_assert_cmpuint(), g_assert_cmphex(), g_assert_cmpfloat(),
+ * g_assert_true(), g_assert_false(), g_assert_null(), g_assert_no_error(),
+ * g_assert_error(), g_test_assert_expected_messages() and the various
+ * g_test_trap_assert_*() macros to not abort to program, but instead
+ * call g_test_fail() and continue.
+ *
+ * Note that the g_assert_not_reached() and g_assert() are not
+ * affected by this.
+ *
+ * This function can only be called after g_test_init().
+ *
+ * Since: 2.38
+ */
+void
+g_test_set_nonfatal_assertions (void)
+{
+  if (!g_test_config_vars->test_initialized)
+    g_error ("g_test_set_nonfatal_assertions called without g_test_init");
+  test_nonfatal_assertions = TRUE;
 }
 
 /**
@@ -1817,7 +2014,7 @@ test_case_run (GTestCase *tc)
 {
   gchar *old_name = test_run_name, *old_base = g_strdup (test_uri_base);
   GSList **old_free_list, *filename_free_list = NULL;
-  gboolean success = TRUE;
+  gboolean success = G_TEST_RUN_SUCCESS;
 
   old_free_list = test_filename_free_list;
   test_filename_free_list = &filename_free_list;
@@ -1859,7 +2056,8 @@ test_case_run (GTestCase *tc)
       void *fixture;
       g_test_log (G_TEST_LOG_START_CASE, test_run_name, NULL, 0, NULL);
       test_run_forks = 0;
-      test_run_success = TRUE;
+      test_run_success = G_TEST_RUN_SUCCESS;
+      g_clear_pointer (&test_run_msg, g_free);
       g_test_log_set_fatal_handler (NULL, NULL);
       g_timer_start (test_run_timer);
       fixture = tc->fixture_size ? g_malloc0 (tc->fixture_size) : tc->test_data;
@@ -1881,11 +2079,12 @@ test_case_run (GTestCase *tc)
         g_free (fixture);
       g_timer_stop (test_run_timer);
       success = test_run_success;
-      test_run_success = FALSE;
-      largs[0] = success ? 0 : 1; /* OK */
+      test_run_success = G_TEST_RUN_FAILURE;
+      largs[0] = success; /* OK */
       largs[1] = test_run_forks;
       largs[2] = g_timer_elapsed (test_run_timer, NULL);
-      g_test_log (G_TEST_LOG_STOP_CASE, NULL, NULL, G_N_ELEMENTS (largs), largs);
+      g_test_log (G_TEST_LOG_STOP_CASE, test_run_name, test_run_msg, G_N_ELEMENTS (largs), largs);
+      g_clear_pointer (&test_run_msg, g_free);
       g_timer_destroy (test_run_timer);
     }
 
@@ -1897,7 +2096,7 @@ test_case_run (GTestCase *tc)
   g_free (test_uri_base);
   test_uri_base = old_base;
 
-  return success;
+  return success == G_TEST_RUN_SUCCESS;
 }
 
 static int
@@ -1909,6 +2108,8 @@ g_test_run_suite_internal (GTestSuite *suite,
   GSList *slist, *reversed;
 
   g_return_val_if_fail (suite != NULL, -1);
+
+  g_test_log (G_TEST_LOG_START_SUITE, suite->name, NULL, 0, NULL);
 
   while (path[0] == '/')
     path++;
@@ -1939,6 +2140,8 @@ g_test_run_suite_internal (GTestSuite *suite,
   g_slist_free (reversed);
   g_free (test_run_name);
   test_run_name = old_name;
+
+  g_test_log (G_TEST_LOG_STOP_SUITE, suite->name, NULL, 0, NULL);
 
   return n_bad;
 }
@@ -2082,9 +2285,14 @@ g_assertion_message_expr (const char     *domain,
                           const char     *func,
                           const char     *expr)
 {
-  char *s = g_strconcat ("assertion failed: (", expr, ")", NULL);
+  char *s;
+  if (!expr)
+    s = g_strdup ("code should not be reached");
+  else
+    s = g_strconcat ("assertion failed: (", expr, ")", NULL);
   g_assertion_message (domain, file, line, func, s);
   g_free (s);
+  abort ();
 }
 
 void

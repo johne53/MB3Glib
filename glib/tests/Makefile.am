@@ -1,4 +1,4 @@
-include $(top_srcdir)/glib.mk
+include $(top_srcdir)/glib-tap.mk
 
 LDADD = $(top_builddir)/glib/libglib-2.0.la -lm
 AM_CPPFLAGS = -g $(glib_INCLUDES) $(GLIB_DEBUG_FLAGS)
@@ -175,6 +175,7 @@ test_programs += \
 
 # some testing of gtester functionality
 XMLLINT = xmllint
+GTESTER = $(top_builddir)/glib/gtester
 
 gtester-xmllint-check: # check testreport xml with xmllint if present
 	${GTESTER} -k --quiet -o tmpsample.xml --test-arg=--gtester-selftest ${GTESTER}
