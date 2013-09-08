@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libglib32-2.0-0D.lib libgobject32-2.0-0D.lib libgmodule32-2.0-0D.lib libgiowinD.lib ws2_32.lib intlD.lib zlib1D.lib shlwapi.lib dnsapi.lib"
+				AdditionalDependencies="libglib32-2.0-0D.lib libgobject32-2.0-0D.lib libgmodule32-2.0-0D.lib libgiowinD.lib ws2_32.lib intlD.lib zlib1D.lib shlwapi.lib dnsapi.lib iphlpapi.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\lib"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-debug.def"
@@ -168,7 +168,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libglib32-2.0-0.lib libgobject32-2.0-0.lib libgmodule32-2.0-0.lib libgiowin.lib ws2_32.lib intl.lib zlib1.lib shlwapi.lib dnsapi.lib"
+				AdditionalDependencies="libglib32-2.0-0.lib libgobject32-2.0-0.lib libgmodule32-2.0-0.lib libgiowin.lib ws2_32.lib intl.lib zlib1.lib shlwapi.lib dnsapi.lib iphlpapi.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix).dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\lib"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
@@ -261,7 +261,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libglib32-2.0-0RDC.lib libgobject32-2.0-0RDC.lib libgmodule32-2.0-0RDC.lib libgiowinRDC.lib ws2_32.lib intlRDC.lib zlib1RDC.lib shlwapi.lib dnsapi.lib"
+				AdditionalDependencies="libglib32-2.0-0RDC.lib libgobject32-2.0-0RDC.lib libgmodule32-2.0-0RDC.lib libgiowinRDC.lib ws2_32.lib intlRDC.lib zlib1RDC.lib shlwapi.lib dnsapi.lib iphlpapi.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\lib"
 				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
