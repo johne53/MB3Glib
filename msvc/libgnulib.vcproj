@@ -128,6 +128,7 @@
 				StringPooling="false"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
+				EnableEnhancedInstructionSet="1"
 				RuntimeTypeInfo="false"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -202,6 +203,7 @@
 				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;GLIB_COMPILATION;G_OS_WIN32;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib\&quot;;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000"
 				StringPooling="false"
 				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
 				RuntimeTypeInfo="false"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -253,7 +255,7 @@
 				RelativePath="..\glib\gnulib\asnprintf.c"
 				>
 				<FileConfiguration
-					Name="Release 32|Win32"
+					Name="Debug 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -262,7 +264,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32|Win32"
+					Name="Release 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -284,7 +286,7 @@
 				RelativePath="..\glib\gnulib\printf-args.c"
 				>
 				<FileConfiguration
-					Name="Release 32|Win32"
+					Name="Debug 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -293,7 +295,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32|Win32"
+					Name="Release 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -315,7 +317,7 @@
 				RelativePath="..\glib\gnulib\printf-parse.c"
 				>
 				<FileConfiguration
-					Name="Release 32|Win32"
+					Name="Debug 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -324,7 +326,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32|Win32"
+					Name="Release 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -377,7 +379,7 @@
 				RelativePath="..\glib\gnulib\vasnprintf.c"
 				>
 				<FileConfiguration
-					Name="Release 32|Win32"
+					Name="Debug 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -386,7 +388,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug 32|Win32"
+					Name="Release 32|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
