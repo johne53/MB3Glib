@@ -2717,16 +2717,21 @@ g_local_file_measure_size_of_contents (gint           fd,
                                        GError       **error)
 {
   gboolean success = TRUE;
-  struct dirent *entry;
-  DIR *dirp;
+  const gchar *name;
+  GDir *dir;
 
 #ifdef AT_FDCWD
-  dirp = fdopendir (fd);
+  {
+    /* If this fails, we want to preserve the errno from fopendir() */
+    DIR *dirp;
+    dirp = fdopendir (fd);
+    dir = dirp ? g_dir_new_from_dirp (dirp) : NULL;
+  }
 #else
-  dirp = opendir (dir_name->data);
+  dir = g_dir_open_with_errno (dir_name->data, 0);
 #endif
 
-  if (dirp == NULL)
+  if (dir == NULL)
     {
       gint saved_errno = errno;
 
@@ -2737,23 +2742,16 @@ g_local_file_measure_size_of_contents (gint           fd,
       return g_local_file_measure_size_error (state->flags, saved_errno, dir_name, error);
     }
 
-  while (success && (entry = readdir (dirp)))
+  while (success && (name = g_dir_read_name (dir)))
     {
-      gchar *name = entry->d_name;
       GSList node;
 
       node.next = dir_name;
 #ifdef AT_FDCWD
-      node.data = name;
+      node.data = (gchar *) name;
 #else
       node.data = g_build_filename (dir_name->data, name, NULL);
 #endif
-
-      /* skip '.' and '..' */
-      if (name[0] == '.' &&
-          (name[1] == '\0' ||
-           (name[1] == '.' && name[2] == '\0')))
-        continue;
 
       success = g_local_file_measure_size_of_file (fd, &node, state, error);
 
@@ -2762,7 +2760,7 @@ g_local_file_measure_size_of_contents (gint           fd,
 #endif
     }
 
-  closedir (dirp);
+  g_dir_close (dir);
 
   return success;
 }
