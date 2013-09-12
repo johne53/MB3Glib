@@ -2556,16 +2556,24 @@ g_local_file_measure_size_error (GFileMeasureFlags   flags,
       filename = g_string_new (name->data);
       for (node = name->next; node; node = node->next)
         {
-          g_string_prepend_c (filename, G_DIR_SEPARATOR);
-          g_string_prepend (filename, node->data);
-        }
+          gchar *utf8;
 
-      g_string_prepend (filename, "file://");
+          g_string_prepend_c (filename, G_DIR_SEPARATOR);
+          utf8 = g_filename_display_name (node->data);
+          g_string_prepend (filename, utf8);
+          g_free (utf8);
+        }
 #else
-      /* Otherwise, we already have it, so just use it. */
-      node = name;
-      filename = g_string_new ("file://");
-      g_string_append (filename, node->data);
+      {
+        gchar *utf8;
+
+        /* Otherwise, we already have it, so just use it. */
+        node = name;
+        filename = g_string_new (NULL);
+        utf8 = g_filename_display_name (node->data);
+        g_string_append (filename, utf8);
+        g_free (utf8);
+      }
 #endif
 
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (saved_errno),
