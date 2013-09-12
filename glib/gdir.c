@@ -180,6 +180,38 @@ g_dir_open (const gchar  *path,
 }
 #endif
 
+#ifdef G_OS_UNIX
+/**
+ * g_dir_new_from_dirp:
+ * @dirp: a #DIR* created by opendir() or fdopendir()
+ *
+ * Creates a #GDir object from the DIR object that is created using
+ * opendir() or fdopendir().  The created #GDir assumes ownership of the
+ * passed-in #DIR pointer.
+ *
+ * @dirp must not be %NULL.
+ *
+ * This function never fails.
+ *
+ * Returns: a newly allocated #GDir, which should be closed using
+ *     g_dir_close().
+ *
+ * Since: 2.38
+ **/
+GDir *
+g_dir_new_from_dirp (DIR* dirp)
+{
+  GDir *dir;
+
+  g_return_val_if_fail (dirp != NULL, NULL);
+
+  dir = g_new (GDir, 1);
+  dir -> dirp = dirp;
+
+  return dir;
+}
+#endif
+
 /**
  * g_dir_read_name:
  * @dir: a #GDir* created by g_dir_open()
