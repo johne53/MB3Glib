@@ -27,7 +27,9 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#if G_OS_UNIX
 #include <dirent.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -68,6 +70,7 @@
 #ifdef G_OS_UNIX
 #include "glib-unix.h"
 #endif
+#include "glib-private.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -2625,10 +2628,8 @@ g_local_file_measure_size_of_file (gint           parent_fd,
 
 #if defined (AT_FDCWD)
   if (fstatat (parent_fd, name->data, &buf, AT_SYMLINK_NOFOLLOW) != 0)
-#elif defined (HAVE_LSTAT)
-  if (lstat (name->data, &buf) != 0)
 #else
-  if (stat (name->data, &buf) != 0)
+  if (g_lstat (name->data, &buf) != 0)
 #endif
     return g_local_file_measure_size_error (state->flags, errno, name, error);
 
@@ -2725,10 +2726,10 @@ g_local_file_measure_size_of_contents (gint           fd,
     /* If this fails, we want to preserve the errno from fopendir() */
     DIR *dirp;
     dirp = fdopendir (fd);
-    dir = dirp ? g_dir_new_from_dirp (dirp) : NULL;
+    dir = dirp ? GLIB_PRIVATE_CALL(g_dir_new_from_dirp) (dirp) : NULL;
   }
 #else
-  dir = g_dir_open_with_errno (dir_name->data, 0);
+  dir = GLIB_PRIVATE_CALL(g_dir_open_with_errno) (dir_name->data, 0);
 #endif
 
   if (dir == NULL)

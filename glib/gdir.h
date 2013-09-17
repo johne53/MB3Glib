@@ -42,9 +42,6 @@ GLIB_AVAILABLE_IN_ALL
 GDir    *                g_dir_open           (const gchar  *path,
 					       guint         flags,
 					       GError      **error);
-GLIB_AVAILABLE_IN_2_38
-GDir *                   g_dir_open_with_errno (const gchar *path,
-                                                guint        flags);
 GLIB_AVAILABLE_IN_ALL
 const gchar *            g_dir_read_name      (GDir         *dir);
 GLIB_AVAILABLE_IN_ALL
@@ -63,11 +60,6 @@ GDir        *g_dir_open_utf8      (const gchar  *path,
 GLIB_AVAILABLE_IN_ALL
 const gchar *g_dir_read_name_utf8 (GDir         *dir);
 #endif /* G_OS_WIN32 */
-
-#ifdef G_OS_UNIX
-GLIB_AVAILABLE_IN_2_38
-GDir    *g_dir_new_from_dirp      (DIR* dirp);
-#endif
 
 G_END_DECLS
 

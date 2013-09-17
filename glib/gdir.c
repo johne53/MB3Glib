@@ -47,6 +47,8 @@
 #include "../build/win32/dirent/wdirent.c"
 #endif
 
+#include "glib-private.h" /* g_dir_open_with_errno, g_dir_new_from_dirp */
+
 /**
  * GDir:
  *
@@ -65,7 +67,7 @@ struct _GDir
 #endif
 };
 
-/**
+/*< private >
  * g_dir_open_with_errno:
  * @path: the path to the directory you are interested in.
  * @flags: Currently must be set to 0. Reserved for future use.
@@ -110,7 +112,7 @@ g_dir_open_with_errno (const gchar *path,
   dir.dirp = opendir (path);
 
   if (dir.dirp == NULL)
-    return dir;
+    return NULL;
 #endif
 
   return g_memdup (&dir, sizeof dir);
@@ -189,8 +191,7 @@ g_dir_open (const gchar  *path,
 }
 #endif
 
-#ifdef G_OS_UNIX
-/**
+/*< private >
  * g_dir_new_from_dirp:
  * @dirp: a #DIR* created by opendir() or fdopendir()
  *
@@ -208,18 +209,21 @@ g_dir_open (const gchar  *path,
  * Since: 2.38
  **/
 GDir *
-g_dir_new_from_dirp (DIR* dirp)
+g_dir_new_from_dirp (gpointer dirp)
 {
+#ifdef G_OS_UNIX
   GDir *dir;
 
   g_return_val_if_fail (dirp != NULL, NULL);
 
   dir = g_new (GDir, 1);
-  dir -> dirp = dirp;
+  dir->dirp = dirp;
 
   return dir;
-}
+#else
+  g_assert_not_reached ();
 #endif
+}
 
 /**
  * g_dir_read_name:
