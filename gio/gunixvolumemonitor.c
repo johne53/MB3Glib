@@ -22,7 +22,7 @@
  * Author: Alexander Larsson <alexl@redhat.com>
  *         David Zeuthen <davidz@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <string.h>
@@ -416,3 +416,5 @@ update_mounts (GUnixVolumeMonitor *monitor)
   g_list_free_full (monitor->last_mounts, (GDestroyNotify) g_unix_mount_free);
   monitor->last_mounts = new_mounts;
 }
+
+#endif /* _MSC_VER */

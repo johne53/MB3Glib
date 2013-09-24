@@ -146,8 +146,10 @@ g_utf8_collate (const gchar *str1,
 	result = -1;
       else if (str2_locale)
 	result = 1;
-      else
+      else if (str1_norm && str2_norm) // Added by JE - 19-12-2011
 	result = strcmp (str1_norm, str2_norm);
+      else // This option added by JE - 19-12-2011
+	result = strcmp (str1, str2);
 
       g_free (str1_locale);
       g_free (str2_locale);

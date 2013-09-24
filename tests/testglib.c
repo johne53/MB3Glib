@@ -24,7 +24,7 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
-#include "config.h"
+/* Commented out by JE - 13-03-2013  #include "config.h" */
 
 #undef GLIB_COMPILATION
 
@@ -572,8 +572,13 @@ log_warning_error_tests (void)
   g_warning ("harmless warning with parameters: %d %s %#x", 42, "Boo", 12345);
   g_test_assert_expected_messages ();
 
+#ifdef __GNUC__
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
                          "*g_print*assertion*failed*");
+#else   /* This section (and __GNUC__ test) added by JE - 16-06-2013 */
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                         "*assertion*failed*");
+#endif
   g_print (NULL);
   g_test_assert_expected_messages ();
 }
@@ -939,6 +944,7 @@ test_file_functions (void)
   if (strcmp (chars, hello) != 0)
     g_error ("wrote '%s', but got '%s'\n", hello, chars);
 
+if ((-1) != fd) // Added by JE - 07-10-2010
   close (fd);
   remove (template);
 
@@ -969,6 +975,7 @@ test_file_functions (void)
       else
         g_print ("g_file_open_tmp correctly returns error: %s\n", error->message);
     }
+if ((-1) != fd) // Added by JE - 07-10-2010
   close (fd);
   g_clear_error (&error);
   g_free (name_used);
@@ -981,6 +988,7 @@ test_file_functions (void)
     g_error ("g_file_open_tmp didn't work for template '%s': %s\n", template, error->message);
   else if (g_test_verbose())
     g_print ("g_file_open_tmp for template '%s' used name '%s'\n", template, name_used);
+if ((-1) != fd) // Added by JE - 07-10-2010
   close (fd);
   g_clear_error (&error);
   remove (name_used);
@@ -990,7 +998,8 @@ test_file_functions (void)
   fd = g_file_open_tmp (NULL, &name_used, &error);
   if (fd == -1)
     g_error ("g_file_open_tmp didn't work for a NULL template: %s\n", error->message);
-  close (fd);
+  else // Added by JE - 07-10-2010
+    close (fd);
   g_clear_error (&error);
   remove (name_used);
   g_free (name_used);

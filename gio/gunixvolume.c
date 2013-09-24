@@ -22,7 +22,7 @@
  * Author: Alexander Larsson <alexl@redhat.com>
  *         David Zeuthen <davidz@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <string.h>
@@ -524,3 +524,5 @@ g_unix_volume_volume_iface_init (GVolumeIface *iface)
   iface->get_identifier = g_unix_volume_get_identifier;
   iface->enumerate_identifiers = g_unix_volume_enumerate_identifiers;
 }
+
+#endif /* _MSC_VER */

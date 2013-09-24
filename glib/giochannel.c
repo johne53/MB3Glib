@@ -294,6 +294,7 @@ g_io_error_get_from_g_error (GIOStatus  status,
           }
       default:
         g_assert_not_reached ();
+        return G_IO_ERROR_UNKNOWN; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 
