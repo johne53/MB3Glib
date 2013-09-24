@@ -468,9 +468,16 @@ gsize
 
 #include <windows.h>
 #if !defined(_M_AMD64) && !defined (_M_IA64) && !defined(_M_X64) && !(defined _MSC_VER && _MSC_VER <= 1200)
+#include <intrin.h>                   /* Added by JE - 02-12-2012 */
+
+#pragma intrinsic (_InterlockedAnd)   /* Added by JE - 02-12-2012 */
+#pragma intrinsic (_InterlockedOr)    /* Added by JE - 02-12-2012 */
+#pragma intrinsic (_InterlockedXor)   /* Added by JE - 02-12-2012 */
+
 #define InterlockedAnd _InterlockedAnd
 #define InterlockedOr _InterlockedOr
 #define InterlockedXor _InterlockedXor
+
 #endif
 
 #if !defined (_MSC_VER) || _MSC_VER <= 1200

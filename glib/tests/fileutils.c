@@ -670,6 +670,7 @@ test_file_open_tmp (void)
   g_assert (name != NULL);
   unlink (name);
   g_free (name);
+if ((-1) != fd) /* Added by JE - 07-10-2010 */
   close (fd);
 
   fd = g_file_open_tmp (NULL, &name, &error);
@@ -678,6 +679,7 @@ test_file_open_tmp (void)
   g_assert (name != NULL);
   g_unlink (name);
   g_free (name);
+if ((-1) != fd) /* Added by JE - 07-10-2010 */
   close (fd);
 
   name = NULL;
@@ -705,6 +707,7 @@ test_mkstemp (void)
   g_assert (fd != -1);
   g_assert (strstr (name, "XXXXXX") == NULL);
   unlink (name);
+if ((-1) != fd) /* Added by JE - 07-10-2010 */
   close (fd);
   g_free (name);
 
@@ -746,6 +749,7 @@ test_set_contents (void)
   fd = g_file_open_tmp (NULL, &name, &error);
   g_assert_no_error (error);
   write (fd, "a", 1);
+if ((-1) != fd) /* Added by JE - 07-10-2010 */
   close (fd);
 
   ret = g_file_get_contents (name, &buf, &len, &error);

@@ -146,6 +146,7 @@ test_writable_fd (void)
   g_assert (strncmp (contents, new, strlen (new)) == 0);
 
   g_mapped_file_free (file);
+if ((-1) != fd) /* Added by JE - 07-10-2010 */
   close (fd);
 
   error = NULL;

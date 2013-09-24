@@ -21,7 +21,7 @@
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <sys/types.h>
@@ -2376,3 +2376,5 @@ found:
   return real_dev_root;
 }
 #endif
+
+#endif /* _MSC_VER */

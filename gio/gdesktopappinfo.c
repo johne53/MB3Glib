@@ -22,6 +22,7 @@
  *         Ryan Lortie <desrt@desrt.ca>
  */
 
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <errno.h>
@@ -3865,3 +3866,5 @@ g_desktop_app_info_launch_action (GDesktopAppInfo   *info,
       g_object_unref (session_bus);
     }
 }
+
+#endif /* _MSC_VER */
