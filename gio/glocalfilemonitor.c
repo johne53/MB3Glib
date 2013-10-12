@@ -51,71 +51,41 @@ g_local_file_monitor_set_property (GObject      *object,
                                    const GValue *value,
                                    GParamSpec   *pspec)
 {
+  GLocalFileMonitor *local_monitor = G_LOCAL_FILE_MONITOR (object);
+
   switch (property_id)
-  {
+    {
     case PROP_FILENAME:
-      /* Do nothing */
+      local_monitor->filename = g_value_dup_string (value);
       break;
+
     case PROP_FLAGS:
-      /* Do nothing as well */
+      local_monitor->flags = g_value_get_flags (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
-  }
+    }
 }
 
-static GObject *
-g_local_file_monitor_constructor (GType                  type,
-                                  guint                  n_construct_properties,
-                                  GObjectConstructParam *construct_properties)
+void
+g_local_file_monitor_start (GLocalFileMonitor *local_monitor)
 {
-  GObject *obj;
-  GLocalFileMonitorClass *klass;
-  GObjectClass *parent_class;
-  GLocalFileMonitor *local_monitor;
-  const gchar *filename = NULL;
-  GFileMonitorFlags flags = 0;
-  gint i;
-  
-  klass = G_LOCAL_FILE_MONITOR_CLASS (g_type_class_peek (G_TYPE_LOCAL_FILE_MONITOR));
-  parent_class = G_OBJECT_CLASS (g_type_class_peek_parent (klass));
-  obj = parent_class->constructor (type,
-                                   n_construct_properties,
-                                   construct_properties);
+  GLocalFileMonitorClass *class;
 
-  local_monitor = G_LOCAL_FILE_MONITOR (obj);
+  class = G_LOCAL_FILE_MONITOR_GET_CLASS (local_monitor);
 
-  for (i = 0; i < n_construct_properties; i++)
-    {
-      if (strcmp ("filename", g_param_spec_get_name (construct_properties[i].pspec)) == 0)
-        {
-          g_warn_if_fail (G_VALUE_HOLDS_STRING (construct_properties[i].value));
-          filename = g_value_get_string (construct_properties[i].value);
-        }
-      else if (strcmp ("flags", g_param_spec_get_name (construct_properties[i].pspec)) == 0)
-        {
-          g_warn_if_fail (G_VALUE_HOLDS_FLAGS (construct_properties[i].value));
-          flags = g_value_get_flags (construct_properties[i].value);
-        }
-    }
-
-  g_warn_if_fail (filename != NULL);
-
-  local_monitor->filename = g_strdup (filename);
-  local_monitor->flags = flags;
-  return obj;
+  if (class->start)
+    class->start (local_monitor);
 }
 
 static void
 g_local_file_monitor_finalize (GObject *object)
 {
   GLocalFileMonitor *local_monitor = G_LOCAL_FILE_MONITOR (object);
-  if (local_monitor->filename)
-    {
-      g_free (local_monitor->filename);
-      local_monitor->filename = NULL;
-    }
+
+  g_free (local_monitor->filename);
 
   G_OBJECT_CLASS (g_local_file_monitor_parent_class)->finalize (object);
 }
@@ -126,7 +96,6 @@ static void g_local_file_monitor_class_init (GLocalFileMonitorClass *klass)
 
   gobject_class->set_property = g_local_file_monitor_set_property;
   gobject_class->finalize = g_local_file_monitor_finalize;
-  gobject_class->constructor = g_local_file_monitor_constructor;
 
   g_object_class_install_property (gobject_class, 
                                    PROP_FILENAME,
@@ -153,7 +122,9 @@ static void g_local_file_monitor_class_init (GLocalFileMonitorClass *klass)
 GFileMonitor*
 _g_local_file_monitor_new (const char         *pathname,
                            GFileMonitorFlags   flags,
+                           GMainContext       *context,
                            gboolean            is_remote_fs,
+                           gboolean            do_start,
                            GError            **error)
 {
   GFileMonitor *monitor = NULL;
@@ -170,10 +141,13 @@ _g_local_file_monitor_new (const char         *pathname,
                                           G_STRUCT_OFFSET (GLocalFileMonitorClass, is_supported));
 
   if (type != G_TYPE_INVALID)
-    monitor = G_FILE_MONITOR (g_object_new (type, "filename", pathname, "flags", flags, NULL));
+    monitor = G_FILE_MONITOR (g_object_new (type, "filename", pathname, "flags", flags, "context", context, NULL));
   else
     g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                          _("Unable to find default local file monitor type"));
+
+  if (monitor && do_start)
+    g_local_file_monitor_start (G_LOCAL_FILE_MONITOR (monitor));
 
   return monitor;
 }

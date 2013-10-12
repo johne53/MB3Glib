@@ -32,6 +32,7 @@ G_BEGIN_DECLS
 #define G_LOCAL_FILE_MONITOR_CLASS(k)		(G_TYPE_CHECK_CLASS_CAST ((k), G_TYPE_LOCAL_FILE_MONITOR, GLocalFileMonitorClass))
 #define G_IS_LOCAL_FILE_MONITOR(o)		(G_TYPE_CHECK_INSTANCE_TYPE ((o), G_TYPE_LOCAL_FILE_MONITOR))
 #define G_IS_LOCAL_FILE_MONITOR_CLASS(k)	(G_TYPE_CHECK_CLASS_TYPE ((k), G_TYPE_LOCAL_FILE_MONITOR))
+#define G_LOCAL_FILE_MONITOR_GET_CLASS(o)       (G_TYPE_INSTANCE_GET_CLASS ((o), G_TYPE_LOCAL_FILE_MONITOR, GLocalFileMonitorClass))
 
 #define G_LOCAL_FILE_MONITOR_EXTENSION_POINT_NAME "gio-local-file-monitor"
 #define G_NFS_FILE_MONITOR_EXTENSION_POINT_NAME   "gio-nfs-file-monitor"
@@ -52,6 +53,7 @@ struct _GLocalFileMonitorClass
   GFileMonitorClass parent_class;
 
   gboolean (* is_supported) (void);
+  void     (* start)        (GLocalFileMonitor *local_monitor);
 };
 
 #ifdef G_OS_UNIX
@@ -61,8 +63,16 @@ GType           g_local_file_monitor_get_type (void) G_GNUC_CONST;
 
 GFileMonitor * _g_local_file_monitor_new      (const char         *pathname,
                                                GFileMonitorFlags   flags,
+                                               GMainContext       *context,
                                                gboolean            is_remote_fs,
+                                               gboolean            do_start,
                                                GError            **error);
+void            g_local_file_monitor_start    (GLocalFileMonitor  *local_monitor);
+
+/* Actually in glocalfile.c */
+GLocalFileMonitor *  g_local_file_monitor_new_in_worker (const char         *pathname,
+                                                         GFileMonitorFlags   flags,
+                                                         GError            **error);
 
 G_END_DECLS
 

@@ -342,6 +342,7 @@ libgio_2_0_la_SOURCES =		\
 	gconverterinputstream.c	\
 	gconverteroutputstream.c	\
 	gcredentials.c		\
+	gcredentialsprivate.h	\
 	gdatainputstream.c 	\
 	gdataoutputstream.c 	\
 	gdrive.c 		\
@@ -381,6 +382,7 @@ libgio_2_0_la_SOURCES =		\
 	giomodule-priv.h	\
 	gioscheduler.c 		\
 	giostream.c		\
+	gioprivate.h		\
 	gloadableicon.c 	\
 	gmount.c 		\
 	gmemoryinputstream.c 	\
@@ -560,7 +562,6 @@ gio_headers =			\
 	gmountoperation.h 	\
 	gnativevolumemonitor.h 	\
 	gnetworkaddress.h	\
-	gnetworking.h		\
 	gnetworkmonitor.h	\
 	gnetworkservice.h	\
 	goutputstream.h 	\
@@ -616,6 +617,10 @@ gioincludedir=$(includedir)/glib-2.0/gio/
 gioinclude_HEADERS = 		\
 	$(gio_headers)		\
 	gioenumtypes.h
+
+nodist_gioinclude_HEADERS =	\
+	gnetworking.h		\
+	$(NULL)
 
 # these sources (also mentioned above) are generated.
 BUILT_SOURCES += 		\

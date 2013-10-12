@@ -393,6 +393,8 @@ g_content_type_get_mime_type (const char *type)
   return g_strdup (type);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 
 static GIcon *
 g_content_type_get_icon_internal (const gchar *type,
@@ -423,7 +425,7 @@ g_content_type_get_icon_internal (const gchar *type,
   G_LOCK (gio_xdgmime);
   xdg_icon = xdg_mime_get_icon (type);
   G_UNLOCK (gio_xdgmime);
-  if (xdg_icon != NULL)
+   if (xdg_icon != NULL)
     xdg_mimetype_icon = g_strdup_printf (file_template, xdg_icon);
 
   if (xdg_mimetype_icon)
@@ -450,6 +452,7 @@ g_content_type_get_icon_internal (const gchar *type,
 
   return themed_icon;
 }
+#pragma GCC diagnostic pop
 
 /**
  * g_content_type_get_icon:
