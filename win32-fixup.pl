@@ -13,6 +13,8 @@ $gettext_package = "glib20";
 $current_minus_age = 0;
 $glib_win32_static = "";
 $gdbus_prefix = "gdbus-2.0";
+$exec_prefix = "lib";
+$intl_libs = "-lintl";
 
 sub process_file
 {
@@ -45,14 +47,25 @@ sub process_file
 	    s/\@Release32TargetFolder@/$release32_target_folder/g;
 	    s/\@TargetSxSFolder@/$target_sxs_folder/g;
 	    s/\@prefix@/$gdbus_prefix/g;
+	    s/\@exec_prefix@/$exec_prefix/g;
+	    s/\@includedir@/$generic_include_folder/g;
+	    s/\@libdir@/$generic_library_folder/g;
+	    s/\@VERSION@/$glib_version/g;
+	    s/\@INTLLIBS@/$intl_libs/g;
 	    print OUTPUT;
 	}
 }
 
 process_file ("config.h.win32");
 process_file ("glib/glibconfig.h.win32");
-process_file ("gio/gdbus-2.0/codegen/config.py");
 process_file ("gobject/glib-mkenums");
+process_file ("gio/gdbus-2.0/codegen/config.py");
+process_file ("gio-windows-2.0.pc");
+process_file ("gio-2.0.pc");
+process_file ("glib-2.0.pc");
+process_file ("gthread-2.0.pc");
+process_file ("gmodule-2.0.pc");
+process_file ("gobject-2.0.pc");
 
 my $command=join(' ',@ARGV);
 if ($command eq -buildall) {
