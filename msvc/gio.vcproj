@@ -755,10 +755,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gio\gdbus-tool.c"
-				>
-			</File>
-			<File
 				RelativePath="..\gio\gdbusactiongroup.c"
 				>
 			</File>
@@ -1040,6 +1036,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\gio\gfdonotificationbackend.c"
+				>
 			</File>
 			<File
 				RelativePath="..\gio\gfile.c"
@@ -1443,6 +1443,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\gio\ggtknotificationbackend.c"
+				>
 			</File>
 			<File
 				RelativePath="..\gio\gicon.c"
@@ -2318,6 +2322,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gnotification.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gnotificationbackend.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gnullsettingsbackend.c"
 				>
 			</File>
@@ -2939,6 +2951,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\gio\gsubprocess.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gsubprocesslauncher.c"
+				>
 			</File>
 			<File
 				RelativePath="..\gio\gtask.c"
@@ -3701,6 +3721,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\gio\thumbnail-verify.c"
+				>
+			</File>
 			<Filter
 				Name="gvdb"
 				>
@@ -4031,6 +4055,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gnotification.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gnotificationbackend.h"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gpermission.h"
 				>
 			</File>
@@ -4136,6 +4168,14 @@
 			</File>
 			<File
 				RelativePath="..\glib\gstdio.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gsubprocess.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gsubprocesslauncher.h"
 				>
 			</File>
 			<File
@@ -4252,6 +4292,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\thumbnail-verify.h"
 				>
 			</File>
 			<File
