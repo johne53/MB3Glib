@@ -152,6 +152,7 @@ application_headers = \
 	gmenu.h				\
 	gmenuexporter.h			\
 	gdbusmenumodel.h		\
+	gnotification.h			\
 	$(NULL)
 
 application_sources = \
@@ -175,6 +176,10 @@ application_sources = \
 	gmenu.c					\
 	gmenuexporter.c				\
 	gdbusmenumodel.c			\
+	gnotification-private.h			\
+	gnotificationbackend.h			\
+	gnotification.c				\
+	gnotificationbackend.c			\
 	$(NULL)
 
 local_sources = \
@@ -202,6 +207,8 @@ local_sources = \
 	gsocks4aproxy.h			\
 	gsocks5proxy.c			\
 	gsocks5proxy.h			\
+	thumbnail-verify.h		\
+	thumbnail-verify.c		\
 	$(NULL)
 
 platform_libadd =
@@ -241,7 +248,7 @@ endif
 
 if OS_UNIX
 appinfo_sources += gdesktopappinfo.c
-platform_libadd += xdgmime/libxdgmime.la $(RESOLVER_LIBADD)
+platform_libadd += xdgmime/libxdgmime.la
 platform_deps += xdgmime/libxdgmime.la
 unix_sources = \
 	gfiledescriptorbased.c  \
@@ -261,6 +268,8 @@ unix_sources = \
 	gunixoutputstream.c 	\
 	gcontenttype.c 		\
 	gcontenttypeprivate.h 	\
+	gfdonotificationbackend.c \
+	ggtknotificationbackend.c \
 	$(NULL)
 
 
@@ -329,6 +338,7 @@ endif
 
 libgio_2_0_la_SOURCES =		\
 	gappinfo.c 		\
+	gappinfoprivate.h	\
 	gasynchelper.c 		\
 	gasynchelper.h 		\
 	gasyncinitable.c	\
@@ -383,6 +393,7 @@ libgio_2_0_la_SOURCES =		\
 	gioscheduler.c 		\
 	giostream.c		\
 	gioprivate.h		\
+	giowin32-priv.h 	\
 	gloadableicon.c 	\
 	gmount.c 		\
 	gmemoryinputstream.c 	\
@@ -427,6 +438,9 @@ libgio_2_0_la_SOURCES =		\
 	gsocketlistener.c	\
 	gsocketoutputstream.c	\
 	gsocketoutputstream.h	\
+	gsubprocesslauncher.c	\
+	gsubprocess.c		\
+	gsubprocesslauncher-private.h	\
 	gsocketservice.c	\
 	gsrvtarget.c		\
 	gsimpleproxyresolver.c	\
@@ -590,6 +604,8 @@ gio_headers =			\
 	gsrvtarget.h		\
 	gsimpleproxyresolver.h	\
 	gtask.h			\
+	gsubprocess.h		\
+	gsubprocesslauncher.h	\
 	gtcpconnection.h	\
 	gtcpwrapperconnection.h \
 	gthreadedsocketservice.h\
@@ -720,8 +736,19 @@ gdbus_LDADD = libgio-2.0.la \
 	$(top_builddir)/glib/libglib-2.0.la 		\
 	$(top_builddir)/gobject/libgobject-2.0.la
 
+if OS_UNIX
+# ------------------------------------------------------------------------
+# gapplication(1) tool
+bin_PROGRAMS += gapplication
+gapplication_SOURCES = gapplication-tool.c
+gapplication_LDADD = libgio-2.0.la \
+	$(top_builddir)/glib/libglib-2.0.la		\
+	$(top_builddir)/gobject/libgobject-2.0.la
+endif
+
 completiondir = $(datadir)/bash-completion/completions
 completion_DATA = \
+	completion/gapplication				\
 	completion/gdbus				\
 	completion/gsettings				\
 	completion/gresource

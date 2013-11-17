@@ -224,9 +224,6 @@ try_to_aliases (const char **to_aliases,
   return FALSE;
 }
 
-extern const char **
-_g_charset_get_aliases (const char *canonical_name);
-
 /**
  * g_iconv_open:
  * @to_codeset: destination codeset
@@ -902,7 +899,8 @@ strdup_len (const gchar *string,
  * system) in the <link linkend="setlocale">current locale</link> into a
  * UTF-8 string.
  * 
- * Return value: The converted string, or %NULL on an error.
+ * Return value: A newly-allocated buffer containing the converted string,
+ *               or %NULL on an error, and error will be set.
  **/
 gchar *
 g_locale_to_utf8 (const gchar  *opsysstring,
@@ -943,7 +941,8 @@ g_locale_to_utf8 (const gchar  *opsysstring,
  * system) in the <link linkend="setlocale">current locale</link>. On
  * Windows this means the system codepage.
  * 
- * Return value: The converted string, or %NULL on an error.
+ * Return value: A newly-allocated buffer containing the converted string,
+ *               or %NULL on an error, and error will be set.
  **/
 gchar *
 g_locale_from_utf8 (const gchar *utf8string,

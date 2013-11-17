@@ -22,6 +22,7 @@ dist_test_data = \
 
 dist_test_extra_scripts = \
 	echo-script			\
+	echo-script.bat			\
 	$(NULL)
 
 test_extra_programs = \
@@ -76,6 +77,7 @@ test_programs = \
 	regex				\
 	rwlock				\
 	scannerapi			\
+	search-utils			\
 	sequence			\
 	shell				\
 	slice				\

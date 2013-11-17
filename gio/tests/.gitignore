@@ -1,6 +1,7 @@
 actions
 appinfo
 appinfo-test
+apps
 async-close-output-stream
 async-splice-output-stream
 basic-application
@@ -67,10 +68,13 @@ gdbus-proxy-well-known-name
 gdbus-serialization
 gdbus-test-codegen
 gdbus-test-codegen-generated*
+gdbus-test-codegen-old
 gdbus-test-fixture
 gdbus-testserver
 gdbus-threading
 gio-du
+gsubprocess
+gsubprocess-testprog
 g-file
 g-file-info
 g-icon
@@ -114,6 +118,7 @@ test.gresource
 test_resources.c
 test_resources2.c
 test_resources2.h
+thumbnail-verification
 tls-certificate
 tls-interaction
 unix-fd

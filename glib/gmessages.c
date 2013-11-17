@@ -127,6 +127,12 @@
  * @user_data: user data, set in g_log_set_handler()
  *
  * Specifies the prototype of log handler functions.
+ *
+ * The default log handler, g_log_default_handler(), automatically appends a
+ * new-line character to @message when printing it. It is advised that any
+ * custom log handler functions behave similarly, so that logging calls in user
+ * code do not need modifying to add a new-line character to the message if the
+ * log handler is changed.
  */
 
 /**
@@ -156,6 +162,10 @@
  *     into the format string (as with printf())
  *
  * A convenience function/macro to log a normal message.
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
  */
 
 /**
@@ -168,6 +178,10 @@
  * You can make warnings fatal at runtime by setting the
  * <envar>G_DEBUG</envar> environment variable (see
  * <ulink url="glib-running.html">Running GLib Applications</ulink>).
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
  */
 
 /**
@@ -185,6 +199,10 @@
  * You can also make critical warnings fatal at runtime by
  * setting the <envar>G_DEBUG</envar> environment variable (see
  * <ulink url="glib-running.html">Running GLib Applications</ulink>).
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
  */
 
 /**
@@ -200,6 +218,10 @@
  * Using this function indicates a bug in your program, i.e.
  * an assertion failure.
  *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
+ *
  */
 
 /**
@@ -208,6 +230,10 @@
  *     into the format string (as with printf())
  *
  * A convenience function/macro to log a debug message.
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
  *
  * Since: 2.6
  */
@@ -859,6 +885,10 @@ static GSList *expected_messages = NULL;
  *
  * If the log level has been set as fatal, the abort()
  * function is called to terminate the program.
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
  */
 void
 g_logv (const gchar   *log_domain,
@@ -892,19 +922,19 @@ g_logv (const gchar   *log_domain,
     {
       GTestExpectedMessage *expected = expected_messages->data;
 
-      expected_messages = g_slist_delete_link (expected_messages,
-                                               expected_messages);
       if (g_strcmp0 (expected->log_domain, log_domain) == 0 &&
           ((log_level & expected->log_level) == expected->log_level) &&
           g_pattern_match_simple (expected->pattern, msg))
         {
+          expected_messages = g_slist_delete_link (expected_messages,
+                                                   expected_messages);
           g_free (expected->log_domain);
           g_free (expected->pattern);
           g_free (expected);
           g_free (msg_alloc);
           return;
         }
-      else
+      else if ((log_level & G_LOG_LEVEL_DEBUG) != G_LOG_LEVEL_DEBUG)
         {
           gchar level_prefix[STRING_BUFFER_SIZE];
           gchar *expected_message;
@@ -1012,6 +1042,10 @@ g_logv (const gchar   *log_domain,
  *
  * If the log level has been set as fatal, the abort()
  * function is called to terminate the program.
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
  */
 void
 g_log (const gchar   *log_domain,
@@ -1114,6 +1148,9 @@ g_assert_warning (const char *log_domain,
  * g_error() intentionally never returns even if the program doesn't
  * abort; use g_test_trap_subprocess() in this case.
  *
+ * If messages at %G_LOG_LEVEL_DEBUG are emitted, but not explicitly
+ * expected via g_test_expect_message() then they will be ignored.
+ *
  * Since: 2.34
  */
 void
@@ -1125,6 +1162,7 @@ g_test_expect_message (const gchar    *log_domain,
 
   g_return_if_fail (log_level != 0);
   g_return_if_fail (pattern != NULL);
+  g_return_if_fail (~log_level & G_LOG_LEVEL_ERROR);
 
   expected = g_new (GTestExpectedMessage, 1);
   expected->log_domain = g_strdup (log_domain);
@@ -1161,6 +1199,9 @@ g_test_assert_expected_messages_internal (const char     *domain,
  *
  * Asserts that all messages previously indicated via
  * g_test_expect_message() have been seen and suppressed.
+ *
+ * If messages at %G_LOG_LEVEL_DEBUG are emitted, but not explicitly
+ * expected via g_test_expect_message() then they will be ignored.
  *
  * Since: 2.34
  */
@@ -1284,7 +1325,9 @@ escape_string (GString *string)
  * allows to install an alternate default log handler.
  * This is used if no log handler has been set for the particular log
  * domain and log level combination. It outputs the message to stderr
- * or stdout and if the log level is fatal it calls abort().
+ * or stdout and if the log level is fatal it calls abort(). It automatically
+ * prints a new-line character after the message, so one does not need to be
+ * manually included in @message.
  *
  * The behavior of this log handler can be influenced by a number of
  * environment variables:
@@ -1426,7 +1469,9 @@ g_set_print_handler (GPrintFunc func)
  * @...: the parameters to insert into the format string
  *
  * Outputs a formatted message via the print handler.
- * The default print handler simply outputs the message to stdout.
+ * The default print handler simply outputs the message to stdout, without
+ * appending a trailing new-line character. Typically, @format should end with
+ * its own new-line character.
  *
  * g_print() should not be used from within libraries for debugging
  * messages, since it may be redirected by applications to special
@@ -1505,7 +1550,9 @@ g_set_printerr_handler (GPrintFunc func)
  * @...: the parameters to insert into the format string
  *
  * Outputs a formatted message via the error message handler.
- * The default handler simply outputs the message to stderr.
+ * The default handler simply outputs the message to stderr, without appending
+ * a trailing new-line character. Typically, @format should end with its own
+ * new-line character.
  *
  * g_printerr() should not be used from within libraries.
  * Instead g_log() should be used, or the convenience functions

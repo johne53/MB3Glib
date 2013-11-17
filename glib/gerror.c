@@ -563,7 +563,10 @@ g_set_error (GError      **err,
   if (*err == NULL)
     *err = new;
   else
-    g_warning (ERROR_OVERWRITTEN_WARNING, new->message); 
+    {
+      g_warning (ERROR_OVERWRITTEN_WARNING, new->message);
+      g_error_free (new);
+    }
 }
 
 /**
@@ -587,16 +590,13 @@ g_set_error_literal (GError      **err,
                      gint          code,
                      const gchar  *message)
 {
-  GError *new;
-
   if (err == NULL)
     return;
 
-  new = g_error_new_literal (domain, code, message);
   if (*err == NULL)
-    *err = new;
+    *err = g_error_new_literal (domain, code, message);
   else
-    g_warning (ERROR_OVERWRITTEN_WARNING, new->message); 
+    g_warning (ERROR_OVERWRITTEN_WARNING, message);
 }
 
 /**
@@ -622,7 +622,10 @@ g_propagate_error (GError **dest,
   else
     {
       if (*dest != NULL)
-        g_warning (ERROR_OVERWRITTEN_WARNING, src->message);
+        {
+          g_warning (ERROR_OVERWRITTEN_WARNING, src->message);
+          g_error_free (src);
+        }
       else
         *dest = src;
     }

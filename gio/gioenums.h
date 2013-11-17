@@ -1631,6 +1631,20 @@ typedef enum {
 } GTlsDatabaseLookupFlags;
 
 /**
+ * GTlsCertificateRequestFlags:
+ * @G_TLS_CERTIFICATE_REQUEST_NONE: No flags
+ *
+ * Flags for g_tls_interaction_request_certificate(),
+ * g_tls_interaction_request_certificate_async(), and
+ * g_tls_interaction_invoke_request_certificate().
+ *
+ * Since: 2.40
+ */
+typedef enum {
+  G_TLS_CERTIFICATE_REQUEST_NONE = 0
+} GTlsCertificateRequestFlags;
+
+/**
  * GIOModuleScopeFlags:
  * @G_IO_MODULE_SCOPE_NONE: No module scan flags
  * @G_IO_MODULE_SCOPE_BLOCK_DUPLICATES: When using this scope to load or
@@ -1695,6 +1709,56 @@ typedef enum {
 typedef enum /*< flags >*/ {
   G_TEST_DBUS_NONE = 0
 } GTestDBusFlags;
+
+/**
+ * GSubprocessFlags:
+ * @G_SUBPROCESS_FLAGS_NONE: No flags.
+ * @G_SUBPROCESS_FLAGS_STDIN_PIPE: create a pipe for the stdin of the
+ *   spawned process that can be accessed with
+ *   g_subprocess_get_stdin_pipe().
+ * @G_SUBPROCESS_FLAGS_STDIN_INHERIT: stdin is inherited from the
+ *   calling process.
+ * @G_SUBPROCESS_FLAGS_STDOUT_PIPE: create a pipe for the stdout of the
+ *   spawned process that can be accessed with
+ *   g_subprocess_get_stdout_pipe().
+ * @G_SUBPROCESS_FLAGS_STDOUT_SILENCE: silence the stdout of the spawned
+ *   process (ie: redirect to /dev/null).
+ * @G_SUBPROCESS_FLAGS_STDERR_PIPE: create a pipe for the stderr of the
+ *   spawned process that can be accessed with
+ *   g_subprocess_get_stderr_pipe().
+ * @G_SUBPROCESS_FLAGS_STDERR_SILENCE: silence the stderr of the spawned
+ *   process (ie: redirect to /dev/null).
+ * @G_SUBPROCESS_FLAGS_STDERR_MERGE: merge the stderr of the spawned
+ *   process with whatever the stdout happens to be.  This is a good way
+ *   of directing both streams to a common log file, for example.
+ * @G_SUBPROCESS_FLAGS_INHERIT_FDS: spawned processes will inherit the
+ *   file descriptors of their parent, unless those descriptors have
+ *   been explicitly marked as close-on-exec.  This flag has no effect
+ *   over the "standard" file descriptors (stdin, stdout, stderr).
+ *
+ * Flags to define the behaviour of a #GSubprocess.
+ *
+ * Note that the default for stdin is to redirect from /dev/null.  For
+ * stdout and stderr the default are for them to inherit the
+ * corresponding descriptor from the calling process.
+ *
+ * Note that it is a programmer error to mix 'incompatible' flags.  For
+ * example, you may not request both %G_SUBPROCESS_FLAGS_STDOUT_PIPE and
+ * %G_SUBPROCESS_FLAGS_STDOUT_SILENCE.
+ *
+ * Since: 2.36
+ **/
+typedef enum {
+  G_SUBPROCESS_FLAGS_NONE                  = 0,
+  G_SUBPROCESS_FLAGS_STDIN_PIPE            = (1u << 0),
+  G_SUBPROCESS_FLAGS_STDIN_INHERIT         = (1u << 1),
+  G_SUBPROCESS_FLAGS_STDOUT_PIPE           = (1u << 2),
+  G_SUBPROCESS_FLAGS_STDOUT_SILENCE        = (1u << 3),
+  G_SUBPROCESS_FLAGS_STDERR_PIPE           = (1u << 4),
+  G_SUBPROCESS_FLAGS_STDERR_SILENCE        = (1u << 5),
+  G_SUBPROCESS_FLAGS_STDERR_MERGE          = (1u << 6),
+  G_SUBPROCESS_FLAGS_INHERIT_FDS           = (1u << 7)
+} GSubprocessFlags;
 
 G_END_DECLS
 

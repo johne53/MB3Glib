@@ -48,6 +48,8 @@
 #include "glibintl.h"
 #include "giomodule-priv.h"
 #include "gappinfo.h"
+#include "gappinfoprivate.h"
+#include "glocaldirectorymonitor.h"
 
 
 /**
@@ -146,10 +148,612 @@ static gchar *g_desktop_env = NULL;
 typedef struct
 {
   gchar                      *path;
+  GLocalDirectoryMonitor     *monitor;
+  GHashTable                 *app_names;
+  gboolean                    is_setup;
+  GHashTable                 *memory_index;
 } DesktopFileDir;
 
 static DesktopFileDir *desktop_file_dirs;
 static guint           n_desktop_file_dirs;
+static GMutex          desktop_file_dir_lock;
+
+/* Monitor 'changed' signal handler {{{2 */
+static void desktop_file_dir_reset (DesktopFileDir *dir);
+
+static void
+desktop_file_dir_changed (GFileMonitor      *monitor,
+                          GFile             *file,
+                          GFile             *other_file,
+                          GFileMonitorEvent  event_type,
+                          gpointer           user_data)
+{
+  DesktopFileDir *dir = user_data;
+
+  /* We are not interested in receiving notifications forever just
+   * because someone asked about one desktop file once.
+   *
+   * After we receive the first notification, reset the dir, destroying
+   * the monitor.  We will take this as a hint, next time that we are
+   * asked, that we need to check if everything is up to date.
+   */
+  g_mutex_lock (&desktop_file_dir_lock);
+
+  desktop_file_dir_reset (dir);
+
+  g_mutex_unlock (&desktop_file_dir_lock);
+
+  /* Notify anyone else who may be interested */
+  g_app_info_monitor_fire ();
+}
+
+/* Internal utility functions {{{2 */
+
+/*< internal >
+ * desktop_file_dir_app_name_is_masked:
+ * @dir: a #DesktopFileDir
+ * @app_name: an application ID
+ *
+ * Checks if @app_name is masked for @dir.
+ *
+ * An application is masked if a similarly-named desktop file exists in
+ * a desktop file directory with higher precedence.  Masked desktop
+ * files should be ignored.
+ */
+static gboolean
+desktop_file_dir_app_name_is_masked (DesktopFileDir *dir,
+                                     const gchar    *app_name)
+{
+  while (dir > desktop_file_dirs)
+    {
+      dir--;
+
+      if (dir->app_names && g_hash_table_contains (dir->app_names, app_name))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+/*< internal >
+ * add_to_table_if_appropriate:
+ * @apps: a string to GDesktopAppInfo hash table
+ * @app_name: the name of the application
+ * @info: a #GDesktopAppInfo, or NULL
+ *
+ * If @info is non-%NULL and non-hidden, then add it to @apps, using
+ * @app_name as a key.
+ *
+ * If @info is non-%NULL then this function will consume the passed-in
+ * reference.
+ */
+static void
+add_to_table_if_appropriate (GHashTable      *apps,
+                             const gchar     *app_name,
+                             GDesktopAppInfo *info)
+{
+  if (!info)
+    return;
+
+  if (info->hidden)
+    {
+      g_object_unref (info);
+      return;
+    }
+
+  g_free (info->desktop_id);
+  info->desktop_id = g_strdup (app_name);
+
+  g_hash_table_insert (apps, g_strdup (info->desktop_id), info);
+}
+
+enum
+{
+  DESKTOP_KEY_Comment,
+  DESKTOP_KEY_GenericName,
+  DESKTOP_KEY_Keywords,
+  DESKTOP_KEY_Name,
+  DESKTOP_KEY_X_GNOME_FullName,
+
+  N_DESKTOP_KEYS
+};
+
+const gchar desktop_key_match_category[N_DESKTOP_KEYS] = {
+  /* Note: lower numbers are a better match.
+   *
+   * In case we want two keys to match at the same level, we can just
+   * use the same number for the two different keys.
+   */
+  [DESKTOP_KEY_Name]             = 1,
+  [DESKTOP_KEY_Keywords]         = 2,
+  [DESKTOP_KEY_GenericName]      = 3,
+  [DESKTOP_KEY_X_GNOME_FullName] = 4,
+  [DESKTOP_KEY_Comment]          = 5
+};
+
+static gchar *
+desktop_key_get_name (guint key_id)
+{
+  switch (key_id)
+    {
+    case DESKTOP_KEY_Comment:
+      return "Comment";
+    case DESKTOP_KEY_GenericName:
+      return "GenericName";
+    case DESKTOP_KEY_Keywords:
+      return "Keywords";
+    case DESKTOP_KEY_Name:
+      return "Name";
+    case DESKTOP_KEY_X_GNOME_FullName:
+      return "X-GNOME-FullName";
+    default:
+      g_assert_not_reached ();
+    }
+}
+
+/* Search global state {{{2
+ *
+ * We only ever search under a global lock, so we can use (and reuse)
+ * some global data to reduce allocations made while searching.
+ *
+ * In short, we keep around arrays of results that we expand as needed
+ * (and never shrink).
+ *
+ * static_token_results: this is where we append the results for each
+ *     token within a given desktop directory, as we handle it (which is
+ *     a union of all matches for this term)
+ *
+ * static_search_results: this is where we build the complete results
+ *     for a single directory (which is an intersection of the matches
+ *     found for each term)
+ *
+ * static_total_results: this is where we build the complete results
+ *     across all directories (which is a union of the matches found in
+ *     each directory)
+ *
+ * The app_names that enter these tables are always pointer-unique (in
+ * the sense that string equality is the same as pointer equality).
+ * This can be guaranteed for two reasons:
+ *
+ *   - we mask appids so that a given appid will only ever appear within
+ *     the highest-precedence directory that contains it.  We never
+ *     return search results from a lower-level directory if a desktop
+ *     file exists in a higher-level one.
+ *
+ *   - within a given directory, the string is unique because it's the
+ *     key in the hashtable of all app_ids for that directory.
+ *
+ * We perform a merging of the results in merge_token_results().  This
+ * works by ordering the two lists and moving through each of them (at
+ * the same time) looking for common elements, rejecting uncommon ones.
+ * "Order" here need not mean any particular thing, as long as it is
+ * some order.  Because of the uniqueness of our strings, we can use
+ * pointer order.  That's what's going on in compare_results() below.
+ */
+struct search_result
+{
+  const gchar *app_name;
+  gint         category;
+};
+
+static struct search_result *static_token_results;
+static gint                  static_token_results_size;
+static gint                  static_token_results_allocated;
+static struct search_result *static_search_results;
+static gint                  static_search_results_size;
+static gint                  static_search_results_allocated;
+static struct search_result *static_total_results;
+static gint                  static_total_results_size;
+static gint                  static_total_results_allocated;
+
+/* And some functions for performing nice operations against it */
+static gint
+compare_results (gconstpointer a,
+                 gconstpointer b)
+{
+  const struct search_result *ra = a;
+  const struct search_result *rb = b;
+
+  if (ra->app_name < rb->app_name)
+    return -1;
+
+  else if (ra->app_name > rb->app_name)
+    return 1;
+
+  else
+    return ra->category - rb->category;
+}
+
+static gint
+compare_categories (gconstpointer a,
+                    gconstpointer b)
+{
+  const struct search_result *ra = a;
+  const struct search_result *rb = b;
+
+  return ra->category - rb->category;
+}
+
+static void
+add_token_result (const gchar *app_name,
+                  guint16      category)
+{
+  if G_UNLIKELY (static_token_results_size == static_token_results_allocated)
+    {
+      static_token_results_allocated = MAX (16, static_token_results_allocated * 2);
+      static_token_results = g_renew (struct search_result, static_token_results, static_token_results_allocated);
+    }
+
+  static_token_results[static_token_results_size].app_name = app_name;
+  static_token_results[static_token_results_size].category = category;
+  static_token_results_size++;
+}
+
+static void
+merge_token_results (gboolean first)
+{
+  qsort (static_token_results, static_token_results_size, sizeof (struct search_result), compare_results);
+
+  /* If this is the first token then we are basically merging a list with
+   * itself -- we only perform de-duplication.
+   *
+   * If this is not the first token then we are doing a real merge.
+   */
+  if (first)
+    {
+      const gchar *last_name = NULL;
+      gint i;
+
+      /* We must de-duplicate, but we do so by taking the best category
+       * in each case.
+       *
+       * The final list can be as large as the input here, so make sure
+       * we have enough room (even if it's too much room).
+       */
+
+      if G_UNLIKELY (static_search_results_allocated < static_token_results_size)
+        {
+          static_search_results_allocated = static_token_results_allocated;
+          static_search_results = g_renew (struct search_result,
+                                           static_search_results,
+                                           static_search_results_allocated);
+        }
+
+      for (i = 0; i < static_token_results_size; i++)
+        {
+          /* The list is sorted so that the best match for a given id
+           * will be at the front, so once we have copied an id, skip
+           * the rest of the entries for the same id.
+           */
+          if (static_token_results[i].app_name == last_name)
+            continue;
+
+          last_name = static_token_results[i].app_name;
+
+          static_search_results[static_search_results_size++] = static_token_results[i];
+        }
+    }
+  else
+    {
+      const gchar *last_name = NULL;
+      gint i, j = 0;
+      gint k = 0;
+
+      /* We only ever remove items from the results list, so no need to
+       * resize to ensure that we have enough room.
+       */
+      for (i = 0; i < static_token_results_size; i++)
+        {
+          if (static_token_results[i].app_name == last_name)
+            continue;
+
+          last_name = static_token_results[i].app_name;
+
+          /* Now we only want to have a result in static_search_results
+           * if we already have it there *and* we have it in
+           * static_token_results as well.  The category will be the
+           * lesser of the two.
+           *
+           * Skip past the results in static_search_results that are not
+           * going to be matches.
+           */
+          while (k < static_search_results_size &&
+                 static_search_results[k].app_name < static_token_results[i].app_name)
+            k++;
+
+          if (k < static_search_results_size &&
+              static_search_results[k].app_name == static_token_results[i].app_name)
+            {
+              /* We have a match.
+               *
+               * Category should be the worse of the two (ie:
+               * numerically larger).
+               */
+              static_search_results[j].app_name = static_search_results[k].app_name;
+              static_search_results[j].category = MAX (static_search_results[k].category,
+                                                       static_token_results[i].category);
+              j++;
+            }
+        }
+
+      static_search_results_size = j;
+    }
+
+  /* Clear it out for next time... */
+  static_token_results_size = 0;
+}
+
+static void
+reset_total_search_results (void)
+{
+  static_total_results_size = 0;
+}
+
+static void
+sort_total_search_results (void)
+{
+  qsort (static_total_results, static_total_results_size, sizeof (struct search_result), compare_categories);
+}
+
+static void
+merge_directory_results (void)
+{
+  if G_UNLIKELY (static_total_results_size + static_search_results_size > static_total_results_allocated)
+    {
+      static_total_results_allocated = MAX (16, static_total_results_allocated);
+      while (static_total_results_allocated < static_total_results_size + static_search_results_size)
+        static_total_results_allocated *= 2;
+      static_total_results = g_renew (struct search_result, static_total_results, static_total_results_allocated);
+    }
+
+  memcpy (static_total_results + static_total_results_size,
+          static_search_results,
+          static_search_results_size * sizeof (struct search_result));
+
+  static_total_results_size += static_search_results_size;
+
+  /* Clear it out for next time... */
+  static_search_results_size = 0;
+}
+
+
+/* Support for unindexed DesktopFileDirs {{{2 */
+static void
+get_apps_from_dir (GHashTable **apps,
+                   const char  *dirname,
+                   const char  *prefix)
+{
+  const char *basename;
+  GDir *dir;
+
+  dir = g_dir_open (dirname, 0, NULL);
+
+  if (dir == NULL)
+    return;
+
+  while ((basename = g_dir_read_name (dir)) != NULL)
+    {
+      gchar *filename;
+
+      filename = g_build_filename (dirname, basename, NULL);
+
+      if (g_str_has_suffix (basename, ".desktop"))
+        {
+          gchar *app_name;
+
+          app_name = g_strconcat (prefix, basename, NULL);
+
+          if (*apps == NULL)
+            *apps = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+          g_hash_table_insert (*apps, app_name, g_strdup (filename));
+        }
+      else if (g_file_test (filename, G_FILE_TEST_IS_DIR))
+        {
+          gchar *subprefix;
+
+          subprefix = g_strconcat (prefix, basename, "-", NULL);
+          get_apps_from_dir (apps, filename, subprefix);
+          g_free (subprefix);
+        }
+
+      g_free (filename);
+    }
+
+  g_dir_close (dir);
+}
+
+static void
+desktop_file_dir_unindexed_init (DesktopFileDir *dir)
+{
+  get_apps_from_dir (&dir->app_names, dir->path, "");
+}
+
+static GDesktopAppInfo *
+desktop_file_dir_unindexed_get_app (DesktopFileDir *dir,
+                                    const gchar    *desktop_id)
+{
+  const gchar *filename;
+
+  filename = g_hash_table_lookup (dir->app_names, desktop_id);
+
+  if (!filename)
+    return NULL;
+
+  return g_desktop_app_info_new_from_filename (filename);
+}
+
+static void
+desktop_file_dir_unindexed_get_all (DesktopFileDir *dir,
+                                    GHashTable     *apps)
+{
+  GHashTableIter iter;
+  gpointer app_name;
+  gpointer filename;
+
+  if (dir->app_names == NULL)
+    return;
+
+  g_hash_table_iter_init (&iter, dir->app_names);
+  while (g_hash_table_iter_next (&iter, &app_name, &filename))
+    {
+      if (desktop_file_dir_app_name_is_masked (dir, app_name))
+        continue;
+
+      add_to_table_if_appropriate (apps, app_name, g_desktop_app_info_new_from_filename (filename));
+    }
+}
+
+typedef struct _MemoryIndexEntry MemoryIndexEntry;
+typedef GHashTable MemoryIndex;
+
+struct _MemoryIndexEntry
+{
+  const gchar      *app_name; /* pointer to the hashtable key */
+  gint              match_category;
+  MemoryIndexEntry *next;
+};
+
+static void
+memory_index_entry_free (gpointer data)
+{
+  MemoryIndexEntry *mie = data;
+
+  while (mie)
+    {
+      MemoryIndexEntry *next = mie->next;
+
+      g_slice_free (MemoryIndexEntry, mie);
+      mie = next;
+    }
+}
+
+static void
+memory_index_add_token (MemoryIndex *mi,
+                        const gchar *token,
+                        gint         match_category,
+                        const gchar *app_name)
+{
+  MemoryIndexEntry *mie, *first;
+
+  mie = g_slice_new (MemoryIndexEntry);
+  mie->app_name = app_name;
+  mie->match_category = match_category;
+
+  first = g_hash_table_lookup (mi, token);
+
+  if (first)
+    {
+      mie->next = first->next;
+      first->next = mie;
+    }
+  else
+    {
+      mie->next = NULL;
+      g_hash_table_insert (mi, g_strdup (token), mie);
+    }
+}
+
+static void
+memory_index_add_string (MemoryIndex *mi,
+                         const gchar *string,
+                         gint         match_category,
+                         const gchar *app_name)
+{
+  gchar **tokens, **alternates;
+  gint i;
+
+  tokens = g_str_tokenize_and_fold (string, NULL, &alternates);
+
+  for (i = 0; tokens[i]; i++)
+    memory_index_add_token (mi, tokens[i], match_category, app_name);
+
+  for (i = 0; alternates[i]; i++)
+    memory_index_add_token (mi, alternates[i], match_category, app_name);
+
+  g_strfreev (alternates);
+  g_strfreev (tokens);
+}
+
+static MemoryIndex *
+memory_index_new (void)
+{
+  return g_hash_table_new_full (g_str_hash, g_str_equal, g_free, memory_index_entry_free);
+}
+
+static void
+desktop_file_dir_unindexed_setup_search (DesktopFileDir *dir)
+{
+  GHashTableIter iter;
+  gpointer app, path;
+
+  dir->memory_index = memory_index_new ();
+
+  /* Nothing to search? */
+  if (dir->app_names == NULL)
+    return;
+
+  g_hash_table_iter_init (&iter, dir->app_names);
+  while (g_hash_table_iter_next (&iter, &app, &path))
+    {
+      GKeyFile *key_file;
+
+      if (desktop_file_dir_app_name_is_masked (dir, app))
+        continue;
+
+      key_file = g_key_file_new ();
+
+      if (g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, NULL) &&
+          !g_key_file_get_boolean (key_file, "Desktop Entry", "Hidden", NULL))
+        {
+          /* Index the interesting keys... */
+          gint i;
+
+          for (i = 0; i < G_N_ELEMENTS (desktop_key_match_category); i++)
+            {
+              gchar *value;
+
+              if (!desktop_key_match_category[i])
+                continue;
+
+              value = g_key_file_get_locale_string (key_file, "Desktop Entry", desktop_key_get_name (i), NULL, NULL);
+
+              if (value)
+                memory_index_add_string (dir->memory_index, value, desktop_key_match_category[i], app);
+
+              g_free (value);
+            }
+        }
+
+      g_key_file_free (key_file);
+    }
+}
+
+static void
+desktop_file_dir_unindexed_search (DesktopFileDir  *dir,
+                                   const gchar     *search_token)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  if (!dir->memory_index)
+    desktop_file_dir_unindexed_setup_search (dir);
+
+  g_hash_table_iter_init (&iter, dir->memory_index);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      MemoryIndexEntry *mie = value;
+
+      if (!g_str_has_prefix (key, search_token))
+        continue;
+
+      while (mie)
+        {
+          add_token_result (mie->app_name, mie->match_category);
+          mie = mie->next;
+        }
+    }
+}
 
 /* DesktopFileDir "API" {{{2 */
 
@@ -172,12 +776,125 @@ desktop_file_dir_create (GArray      *array,
   g_array_append_val (array, dir);
 }
 
-/* Global setup API {{{2 */
+/*< internal >
+ * desktop_file_dir_reset:
+ * @dir: a #DesktopFileDir
+ *
+ * Cleans up @dir, releasing most resources that it was using.
+ */
+static void
+desktop_file_dir_reset (DesktopFileDir *dir)
+{
+  if (dir->monitor)
+    {
+      g_signal_handlers_disconnect_by_func (dir->monitor, desktop_file_dir_changed, dir);
+      g_object_unref (dir->monitor);
+      dir->monitor = NULL;
+    }
+
+  if (dir->app_names)
+    {
+      g_hash_table_unref (dir->app_names);
+      dir->app_names = NULL;
+    }
+
+  if (dir->memory_index)
+    {
+      g_hash_table_unref (dir->memory_index);
+      dir->memory_index = NULL;
+    }
+
+  dir->is_setup = FALSE;
+}
+
+/*< internal >
+ * desktop_file_dir_init:
+ * @dir: a #DesktopFileDir
+ *
+ * Does initial setup for @dir
+ *
+ * You should only call this if @dir is not already setup.
+ */
+static void
+desktop_file_dir_init (DesktopFileDir *dir)
+{
+  g_assert (!dir->is_setup);
+
+  g_assert (!dir->monitor);
+  dir->monitor = g_local_directory_monitor_new_in_worker (dir->path, G_FILE_MONITOR_NONE, NULL);
+
+  if (dir->monitor)
+    {
+      g_signal_connect (dir->monitor, "changed", G_CALLBACK (desktop_file_dir_changed), dir);
+      g_local_directory_monitor_start (dir->monitor);
+    }
+
+  desktop_file_dir_unindexed_init (dir);
+
+  dir->is_setup = TRUE;
+}
+
+/*< internal >
+ * desktop_file_dir_get_app:
+ * @dir: a DesktopFileDir
+ * @desktop_id: the desktop ID to load
+ *
+ * Creates the #GDesktopAppInfo for the given @desktop_id if it exists
+ * within @dir, even if it is hidden.
+ *
+ * This function does not check if @desktop_id would be masked by a
+ * directory with higher precedence.  The caller must do so.
+ */
+static GDesktopAppInfo *
+desktop_file_dir_get_app (DesktopFileDir *dir,
+                          const gchar    *desktop_id)
+{
+  if (!dir->app_names)
+    return NULL;
+
+  return desktop_file_dir_unindexed_get_app (dir, desktop_id);
+}
+
+/*< internal >
+ * desktop_file_dir_get_all:
+ * @dir: a DesktopFileDir
+ * @apps: a #GHashTable<string, GDesktopAppInfo>
+ *
+ * Loads all desktop files in @dir and adds them to @apps, careful to
+ * ensure we don't add any files masked by a similarly-named file in a
+ * higher-precedence directory.
+ */
+static void
+desktop_file_dir_get_all (DesktopFileDir *dir,
+                          GHashTable     *apps)
+{
+  desktop_file_dir_unindexed_get_all (dir, apps);
+}
+
+/*< internal >
+ * desktop_file_dir_search:
+ * @dir: a #DesktopFilEDir
+ * @term: a normalised and casefolded search term
+ *
+ * Finds the names of applications in @dir that match @term.
+ */
+static void
+desktop_file_dir_search (DesktopFileDir *dir,
+                         const gchar    *search_token)
+{
+  desktop_file_dir_unindexed_search (dir, search_token);
+}
+
+/* Lock/unlock and global setup API {{{2 */
 
 static void
-desktop_file_dirs_refresh (void)
+desktop_file_dirs_lock (void)
 {
-  if (g_once_init_enter (&desktop_file_dirs))
+  gint i;
+
+  g_mutex_lock (&desktop_file_dir_lock);
+
+  if (desktop_file_dirs == NULL)
     {
       const char * const *data_dirs;
       GArray *tmp;
@@ -193,10 +910,39 @@ desktop_file_dirs_refresh (void)
       for (i = 0; data_dirs[i]; i++)
         desktop_file_dir_create (tmp, data_dirs[i]);
 
+      desktop_file_dirs = (DesktopFileDir *) tmp->data;
       n_desktop_file_dirs = tmp->len;
 
-      g_once_init_leave (&desktop_file_dirs, (DesktopFileDir *) g_array_free (tmp, FALSE));
+      g_array_free (tmp, FALSE);
     }
+
+  for (i = 0; i < n_desktop_file_dirs; i++)
+    if (!desktop_file_dirs[i].is_setup)
+      desktop_file_dir_init (&desktop_file_dirs[i]);
+}
+
+static void
+desktop_file_dirs_unlock (void)
+{
+  g_mutex_unlock (&desktop_file_dir_lock);
+}
+
+static void
+desktop_file_dirs_refresh (void)
+{
+  desktop_file_dirs_lock ();
+  desktop_file_dirs_unlock ();
+}
+
+static void
+desktop_file_dirs_invalidate_user (void)
+{
+  g_mutex_lock (&desktop_file_dir_lock);
+
+  if (n_desktop_file_dirs)
+    desktop_file_dir_reset (&desktop_file_dirs[0]);
+
+  g_mutex_unlock (&desktop_file_dir_lock);
 }
 
 /* GDesktopAppInfo implementation {{{1 */
@@ -576,47 +1322,24 @@ g_desktop_app_info_new_from_filename (const char *filename)
 GDesktopAppInfo *
 g_desktop_app_info_new (const char *desktop_id)
 {
-  GDesktopAppInfo *appinfo;
-  char *basename;
-  int i;
+  GDesktopAppInfo *appinfo = NULL;
+  guint i;
 
-  desktop_file_dirs_refresh ();
+  desktop_file_dirs_lock ();
 
-  basename = g_strdup (desktop_id);
-  
   for (i = 0; i < n_desktop_file_dirs; i++)
     {
-      const gchar *path = desktop_file_dirs[i].path;
-      char *filename;
-      char *p;
+      appinfo = desktop_file_dir_get_app (&desktop_file_dirs[i], desktop_id);
 
-      filename = g_build_filename (path, desktop_id, NULL);
-      appinfo = g_desktop_app_info_new_from_filename (filename);
-      g_free (filename);
-      if (appinfo != NULL)
-	goto found;
-
-      p = basename;
-      while ((p = strchr (p, '-')) != NULL)
-	{
-	  *p = '/';
-
-	  filename = g_build_filename (path, basename, NULL);
-	  appinfo = g_desktop_app_info_new_from_filename (filename);
-	  g_free (filename);
-	  if (appinfo != NULL)
-	    goto found;
-	  *p = '-';
-	  p++;
-	}
+      if (appinfo)
+        break;
     }
 
-  g_free (basename);
-  return NULL;
+  desktop_file_dirs_unlock ();
 
- found:
-  g_free (basename);
-  
+  if (appinfo == NULL)
+    return NULL;
+
   g_free (appinfo->desktop_id);
   appinfo->desktop_id = g_strdup (desktop_id);
 
@@ -2344,6 +3067,15 @@ g_desktop_app_info_ensure_saved (GDesktopAppInfo  *info,
 
   run_update_command ("update-desktop-database", "applications");
 
+  /* We just dropped a file in the user's desktop file directory.  Save
+   * the monitor the bother of having to notice it and invalidate
+   * immediately.
+   *
+   * This means that calls directly following this will be able to see
+   * the results immediately.
+   */
+  desktop_file_dirs_invalidate_user ();
+
   return TRUE;
 }
 
@@ -2763,70 +3495,92 @@ g_app_info_get_default_for_uri_scheme (const char *uri_scheme)
   return app_info;
 }
 
-static void
-get_apps_from_dir (GHashTable *apps, 
-                   const char *dirname, 
-                   const char *prefix)
-{
-  GDir *dir;
-  const char *basename;
-  char *filename, *subprefix, *desktop_id;
-  gboolean hidden;
-  GDesktopAppInfo *appinfo;
-  
-  dir = g_dir_open (dirname, 0, NULL);
-  if (dir)
-    {
-      while ((basename = g_dir_read_name (dir)) != NULL)
-	{
-	  filename = g_build_filename (dirname, basename, NULL);
-	  if (g_str_has_suffix (basename, ".desktop"))
-	    {
-	      desktop_id = g_strconcat (prefix, basename, NULL);
-
-	      /* Use _extended so we catch NULLs too (hidden) */
-	      if (!g_hash_table_lookup_extended (apps, desktop_id, NULL, NULL))
-		{
-		  appinfo = g_desktop_app_info_new_from_filename (filename);
-                  hidden = FALSE;
-
-		  if (appinfo && g_desktop_app_info_get_is_hidden (appinfo))
-		    {
-		      g_object_unref (appinfo);
-		      appinfo = NULL;
-		      hidden = TRUE;
-		    }
-				      
-		  if (appinfo || hidden)
-		    {
-		      g_hash_table_insert (apps, g_strdup (desktop_id), appinfo);
-
-		      if (appinfo)
-			{
-			  /* Reuse instead of strdup here */
-			  appinfo->desktop_id = desktop_id;
-			  desktop_id = NULL;
-			}
-		    }
-		}
-	      g_free (desktop_id);
-	    }
-	  else
-	    {
-	      if (g_file_test (filename, G_FILE_TEST_IS_DIR))
-		{
-		  subprefix = g_strconcat (prefix, basename, "-", NULL);
-		  get_apps_from_dir (apps, filename, subprefix);
-		  g_free (subprefix);
-		}
-	    }
-	  g_free (filename);
-	}
-      g_dir_close (dir);
-    }
-}
-
 /* "Get all" API {{{2 */
+
+/**
+ * g_desktop_app_info_search:
+ * @search_string: the search string to use
+ *
+ * Searches desktop files for ones that match @search_string.
+ *
+ * The return value is an array of strvs.  Each strv contains a list of
+ * applications that matched @search_string with an equal score.  The
+ * outer list is sorted by score so that the first strv contains the
+ * best-matching applications, and so on.
+ * The algorithm for determining matches is undefined and may change at
+ * any time.
+ *
+ * Returns: (array zero-terminated=1) (element-type GStrv) (transfer full): a
+ *   list of strvs.  Free each item with g_strfreev() and free the outer
+ *   list with g_free().
+ */
+gchar ***
+g_desktop_app_info_search (const gchar *search_string)
+{
+  gchar **search_tokens;
+  gint last_category = -1;
+  gchar ***results;
+  gint n_categories = 0;
+  gint start_of_category;
+  gint i, j;
+
+  search_tokens = g_str_tokenize_and_fold (search_string, NULL, NULL);
+
+  desktop_file_dirs_lock ();
+
+  reset_total_search_results ();
+
+  for (i = 0; i < n_desktop_file_dirs; i++)
+    {
+      for (j = 0; search_tokens[j]; j++)
+        {
+          desktop_file_dir_search (&desktop_file_dirs[i], search_tokens[j]);
+          merge_token_results (j == 0);
+        }
+      merge_directory_results ();
+    }
+
+  sort_total_search_results ();
+
+  /* Count the total number of unique categories */
+  for (i = 0; i < static_total_results_size; i++)
+    if (static_total_results[i].category != last_category)
+      {
+        last_category = static_total_results[i].category;
+        n_categories++;
+      }
+
+  results = g_new (gchar **, n_categories + 1);
+
+  /* Start loading into the results list */
+  start_of_category = 0;
+  for (i = 0; i < n_categories; i++)
+    {
+      gint n_items_in_category = 0;
+      gint this_category;
+      gint j;
+
+      this_category = static_total_results[start_of_category].category;
+
+      while (start_of_category + n_items_in_category < static_total_results_size &&
+             static_total_results[start_of_category + n_items_in_category].category == this_category)
+        n_items_in_category++;
+
+      results[i] = g_new (gchar *, n_items_in_category + 1);
+      for (j = 0; j < n_items_in_category; j++)
+        results[i][j] = g_strdup (static_total_results[start_of_category + j].app_name);
+      results[i][j] = NULL;
+
+      start_of_category += n_items_in_category;
+    }
+  results[i] = NULL;
+
+  desktop_file_dirs_unlock ();
+
+  g_strfreev (search_tokens);
+
+  return results;
+}
 
 /**
  * g_app_info_get_all:
@@ -2852,15 +3606,14 @@ g_app_info_get_all (void)
   int i;
   GList *infos;
 
-  desktop_file_dirs_refresh ();
+  apps = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-  apps = g_hash_table_new_full (g_str_hash, g_str_equal,
-				g_free, NULL);
-
+  desktop_file_dirs_lock ();
 
   for (i = 0; i < n_desktop_file_dirs; i++)
-    get_apps_from_dir (apps, desktop_file_dirs[i].path, "");
+    desktop_file_dir_get_all (&desktop_file_dirs[i], apps);
 
+  desktop_file_dirs_unlock ();
 
   infos = NULL;
   g_hash_table_iter_init (&iter, apps);
@@ -2872,7 +3625,7 @@ g_app_info_get_all (void)
 
   g_hash_table_destroy (apps);
 
-  return g_list_reverse (infos);
+  return infos;
 }
 
 /* Caching of mimeinfo.cache and defaults.list files {{{2 */

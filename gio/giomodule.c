@@ -37,6 +37,7 @@
 #include "gsocks5proxy.h"
 #include "gtlsbackend.h"
 #include "gvfs.h"
+#include "gnotificationbackend.h"
 #ifdef G_OS_WIN32
 #include "gregistrysettingsbackend.h"
 #endif
@@ -68,7 +69,7 @@
  * organized fashion.  
  *
  * An extension point is identified by a name, and it may optionally
- * require that any implementation must by of a certain type (or derived
+ * require that any implementation must be of a certain type (or derived
  * thereof). Use g_io_extension_point_register() to register an
  * extension point, and g_io_extension_point_set_required_type() to
  * set a required type.
@@ -894,6 +895,11 @@ extern GType g_network_monitor_base_get_type (void);
 extern GType _g_network_monitor_netlink_get_type (void);
 #endif
 
+#ifdef G_OS_UNIX
+extern GType g_fdo_notification_backend_get_type (void);
+extern GType g_gtk_notification_backend_get_type (void);
+#endif
+
 #ifdef G_PLATFORM_WIN32
 
 #include <windows.h>
@@ -997,6 +1003,9 @@ _g_io_modules_ensure_extension_points_registered (void)
 
       ep = g_io_extension_point_register (G_NETWORK_MONITOR_EXTENSION_POINT_NAME);
       g_io_extension_point_set_required_type (ep, G_TYPE_NETWORK_MONITOR);
+
+      ep = g_io_extension_point_register (G_NOTIFICATION_BACKEND_EXTENSION_POINT_NAME);
+      g_io_extension_point_set_required_type (ep, G_TYPE_NOTIFICATION_BACKEND);
     }
   
   G_UNLOCK (registered_extensions);
@@ -1065,6 +1074,8 @@ _g_io_modules_ensure_loaded (void)
 #endif
 #ifdef G_OS_UNIX
       g_type_ensure (_g_unix_volume_monitor_get_type ());
+      g_type_ensure (g_fdo_notification_backend_get_type ());
+      g_type_ensure (g_gtk_notification_backend_get_type ());
 #endif
 #ifdef G_OS_WIN32
       g_type_ensure (_g_winhttp_vfs_get_type ());

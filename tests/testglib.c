@@ -24,8 +24,6 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
-/* Commented out by JE - 13-03-2013  #include "config.h" */
-
 #undef GLIB_COMPILATION
 
 #include <stdio.h>
@@ -37,7 +35,7 @@
 
 #include <stdlib.h>
 
-#ifdef HAVE_UNISTD_H
+#ifdef G_OS_UNIX
 #include <unistd.h>
 #endif
 
@@ -943,9 +941,8 @@ test_file_functions (void)
   chars[n] = 0;
   if (strcmp (chars, hello) != 0)
     g_error ("wrote '%s', but got '%s'\n", hello, chars);
-
-if ((-1) != fd) // Added by JE - 07-10-2010
-  close (fd);
+  if (fd != -1)
+    close (fd);
   remove (template);
 
   error = NULL;
@@ -975,8 +972,8 @@ if ((-1) != fd) // Added by JE - 07-10-2010
       else
         g_print ("g_file_open_tmp correctly returns error: %s\n", error->message);
     }
-if ((-1) != fd) // Added by JE - 07-10-2010
-  close (fd);
+  if (fd != -1)
+    close (fd);
   g_clear_error (&error);
   g_free (name_used);
 #endif
@@ -988,8 +985,8 @@ if ((-1) != fd) // Added by JE - 07-10-2010
     g_error ("g_file_open_tmp didn't work for template '%s': %s\n", template, error->message);
   else if (g_test_verbose())
     g_print ("g_file_open_tmp for template '%s' used name '%s'\n", template, name_used);
-if ((-1) != fd) // Added by JE - 07-10-2010
-  close (fd);
+  if (fd != -1)
+    close (fd);
   g_clear_error (&error);
   remove (name_used);
   g_free (name_used);
@@ -998,7 +995,7 @@ if ((-1) != fd) // Added by JE - 07-10-2010
   fd = g_file_open_tmp (NULL, &name_used, &error);
   if (fd == -1)
     g_error ("g_file_open_tmp didn't work for a NULL template: %s\n", error->message);
-  else // Added by JE - 07-10-2010
+  else
     close (fd);
   g_clear_error (&error);
   remove (name_used);

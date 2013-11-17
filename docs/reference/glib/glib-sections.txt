@@ -1282,6 +1282,8 @@ g_strrstr_len
 g_str_has_prefix
 g_str_has_suffix
 g_strcmp0
+g_str_tokenize_and_fold
+g_str_match_string
 
 <SUBSECTION>
 g_strlcpy
@@ -1302,6 +1304,7 @@ g_vasprintf
 g_printf_string_upper_bound
 
 <SUBSECTION>
+g_str_is_ascii
 g_ascii_isalnum
 g_ascii_isalpha
 g_ascii_iscntrl
@@ -2293,6 +2296,7 @@ g_hash_table_remove_all
 g_hash_table_steal_all
 g_hash_table_get_keys
 g_hash_table_get_values
+g_hash_table_get_keys_as_array
 GHRFunc
 g_hash_table_freeze
 g_hash_table_thaw

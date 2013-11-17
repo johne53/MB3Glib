@@ -59,6 +59,8 @@ IGNORE_HFILES = \
 	gnetworkingprivate.h		\
 	gnetworkmonitorbase.h		\
 	gnetworkmonitornetlink.h	\
+	gnotificationbackend.h		\
+	gnotification-private.h		\
 	gpollfilemonitor.h		\
 	gregistrysettingsbackend.h	\
 	gsettingsbackendinternal.h	\
@@ -69,6 +71,7 @@ IGNORE_HFILES = \
 	gsocks4aproxy.h			\
 	gsocks4proxy.h			\
 	gsocks5proxy.h			\
+	gsubprocesslauncher-private.h	\
 	gthreadedresolver.h		\
 	gunionvolumemonitor.h		\
 	gunixmount.h			\
@@ -78,7 +81,8 @@ IGNORE_HFILES = \
 	gwin32appinfo.h			\
 	gwin32mount.h			\
 	gwin32resolver.h		\
-	gwin32volumemonitor.h
+	gwin32volumemonitor.h		\
+	thumbnail-verify.h
 
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
@@ -114,6 +118,7 @@ content_files =			\
 	gio-querymodules.xml	\
 	glib-compile-schemas.xml\
 	glib-compile-resources.xml	\
+	gapplication.xml	\
 	gsettings.xml		\
 	gresource.xml		\
 	gdbus.xml		\
@@ -146,6 +151,7 @@ man_MANS =
 if ENABLE_MAN
 
 man_MANS +=			\
+	gapplication.1		\
 	gio-querymodules.1	\
 	glib-compile-schemas.1	\
 	glib-compile-resources.1	\

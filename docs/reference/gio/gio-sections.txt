@@ -306,6 +306,7 @@ G_FILE_ATTRIBUTE_OWNER_USER_REAL
 G_FILE_ATTRIBUTE_OWNER_GROUP
 G_FILE_ATTRIBUTE_THUMBNAIL_PATH
 G_FILE_ATTRIBUTE_THUMBNAILING_FAILED
+G_FILE_ATTRIBUTE_THUMBNAIL_IS_VALID
 G_FILE_ATTRIBUTE_PREVIEW_ICON
 G_FILE_ATTRIBUTE_FILESYSTEM_SIZE
 G_FILE_ATTRIBUTE_FILESYSTEM_FREE
@@ -1398,6 +1399,19 @@ GAppLaunchContextPrivate
 </SECTION>
 
 <SECTION>
+<FILE>gappinfomonitor</FILE>
+<TITLE>GAppInfoMonitor</TITLE>
+GAppInfoMonitor
+g_app_info_monitor_get
+<SUBSECTION Standard>
+GAppInfoMonitor
+G_APP_INFO_MONITOR
+G_IS_APP_INFO_MONITOR
+<SUBSECTION Private>
+g_app_info_monitor_get_type
+</SECTION>
+
+<SECTION>
 <FILE>gmountoperation</FILE>
 <TITLE>GMountOperation</TITLE>
 GAskPasswordFlags
@@ -2393,6 +2407,7 @@ g_settings_schema_source_unref
 g_settings_schema_source_new_from_directory
 
 <SUBSECTION>
+g_settings_schema_source_list_schemas
 g_settings_schema_source_lookup
 
 <SUBSECTION>
@@ -2405,8 +2420,26 @@ g_settings_schema_unref
 g_settings_schema_get_id
 g_settings_schema_get_path
 
+<SUBSECTION>
+GSettingsSchemaKey
+g_settings_schema_has_key
+g_settings_schema_get_key
+g_settings_schema_key_ref
+g_settings_schema_key_unref
+
+<SUBSECTION>
+g_settings_schema_key_get_value_type
+g_settings_schema_key_get_default_value
+g_settings_schema_key_get_range
+g_settings_schema_key_range_check
+
+<SUBSECTION>
+g_settings_schema_key_get_summary
+g_settings_schema_key_get_description
+
 <SUBSECTION Private>
 g_settings_schema_get_type
+g_settings_schema_key_get_type
 g_settings_schema_source_get_type
 </SECTION>
 
@@ -2429,6 +2462,8 @@ g_settings_revert
 g_settings_get_has_unapplied
 g_settings_get_child
 g_settings_reset
+g_settings_get_user_value
+g_settings_get_default_value
 
 <SUBSECTION Introspection>
 g_settings_list_schemas
@@ -2979,6 +3014,9 @@ g_application_quit
 <SUBSECTION>
 g_application_activate
 g_application_open
+<SUBSECTION>
+g_application_send_notification
+g_application_withdraw_notification
 <SUBSECTION>
 g_application_run
 g_application_set_default
@@ -3551,10 +3589,15 @@ G_TYPE_TLS_PASSWORD_FLAGS
 <TITLE>GTlsInteraction</TITLE>
 GTlsInteraction
 GTlsInteractionResult
+GTlsCertificateRequestFlags
+g_tls_interaction_invoke_ask_password
+g_tls_interaction_invoke_request_certificate
 g_tls_interaction_ask_password
 g_tls_interaction_ask_password_async
 g_tls_interaction_ask_password_finish
-g_tls_interaction_invoke_ask_password
+g_tls_interaction_request_certificate
+g_tls_interaction_request_certificate_async
+g_tls_interaction_request_certificate_finish
 <SUBSECTION Standard>
 GTlsInteractionClass
 G_IS_TLS_INTERACTION
@@ -4077,4 +4120,102 @@ G_SIMPLE_PROXY_RESOLVER_CLASS
 G_IS_SIMPLE_PROXY_RESOLVER_CLASS
 G_SIMPLE_PROXY_RESOLVER_GET_CLASS
 g_simple_proxy_resolver_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gsubprocess</FILE>
+<TITLE>GSubprocess</TITLE>
+GSubprocess
+GSubprocessFlags
+g_subprocess_new
+g_subprocess_newv
+g_subprocess_get_identifier
+<SUBSECTION IO>
+g_subprocess_get_stdin_pipe
+g_subprocess_get_stdout_pipe
+g_subprocess_get_stderr_pipe
+<SUBSECTION Waiting>
+g_subprocess_wait
+g_subprocess_wait_async
+g_subprocess_wait_finish
+g_subprocess_wait_check
+g_subprocess_wait_check_async
+g_subprocess_wait_check_finish
+<SUBSECTION Status>
+g_subprocess_get_successful
+g_subprocess_get_if_exited
+g_subprocess_get_exit_status
+g_subprocess_get_if_signaled
+g_subprocess_get_term_sig
+g_subprocess_get_status
+<SUBSECTION Control>
+g_subprocess_send_signal
+g_subprocess_force_exit
+<SUBSECTION communicate>
+g_subprocess_communicate
+g_subprocess_communicate_async
+g_subprocess_communicate_finish
+g_subprocess_communicate_utf8
+g_subprocess_communicate_utf8_async
+g_subprocess_communicate_utf8_finish
+<SUBSECTION Standard>
+G_IS_SUBPROCESS
+G_TYPE_SUBPROCESS
+G_SUBPROCESS
+G_TYPE_SUBPROCESS_FLAGS
+g_subprocess_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gsubprocesslauncher</FILE>
+<TITLE>GSubprocessLauncher</TITLE>
+GSubprocessLauncher
+g_subprocess_launcher_getenv
+g_subprocess_launcher_new
+g_subprocess_launcher_set_child_setup
+g_subprocess_launcher_set_cwd
+g_subprocess_launcher_set_environ
+g_subprocess_launcher_set_flags
+g_subprocess_launcher_set_stderr_file_path
+g_subprocess_launcher_set_stdin_file_path
+g_subprocess_launcher_set_stdout_file_path
+g_subprocess_launcher_setenv
+g_subprocess_launcher_spawn
+g_subprocess_launcher_spawnv
+g_subprocess_launcher_take_fd
+g_subprocess_launcher_take_stderr_fd
+g_subprocess_launcher_take_stdin_fd
+g_subprocess_launcher_take_stdout_fd
+g_subprocess_launcher_unsetenv
+<SUBSECTION Standard>
+G_IS_SUBPROCESS_LAUNCHER
+G_SUBPROCESS_LAUNCHER
+G_TYPE_SUBPROCESS_LAUNCHER
+g_subprocess_launcher_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gnotification</FILE>
+<TITLE>GNotification</TITLE>
+GNotification
+g_notification_new
+<SUBSECTION>
+g_notification_set_title
+g_notification_set_body
+g_notification_set_icon
+g_notification_set_urgent
+<SUBSECTION>
+g_notification_set_default_action
+g_notification_set_default_action_and_target
+g_notification_set_default_action_and_target_value
+<SUBSECTION>
+g_notification_add_button
+g_notification_add_button_with_target
+g_notification_add_button_with_target_value
+<SUBSECTION Standard>
+G_IS_NOTIFICATION
+G_NOTIFICATION
+G_TYPE_NOTIFICATION
+G_TYPE_NOTIFICATION_BACKEND
+g_notification_get_type
 </SECTION>

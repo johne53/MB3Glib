@@ -195,6 +195,8 @@ GLIB_AVAILABLE_IN_ALL
 gchar*                g_ascii_strup       (const gchar *str,
 					   gssize       len) G_GNUC_MALLOC;
 
+GLIB_AVAILABLE_IN_2_40
+gboolean              g_str_is_ascii      (const gchar *str);
 
 GLIB_DEPRECATED
 gint                  g_strcasecmp     (const gchar *s1,
@@ -287,6 +289,16 @@ guint                 g_strv_length    (gchar       **str_array);
 GLIB_AVAILABLE_IN_ALL
 gchar*                g_stpcpy         (gchar        *dest,
                                         const char   *src);
+
+GLIB_AVAILABLE_IN_2_40
+gchar **                g_str_tokenize_and_fold                         (const gchar   *string,
+                                                                         const gchar   *translit_locale,
+                                                                         gchar       ***ascii_alternates);
+
+GLIB_AVAILABLE_IN_2_40
+gboolean                g_str_match_string                              (const gchar   *search_term,
+                                                                         const gchar   *potential_hit,
+                                                                         gboolean       accept_alternates);
 
 G_END_DECLS
 

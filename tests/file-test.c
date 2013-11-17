@@ -24,8 +24,6 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
-#include "config.h"
-
 #undef G_DISABLE_ASSERT
 #undef G_LOG_DOMAIN
 
@@ -39,7 +37,7 @@
 
 #include <gstdio.h>
 
-#ifdef HAVE_UNISTD_H
+#ifdef G_OS_UNIX
 #include <unistd.h>
 #endif
 
@@ -62,14 +60,18 @@ test_mkstemp (void)
   strcpy (template, "foobar");
   fd = g_mkstemp (template);
   if (fd != -1)
-    g_warning ("g_mkstemp works even if template doesn't contain XXXXXX");
-  close (fd);
+    {
+      g_warning ("g_mkstemp works even if template doesn't contain XXXXXX");
+      close (fd);
+    }
 
   strcpy (template, "foobarXXX");
   fd = g_mkstemp (template);
   if (fd != -1)
-    g_warning ("g_mkstemp works even if template contains less than six X");
-  close (fd);
+    {
+      g_warning ("g_mkstemp works even if template contains less than six X");
+      close (fd);
+    }
 
   strcpy (template, "fooXXXXXX");
   fd = g_mkstemp (template);
@@ -184,12 +186,14 @@ test_readlink (void)
   data = g_file_read_link (link3, &error);
   g_assert (data == NULL && "could read link3");
   g_assert_error (error, G_FILE_ERROR, G_FILE_ERROR_NOENT);
+  g_error_free (error);
 
   error = NULL;
   data = g_file_read_link (filename, &error);
   g_assert (data == NULL && "could read regular file as link");
   g_assert_error (error, G_FILE_ERROR, G_FILE_ERROR_INVAL);
-  
+  g_error_free (error);
+
   remove (filename);
   remove (link1);
   remove (link2);

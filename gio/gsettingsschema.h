@@ -27,6 +27,7 @@ G_BEGIN_DECLS
 
 typedef struct _GSettingsSchemaSource                       GSettingsSchemaSource;
 typedef struct _GSettingsSchema                             GSettingsSchema;
+typedef struct _GSettingsSchemaKey                          GSettingsSchemaKey;
 
 #define                 G_TYPE_SETTINGS_SCHEMA_SOURCE                   (g_settings_schema_source_get_type ())
 GLIB_AVAILABLE_IN_2_32
@@ -50,6 +51,12 @@ GSettingsSchema *       g_settings_schema_source_lookup                 (GSettin
                                                                          const gchar            *schema_id,
                                                                          gboolean                recursive);
 
+GLIB_AVAILABLE_IN_2_40
+void                    g_settings_schema_source_list_schemas           (GSettingsSchemaSource   *source,
+                                                                         gboolean                 recursive,
+                                                                         gchar                 ***non_relocatable,
+                                                                         gchar                 ***relocatable);
+
 #define                 G_TYPE_SETTINGS_SCHEMA                          (g_settings_schema_get_type ())
 GLIB_AVAILABLE_IN_2_32
 GType                   g_settings_schema_get_type                      (void) G_GNUC_CONST;
@@ -63,6 +70,36 @@ GLIB_AVAILABLE_IN_2_32
 const gchar *           g_settings_schema_get_id                        (GSettingsSchema        *schema);
 GLIB_AVAILABLE_IN_2_32
 const gchar *           g_settings_schema_get_path                      (GSettingsSchema        *schema);
+GLIB_AVAILABLE_IN_2_40
+GSettingsSchemaKey *    g_settings_schema_get_key                       (GSettingsSchema        *schema,
+                                                                         const gchar            *key);
+GLIB_AVAILABLE_IN_2_40
+gboolean                g_settings_schema_has_key                       (GSettingsSchema        *schema,
+                                                                         const gchar            *key);
+
+#define                 G_TYPE_SETTINGS_SCHEMA_KEY                      (g_settings_schema_key_get_type ())
+GLIB_AVAILABLE_IN_2_40
+GType                   g_settings_schema_key_get_type                  (void) G_GNUC_CONST;
+
+GLIB_AVAILABLE_IN_2_40
+GSettingsSchemaKey *    g_settings_schema_key_ref                       (GSettingsSchemaKey     *key);
+GLIB_AVAILABLE_IN_2_40
+void                    g_settings_schema_key_unref                     (GSettingsSchemaKey     *key);
+
+GLIB_AVAILABLE_IN_2_40
+const GVariantType *    g_settings_schema_key_get_value_type            (GSettingsSchemaKey     *key);
+GLIB_AVAILABLE_IN_2_40
+GVariant *              g_settings_schema_key_get_default_value         (GSettingsSchemaKey     *key);
+GLIB_AVAILABLE_IN_2_40
+GVariant *              g_settings_schema_key_get_range                 (GSettingsSchemaKey     *key);
+GLIB_AVAILABLE_IN_2_40
+gboolean                g_settings_schema_key_range_check               (GSettingsSchemaKey     *key,
+                                                                         GVariant               *value);
+
+GLIB_AVAILABLE_IN_2_40
+const gchar *           g_settings_schema_key_get_summary               (GSettingsSchemaKey     *key);
+GLIB_AVAILABLE_IN_2_40
+const gchar *           g_settings_schema_key_get_description           (GSettingsSchemaKey     *key);
 
 G_END_DECLS
 

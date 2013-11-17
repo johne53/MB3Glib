@@ -2044,6 +2044,8 @@ test_list_schemas (void)
 
   g_assert (strv_set_equal ((gchar **)relocs,
                             "org.gtk.test.no-path",
+                            "org.gtk.test.extends.base",
+                            "org.gtk.test.extends.extended",
                             NULL));
 
   g_assert (strv_set_equal ((gchar **)schemas,
@@ -2057,6 +2059,7 @@ test_list_schemas (void)
                             "org.gtk.test.range",
                             "org.gtk.test.range.direct",
                             "org.gtk.test.mapped",
+                            "org.gtk.test.descriptions",
                             NULL));
 }
 
@@ -2331,9 +2334,58 @@ test_memory_backend (void)
   g_object_unref (backend);
 }
 
+static void
+test_read_descriptions (void)
+{
+  GSettingsSchema *schema;
+  GSettingsSchemaKey *key;
+  GSettings *settings;
+
+  settings = g_settings_new ("org.gtk.test");
+  g_object_get (settings, "settings-schema", &schema, NULL);
+  key = g_settings_schema_get_key (schema, "greeting");
+
+  g_assert_cmpstr (g_settings_schema_key_get_summary (key), ==, "A greeting");
+  g_assert_cmpstr (g_settings_schema_key_get_description (key), ==, "Greeting of the invading martians");
+
+  g_settings_schema_key_unref (key);
+  g_settings_schema_unref (schema);
+
+  g_object_unref (settings);
+
+  settings = g_settings_new ("org.gtk.test.descriptions");
+  g_object_get (settings, "settings-schema", &schema, NULL);
+  key = g_settings_schema_get_key (schema, "a");
+
+  g_assert_cmpstr (g_settings_schema_key_get_summary (key), ==,
+                   "a paragraph.\n\n"
+                   "with some whitespace.\n\n"
+                   "because not everyone has a great editor.\n\n"
+                   "lots of space is as one.");
+
+  g_settings_schema_key_unref (key);
+  g_settings_schema_unref (schema);
+
+  g_object_unref (settings);
+}
+
+static void
+test_extended_schema (void)
+{
+  GSettings *settings;
+  gchar **keys;
+
+  settings = g_settings_new_with_path ("org.gtk.test.extends.extended", "/test/extendes/");
+  keys = g_settings_list_keys (settings);
+  g_assert (strv_set_equal (keys, "int32", "string", "another-int32", NULL));
+  g_strfreev (keys);
+  g_object_unref (settings);
+}
+
 int
 main (int argc, char *argv[])
 {
+  gchar *schema_text;
   gchar *enums;
   gint result;
 
@@ -2360,10 +2412,13 @@ main (int argc, char *argv[])
       g_assert (g_file_set_contents ("org.gtk.test.enums.xml", enums, -1, NULL));
       g_free (enums);
 
+      g_assert (g_file_get_contents (SRCDIR "/org.gtk.test.gschema.xml.orig", &schema_text, NULL, NULL));
+      g_assert (g_file_set_contents ("org.gtk.test.gschema.xml", schema_text, -1, NULL));
+
       g_remove ("gschemas.compiled");
       g_assert (g_spawn_command_line_sync ("../glib-compile-schemas --targetdir=. "
                                            "--schema-file=org.gtk.test.enums.xml "
-                                           "--schema-file=" SRCDIR "/org.gtk.test.gschema.xml",
+                                           "--schema-file=org.gtk.test.gschema.xml",
                                            NULL, NULL, &result, NULL));
       g_assert (result == 0);
 
@@ -2444,6 +2499,8 @@ main (int argc, char *argv[])
   g_test_add_func ("/gsettings/actions", test_actions);
   g_test_add_func ("/gsettings/null-backend", test_null_backend);
   g_test_add_func ("/gsettings/memory-backend", test_memory_backend);
+  g_test_add_func ("/gsettings/read-descriptions", test_read_descriptions);
+  g_test_add_func ("/gsettings/test-extended-schema", test_extended_schema);
 
   result = g_test_run ();
 

@@ -251,6 +251,7 @@ ensure_attribute_hash (void)
   REGISTER_ATTRIBUTE (OWNER_GROUP);
   REGISTER_ATTRIBUTE (THUMBNAIL_PATH);
   REGISTER_ATTRIBUTE (THUMBNAILING_FAILED);
+  REGISTER_ATTRIBUTE (THUMBNAIL_IS_VALID);
   REGISTER_ATTRIBUTE (PREVIEW_ICON);
   REGISTER_ATTRIBUTE (FILESYSTEM_SIZE);
   REGISTER_ATTRIBUTE (FILESYSTEM_FREE);
@@ -1871,7 +1872,7 @@ g_file_info_set_file_type (GFileInfo *info,
  * @info: a #GFileInfo.
  * @is_hidden: a #gboolean.
  *
- * Sets the "is_hidden" attribute in a #GFileInfo according to @is_symlink.
+ * Sets the "is_hidden" attribute in a #GFileInfo according to @is_hidden.
  * See %G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN.
  **/
 void

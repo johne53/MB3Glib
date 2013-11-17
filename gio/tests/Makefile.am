@@ -30,6 +30,7 @@ test_programs = \
 	data-output-stream			\
 	fileattributematcher			\
 	filter-streams				\
+	gsubprocess				\
 	g-file					\
 	g-file-info				\
 	g-icon					\
@@ -87,6 +88,7 @@ uninstalled_test_extra_programs = \
 	gdbus-example-subtree			\
 	gdbus-example-watch-name		\
 	gdbus-example-watch-proxy		\
+	gsubprocess-testprog			\
 	httpd					\
 	proxy					\
 	resolver				\
@@ -174,6 +176,23 @@ schema_tests = \
 	wrong-category.gschema.xml			\
 	$(NULL)
 
+test_programs += thumbnail-verification
+dist_test_data += $(thumbnail_data_files)
+thumbnail_data_files = $(addprefix thumbnails/,$(thumbnail_tests))
+thumbnail_tests = \
+	bad-header.png \
+	empty-key.png \
+	header-and-chunk-size.png \
+	header-only.png \
+	huge-chunk-size.png \
+	mtime-zero.png \
+	no-text-data.png \
+	overlong-value.png \
+	uri-mismatch.png \
+	valid.png \
+	valid-no-size.png \
+	$(NULL)
+
 test_programs += tls-certificate
 tls_certificate_SOURCES = \
 	tls-certificate.c			\
@@ -228,6 +247,43 @@ uninstalled_test_programs += \
 	desktop-app-info			\
 	$(NULL)
 
+home_desktop_files = \
+	epiphany-weather-for-toronto-island-9c6a4e022b17686306243dada811d550d25eb1fb.desktop	\
+	eog.desktop
+
+usr_desktop_files = \
+	baobab.desktop				\
+	cheese.desktop				\
+	dconf-editor.desktop			\
+	eog.desktop				\
+	evince-previewer.desktop		\
+	evince.desktop				\
+	file-roller.desktop			\
+	gcr-prompter.desktop			\
+	gcr-viewer.desktop			\
+	gedit.desktop				\
+	glade.desktop				\
+	gnome-clocks.desktop			\
+	gnome-contacts.desktop			\
+	gnome-font-viewer.desktop		\
+	gnome-music.desktop			\
+	gnome-terminal.desktop			\
+	gucharmap.desktop			\
+	kde4/dolphin.desktop			\
+	kde4/kate.desktop			\
+	kde4/konqbrowser.desktop		\
+	kde4/okular.desktop			\
+	nautilus-autorun-software.desktop	\
+	nautilus-classic.desktop		\
+	nautilus-connect-server.desktop		\
+	nautilus.desktop			\
+	totem.desktop				\
+	yelp.desktop
+
+dist_test_data += \
+	$(addprefix desktop-files/usr/applications/,$(usr_desktop_files))	\
+	$(addprefix desktop-files/home/applications/,$(home_desktop_files))
+
 dist_test_data += \
 	appinfo-test-actions.desktop		\
 	appinfo-test-gnome.desktop		\
@@ -240,6 +296,7 @@ dist_test_data += \
 
 test_extra_programs += \
 	appinfo-test				\
+	apps					\
 	$(NULL)
 
 uninstalled_test_extra_programs += \
@@ -261,12 +318,13 @@ test.mo: de.po
 	cp -f test.mo de/LC_MESSAGES
 EXTRA_DIST += de.po
 dist_uninstalled_test_data += \
-	org.gtk.test.gschema.xml		\
+	org.gtk.test.gschema.xml.orig		\
 	org.gtk.schemasourcecheck.gschema.xml	\
 	testenum.h				\
 	enums.xml.template
 # Generated while running the testcase itself...
 CLEANFILES += \
+	org.gtk.test.gschema.xml	\
 	org.gtk.test.enums.xml		\
 	gsettings.store			\
 	gschemas.compiled		\
@@ -294,8 +352,7 @@ gdbus_non_socket_SOURCES = \
 uninstalled_test_extra_programs += gdbus-example-objectmanager-client
 gdbus_example_objectmanager_client_LDADD = gdbus-object-manager-example/libgdbus-example-objectmanager.la $(LDADD)
 
-uninstalled_test_extra_programs += gdbus-example-objectmanager-server
-gdbus_example_objectmanager_server_LDADD = gdbus-object-manager-example/libgdbus-example-objectmanager.la $(LDADD)
+test_extra_programs += gsubprocess-testprog
 
 uninstalled_test_extra_programs += gdbus-test-fixture
 gdbus_test_fixture_LDADD = gdbus-object-manager-example/libgdbus-example-objectmanager.la $(LDADD)
@@ -332,6 +389,7 @@ test_programs += \
 	gdbus-proxy-threads			\
 	gdbus-proxy-well-known-name		\
 	gdbus-test-codegen			\
+	gdbus-test-codegen-old			\
 	gdbus-threading				\
 	gmenumodel				\
 	$(NULL)
@@ -355,9 +413,12 @@ gdbus_proxy_SOURCES                      = $(gdbus_sessionbus_sources) gdbus-pro
 gdbus_proxy_threads_SOURCES              = $(gdbus_sessionbus_sources) gdbus-proxy-threads.c
 gdbus_proxy_well_known_name_SOURCES      = $(gdbus_sessionbus_sources) gdbus-proxy-well-known-name.c
 gdbus_test_codegen_SOURCES               = $(gdbus_sessionbus_sources) gdbus-test-codegen.c
+nodist_gdbus_test_codegen_SOURCES        = gdbus-test-codegen-generated.c gdbus-test-codegen-generated.h
+gdbus_test_codegen_old_SOURCES           = $(gdbus_sessionbus_sources) gdbus-test-codegen.c
+nodist_gdbus_test_codegen_old_SOURCES    = gdbus-test-codegen-generated.c gdbus-test-codegen-generated.h
+gdbus_test_codegen_old_CPPFLAGS          = $(AM_CPPFLAGS) -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_36 -DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_36
 gdbus_threading_SOURCES                  = $(gdbus_sessionbus_sources) gdbus-threading.c
 gmenumodel_SOURCES                       = $(gdbus_sessionbus_sources) gmenumodel.c
-nodist_gdbus_test_codegen_SOURCES        = gdbus-test-codegen-generated.c gdbus-test-codegen-generated.h
 
 gdbus-test-codegen.o: gdbus-test-codegen-generated.h
 gdbus-test-codegen-generated.h gdbus-test-codegen-generated.c: test-codegen.xml Makefile $(top_builddir)/gio/gdbus-2.0/codegen/gdbus-codegen
@@ -384,6 +445,8 @@ EXTRA_DIST += test-codegen.xml
 CLEANFILES += gdbus-test-codegen-generated.[ch] gdbus-test-codegen-generated-doc-*.xml
 endif # OS_UNIX
 endif # HAVE_DBUS_DAEMON
+
+tls_interaction_SOURCES = tls-interaction.c gtesttlsbackend.c gtesttlsbackend.h
 
 # -----------------------------------------------------------------------------
 

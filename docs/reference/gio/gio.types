@@ -4,6 +4,7 @@ g_action_group_get_type
 g_action_map_get_type
 g_simple_action_group_get_type
 g_app_info_get_type
+g_app_info_monitor_get_type
 g_app_launch_context_get_type
 g_application_get_type
 g_async_initable_get_type
@@ -65,6 +66,7 @@ g_proxy_address_enumerator_get_type
 g_proxy_address_get_type
 g_proxy_get_type
 g_proxy_resolver_get_type
+g_simple_proxy_resolver_get_type
 g_resolver_get_type
 g_seekable_get_type
 g_settings_get_type
@@ -137,3 +139,4 @@ g_test_dbus_get_type
 g_test_dbus_flags_get_type
 g_task_get_type
 g_simple_proxy_resolver_get_type
+g_subprocess_get_type

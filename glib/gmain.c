@@ -1083,6 +1083,7 @@ assign_source_id_unlocked (GMainContext   *context,
                             GUINT_TO_POINTER (source->source_id));
         }
       id = G_MAXUINT;
+      g_hash_table_add (context->overflow_used_source_ids, GUINT_TO_POINTER (id));
     }
   else if (context->overflow_used_source_ids == NULL)
     {
@@ -1110,7 +1111,8 @@ assign_source_id_unlocked (GMainContext   *context,
 
 static guint
 g_source_attach_unlocked (GSource      *source,
-			  GMainContext *context)
+                          GMainContext *context,
+                          gboolean      do_wakeup)
 {
   GSList *tmp_list;
 
@@ -1135,9 +1137,15 @@ g_source_attach_unlocked (GSource      *source,
   tmp_list = source->priv->child_sources;
   while (tmp_list)
     {
-      g_source_attach_unlocked (tmp_list->data, context);
+      g_source_attach_unlocked (tmp_list->data, context, FALSE);
       tmp_list = tmp_list->next;
     }
+
+  /* If another thread has acquired the context, wake it up since it
+   * might be in poll() right now.
+   */
+  if (do_wakeup && context->owner && context->owner != G_THREAD_SELF)
+    g_wakeup_signal (context->wakeup);
 
   return source->source_id;
 }
@@ -1167,13 +1175,7 @@ g_source_attach (GSource      *source,
 
   LOCK_CONTEXT (context);
 
-  result = g_source_attach_unlocked (source, context);
-
-  /* If another thread has acquired the context, wake it up since it
-   * might be in poll() right now.
-   */
-  if (context->owner && context->owner != G_THREAD_SELF)
-    g_wakeup_signal (context->wakeup);
+  result = g_source_attach_unlocked (source, context, TRUE);
 
   UNLOCK_CONTEXT (context);
 
@@ -1432,8 +1434,8 @@ g_source_add_child_source (GSource *source,
 
   if (context)
     {
+      g_source_attach_unlocked (child_source, context, TRUE);
       UNLOCK_CONTEXT (context);
-      g_source_attach (child_source, context);
     }
 }
 
@@ -2178,29 +2180,34 @@ g_main_context_find_source_by_user_data (GMainContext *context,
 /**
  * g_source_remove:
  * @tag: the ID of the source to remove.
- * 
- * Removes the source with the given id from the default main context. 
- * The id of
- * a #GSource is given by g_source_get_id(), or will be returned by the
- * functions g_source_attach(), g_idle_add(), g_idle_add_full(),
- * g_timeout_add(), g_timeout_add_full(), g_child_watch_add(),
- * g_child_watch_add_full(), g_io_add_watch(), and g_io_add_watch_full().
+ *
+ * Removes the source with the given id from the default main context.
+ *
+ * The id of a #GSource is given by g_source_get_id(), or will be
+ * returned by the functions g_source_attach(), g_idle_add(),
+ * g_idle_add_full(), g_timeout_add(), g_timeout_add_full(),
+ * g_child_watch_add(), g_child_watch_add_full(), g_io_add_watch(), and
+ * g_io_add_watch_full().
  *
  * See also g_source_destroy(). You must use g_source_destroy() for sources
  * added to a non-default main context.
  *
- * Return value: %TRUE if the source was found and removed.
+ * It is a programmer error to attempt to remove a non-existent source.
+ *
+ * Return value: For historical reasons, this function always returns %TRUE
  **/
 gboolean
 g_source_remove (guint tag)
 {
   GSource *source;
-  
+
   g_return_val_if_fail (tag > 0, FALSE);
 
   source = g_main_context_find_source_by_id (NULL, tag);
   if (source)
     g_source_destroy (source);
+  else
+    g_critical ("Source ID %u was not found when attempting to remove it", tag);
 
   return source != NULL;
 }
@@ -4971,6 +4978,7 @@ unref_unix_signal_handler_unlocked (int signum)
   if (unix_signal_refcount[signum] == 0)
     {
       struct sigaction action;
+      memset (&action, 0, sizeof (action));
       action.sa_handler = SIG_DFL;
       sigemptyset (&action.sa_mask);
       sigaction (signum, &action, NULL);

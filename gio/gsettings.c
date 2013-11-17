@@ -866,6 +866,21 @@ g_settings_new (const gchar *schema_id)
                        NULL);
 }
 
+static gboolean
+path_is_valid (const gchar *path)
+{
+  if (!path)
+    return FALSE;
+
+  if (path[0] != '/')
+    return FALSE;
+
+  if (!g_str_has_suffix (path, "/"))
+    return FALSE;
+
+  return strstr (path, "//") == NULL;
+}
+
 /**
  * g_settings_new_with_path:
  * @schema_id: the id of the schema
@@ -881,6 +896,10 @@ g_settings_new (const gchar *schema_id)
  * It is a programmer error to call this function for a schema that
  * has an explicitly specified path.
  *
+ * It is a programmer error if @path is not a valid path.  A valid path
+ * begins and ends with '/' and does not contain two consecutive '/'
+ * characters.
+ *
  * Returns: a new #GSettings object
  *
  * Since: 2.26
@@ -890,7 +909,7 @@ g_settings_new_with_path (const gchar *schema_id,
                           const gchar *path)
 {
   g_return_val_if_fail (schema_id != NULL, NULL);
-  g_return_val_if_fail (path != NULL, NULL);
+  g_return_val_if_fail (path_is_valid (path), NULL);
 
   return g_object_new (G_TYPE_SETTINGS,
                        "schema-id", schema_id,
@@ -952,7 +971,7 @@ g_settings_new_with_backend_and_path (const gchar      *schema_id,
 {
   g_return_val_if_fail (schema_id != NULL, NULL);
   g_return_val_if_fail (G_IS_SETTINGS_BACKEND (backend), NULL);
-  g_return_val_if_fail (path != NULL, NULL);
+  g_return_val_if_fail (path_is_valid (path), NULL);
 
   return g_object_new (G_TYPE_SETTINGS,
                        "schema-id", schema_id,
@@ -1000,6 +1019,10 @@ g_settings_new_full (GSettingsSchema  *schema,
                      GSettingsBackend *backend,
                      const gchar      *path)
 {
+  g_return_val_if_fail (schema != NULL, NULL);
+  g_return_val_if_fail (backend == NULL || G_IS_SETTINGS_BACKEND (backend), NULL);
+  g_return_val_if_fail (path == NULL || path_is_valid (path), NULL);
+
   return g_object_new (G_TYPE_SETTINGS,
                        "settings-schema", schema,
                        "backend", backend,
@@ -1025,14 +1048,19 @@ g_settings_write_to_backend (GSettings          *settings,
 
 static GVariant *
 g_settings_read_from_backend (GSettings          *settings,
-                              GSettingsSchemaKey *key)
+                              GSettingsSchemaKey *key,
+                              gboolean            user_value_only,
+                              gboolean            default_value)
 {
   GVariant *value;
   GVariant *fixup;
   gchar *path;
 
   path = g_strconcat (settings->priv->path, key->name, NULL);
-  value = g_settings_backend_read (settings->priv->backend, path, key->type, FALSE);
+  if (user_value_only)
+    value = g_settings_backend_read_user_value (settings->priv->backend, path, key->type);
+  else
+    value = g_settings_backend_read (settings->priv->backend, path, key->type, default_value);
   g_free (path);
 
   if (value != NULL)
@@ -1072,7 +1100,107 @@ g_settings_get_value (GSettings   *settings,
   g_return_val_if_fail (key != NULL, NULL);
 
   g_settings_schema_key_init (&skey, settings->priv->schema, key);
-  value = g_settings_read_from_backend (settings, &skey);
+  value = g_settings_read_from_backend (settings, &skey, FALSE, FALSE);
+
+  if (value == NULL)
+    value = g_settings_schema_key_get_translated_default (&skey);
+
+  if (value == NULL)
+    value = g_variant_ref (skey.default_value);
+
+  g_settings_schema_key_clear (&skey);
+
+  return value;
+}
+
+/**
+ * g_settings_get_user_value:
+ * @settings: a #GSettings object
+ * @key: the key to get the user value for
+ *
+ * Checks the "user value" of a key, if there is one.
+ *
+ * The user value of a key is the last value that was set by the user.
+ *
+ * After calling g_settings_reset() this function should always return
+ * %NULL (assuming something is not wrong with the system
+ * configuration).
+ *
+ * It is possible that g_settings_get_value() will return a different
+ * value than this function.  This can happen in the case that the user
+ * set a value for a key that was subsequently locked down by the system
+ * administrator -- this function will return the user's old value.
+ *
+ * This function may be useful for adding a "reset" option to a UI or
+ * for providing indication that a particular value has been changed.
+ *
+ * It is a programmer error to give a @key that isn't contained in the
+ * schema for @settings.
+ *
+ * Returns: (allow none) (transfer full): the user's value, if set
+ *
+ * Since: 2.40
+ **/
+GVariant *
+g_settings_get_user_value (GSettings   *settings,
+                           const gchar *key)
+{
+  GSettingsSchemaKey skey;
+  GVariant *value;
+
+  g_return_val_if_fail (G_IS_SETTINGS (settings), NULL);
+  g_return_val_if_fail (key != NULL, NULL);
+
+  g_settings_schema_key_init (&skey, settings->priv->schema, key);
+  value = g_settings_read_from_backend (settings, &skey, TRUE, FALSE);
+  g_settings_schema_key_clear (&skey);
+
+  return value;
+}
+
+/**
+ * g_settings_get_default_value:
+ * @settings: a #GSettings object
+ * @key: the key to get the default value for
+ *
+ * Gets the "default value" of a key.
+ *
+ * This is the value that would be read if g_settings_reset() were to be
+ * called on the key.
+ *
+ * Note that this may be a different value than returned by
+ * g_settings_schema_key_get_default_value() if the system administrator
+ * has provided a default value.
+ *
+ * Comparing the return values of g_settings_get_default_value() and
+ * g_settings_get_value() is not sufficient for determining if a value
+ * has been set because the user may have explicitly set the value to
+ * something that happens to be equal to the default.  The difference
+ * here is that if the default changes in the future, the user's key
+ * will still be set.
+ *
+ * This function may be useful for adding an indication to a UI of what
+ * the default value was before the user set it.
+ *
+ * It is a programmer error to give a @key that isn't contained in the
+ * schema for @settings.
+ *
+ * Returns: (allow none) (transfer full): the default value
+ *
+ * Since: 2.40
+ **/
+GVariant *
+g_settings_get_default_value (GSettings   *settings,
+                              const gchar *key)
+{
+  GSettingsSchemaKey skey;
+  GVariant *value;
+
+  g_return_val_if_fail (G_IS_SETTINGS (settings), NULL);
+  g_return_val_if_fail (key != NULL, NULL);
+
+  g_settings_schema_key_init (&skey, settings->priv->schema, key);
+  value = g_settings_read_from_backend (settings, &skey, FALSE, TRUE);
 
   if (value == NULL)
     value = g_settings_schema_key_get_translated_default (&skey);
@@ -1128,7 +1256,7 @@ g_settings_get_enum (GSettings   *settings,
       return -1;
     }
 
-  value = g_settings_read_from_backend (settings, &skey);
+  value = g_settings_read_from_backend (settings, &skey, FALSE, FALSE);
 
   if (value == NULL)
     value = g_settings_schema_key_get_translated_default (&skey);
@@ -1241,7 +1369,7 @@ g_settings_get_flags (GSettings   *settings,
       return -1;
     }
 
-  value = g_settings_read_from_backend (settings, &skey);
+  value = g_settings_read_from_backend (settings, &skey, FALSE, FALSE);
 
   if (value == NULL)
     value = g_settings_schema_key_get_translated_default (&skey);
@@ -1499,7 +1627,7 @@ g_settings_get_mapped (GSettings           *settings,
 
   g_settings_schema_key_init (&skey, settings->priv->schema, key);
 
-  if ((value = g_settings_read_from_backend (settings, &skey)))
+  if ((value = g_settings_read_from_backend (settings, &skey, FALSE, FALSE)))
     {
       okay = mapping (value, &result, user_data);
       g_variant_unref (value);
@@ -2187,80 +2315,22 @@ g_settings_list_children (GSettings *settings)
  *
  * Queries the range of a key.
  *
- * This function will return a #GVariant that fully describes the range
- * of values that are valid for @key.
- *
- * The type of #GVariant returned is <literal>(sv)</literal>.  The
- * string describes the type of range restriction in effect.  The type
- * and meaning of the value contained in the variant depends on the
- * string.
- *
- * If the string is <literal>'type'</literal> then the variant contains
- * an empty array.  The element type of that empty array is the expected
- * type of value and all values of that type are valid.
- *
- * If the string is <literal>'enum'</literal> then the variant contains
- * an array enumerating the possible values.  Each item in the array is
- * a possible valid value and no other values are valid.
- *
- * If the string is <literal>'flags'</literal> then the variant contains
- * an array.  Each item in the array is a value that may appear zero or
- * one times in an array to be used as the value for this key.  For
- * example, if the variant contained the array <literal>['x',
- * 'y']</literal> then the valid values for the key would be
- * <literal>[]</literal>, <literal>['x']</literal>,
- * <literal>['y']</literal>, <literal>['x', 'y']</literal> and
- * <literal>['y', 'x']</literal>.
- *
- * Finally, if the string is <literal>'range'</literal> then the variant
- * contains a pair of like-typed values -- the minimum and maximum
- * permissible values for this key.
- *
- * This information should not be used by normal programs.  It is
- * considered to be a hint for introspection purposes.  Normal programs
- * should already know what is permitted by their own schema.  The
- * format may change in any way in the future -- but particularly, new
- * forms may be added to the possibilities described above.
- *
- * It is a programmer error to give a @key that isn't contained in the
- * schema for @settings.
- *
- * You should free the returned value with g_variant_unref() when it is
- * no longer needed.
- *
- * Returns: a #GVariant describing the range
- *
  * Since: 2.28
+ *
+ * Deprecated:2.40:Use g_settings_schema_key_get_range() instead.
  **/
 GVariant *
 g_settings_get_range (GSettings   *settings,
                       const gchar *key)
 {
   GSettingsSchemaKey skey;
-  const gchar *type;
   GVariant *range;
 
   g_settings_schema_key_init (&skey, settings->priv->schema, key);
-
-  if (skey.minimum)
-    {
-      range = g_variant_new ("(**)", skey.minimum, skey.maximum);
-      type = "range";
-    }
-  else if (skey.strinfo)
-    {
-      range = strinfo_enumerate (skey.strinfo, skey.strinfo_length);
-      type = skey.is_flags ? "flags" : "enum";
-    }
-  else
-    {
-      range = g_variant_new_array (skey.type, NULL, 0);
-      type = "type";
-    }
-
+  range = g_settings_schema_key_get_range (&skey);
   g_settings_schema_key_clear (&skey);
 
-  return g_variant_ref_sink (g_variant_new ("(sv)", type, range));
+  return range;
 }
 
 /**
@@ -2272,16 +2342,11 @@ g_settings_get_range (GSettings   *settings,
  * Checks if the given @value is of the correct type and within the
  * permitted range for @key.
  *
- * This API is not intended to be used by normal programs -- they should
- * already know what is permitted by their own schemas.  This API is
- * meant to be used by programs such as editors or commandline tools.
- *
- * It is a programmer error to give a @key that isn't contained in the
- * schema for @settings.
- *
  * Returns: %TRUE if @value is valid for @key
  *
  * Since: 2.28
+ *
+ * Deprecated:2.40:Use g_settings_schema_key_range_check() instead.
  **/
 gboolean
 g_settings_range_check (GSettings   *settings,
@@ -2292,8 +2357,7 @@ g_settings_range_check (GSettings   *settings,
   gboolean good;
 
   g_settings_schema_key_init (&skey, settings->priv->schema, key);
-  good = g_settings_schema_key_type_check (&skey, value) &&
-         g_settings_schema_key_range_check (&skey, value);
+  good = g_settings_schema_key_range_check (&skey, value);
   g_settings_schema_key_clear (&skey);
 
   return good;
@@ -2382,7 +2446,7 @@ g_settings_binding_key_changed (GSettings   *settings,
 
   g_value_init (&value, binding->property->value_type);
 
-  variant = g_settings_read_from_backend (binding->settings, &binding->key);
+  variant = g_settings_read_from_backend (binding->settings, &binding->key, FALSE, FALSE);
   if (variant && !binding->get_mapping (&value, variant, binding->user_data))
     {
       /* silently ignore errors in the user's config database */
@@ -2929,7 +2993,7 @@ g_settings_action_get_state (GAction *action)
   GSettingsAction *gsa = (GSettingsAction *) action;
   GVariant *value;
 
-  value = g_settings_read_from_backend (gsa->settings, &gsa->key);
+  value = g_settings_read_from_backend (gsa->settings, &gsa->key, FALSE, FALSE);
 
   if (value == NULL)
     value = g_settings_schema_key_get_translated_default (&gsa->key);
@@ -2946,7 +3010,7 @@ g_settings_action_get_state_hint (GAction *action)
   GSettingsAction *gsa = (GSettingsAction *) action;
 
   /* no point in reimplementing this... */
-  return g_settings_get_range (gsa->settings, gsa->key.name);
+  return g_settings_schema_key_get_range (&gsa->key);
 }
 
 static void

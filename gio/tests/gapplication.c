@@ -107,17 +107,12 @@ basic (void)
   /* spawn the master */
   spawn ("activated\n"
          "open file:///a file:///b\n"
-         "cmdline '40 +' '2'\n"
          "exit status: 0\n",
          "./app", NULL);
 
   /* send it some files */
   spawn ("exit status: 0\n",
          "./app", "/a", "/b", NULL);
-
-  spawn ("40 + 2 = 42\n"
-         "exit status: 42\n",
-         "./cmd", "40 +", "2", NULL);
 
   g_main_loop_run (main_loop);
 
@@ -449,8 +444,6 @@ test_actions (void)
   gchar *argv[] = { binpath, NULL };
   GApplication *app;
 
-  g_unsetenv ("DBUS_SESSION_BUS_ADDRESS");
-
   app = g_application_new ("org.gtk.Unimportant",
                            G_APPLICATION_FLAGS_NONE);
   g_signal_connect (app, "activate", G_CALLBACK (on_activate), NULL);
@@ -504,8 +497,6 @@ test_local_command_line (void)
   char *binpath = g_test_build_filename (G_TEST_BUILT, "unimportant", NULL);
   gchar *argv[] = { binpath, "-invalid", NULL };
   GApplication *app;
-
-  g_unsetenv ("DBUS_SESSION_BUS_ADDRESS");
 
   app = g_object_new (test_loc_cmd_app_get_type (),
                       "application-id", "org.gtk.Unimportant",

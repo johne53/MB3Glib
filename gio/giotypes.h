@@ -62,6 +62,7 @@ typedef struct _GSettings                     GSettings;
 typedef struct _GPermission                   GPermission;
 
 typedef struct _GMenuModel                    GMenuModel;
+typedef struct _GNotification                 GNotification;
 
 /**
  * GDrive:
@@ -137,6 +138,7 @@ typedef struct _GIOStream                     GIOStream;
 typedef struct _GPollableInputStream          GPollableInputStream; /* Dummy typedef */
 typedef struct _GPollableOutputStream         GPollableOutputStream; /* Dummy typedef */
 typedef struct _GResolver                     GResolver;
+
 /**
  * GResource:
  *
@@ -512,6 +514,23 @@ typedef GType (*GDBusProxyTypeFunc) (GDBusObjectManagerClient   *manager,
                                      gpointer                    user_data);
 
 typedef struct _GTestDBus GTestDBus;
+
+/**
+ * GSubprocess:
+ *
+ * A child process.
+ *
+ * Since: 2.36
+ */
+typedef struct _GSubprocess                   GSubprocess;
+/**
+ * GSubprocessLauncher:
+ *
+ * Options for launching a child process.
+ *
+ * Since: 2.36
+ */
+typedef struct _GSubprocessLauncher           GSubprocessLauncher;
 
 G_END_DECLS
 

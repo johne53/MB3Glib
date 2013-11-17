@@ -126,6 +126,8 @@
 #include <gio/gsrvtarget.h>
 #include <gio/gsimpleproxyresolver.h>
 #include <gio/gtask.h>
+#include <gio/gsubprocess.h>
+#include <gio/gsubprocesslauncher.h>
 #include <gio/gtcpconnection.h>
 #include <gio/gtcpwrapperconnection.h>
 #include <gio/gtestdbus.h>
@@ -159,6 +161,7 @@
 #include <gio/gmenu.h>
 #include <gio/gmenuexporter.h>
 #include <gio/gdbusmenumodel.h>
+#include <gio/gnotification.h>
 
 #undef __GIO_GIO_H_INSIDE__
 

@@ -37,6 +37,7 @@
  */
 
 #include "config.h"
+#define _CRT_RAND_S
 
 #include <math.h>
 #include <errno.h>
@@ -56,7 +57,7 @@
 #include "gthread.h"
 
 #ifdef G_OS_WIN32
-#include <process.h>		/* For getpid() */
+#include <stdlib.h>
 #endif
 
 /**
@@ -65,10 +66,22 @@
  * @short_description: pseudo-random number generator
  *
  * The following functions allow you to use a portable, fast and good
- * pseudo-random number generator (PRNG). It uses the Mersenne Twister
- * PRNG, which was originally developed by Makoto Matsumoto and Takuji
- * Nishimura. Further information can be found at
- * <ulink url="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html">
+ * pseudo-random number generator (PRNG).
+ * 
+ * <warning><para>Do not use this API for cryptographic purposes such as key
+ * generation, nonces, salts or one-time pads.</para></warning>
+ *
+ * This PRNG is suitable for non-cryptographic use such as in games
+ * (shuffling a card deck, generating levels), generating data for a
+ * test suite, etc. If you need random data for cryptographic
+ * purposes, it is recommended to use platform-specific APIs such as
+ * <literal>/dev/random</literal> on Unix, or CryptGenRandom() on
+ * Windows.
+ *
+ * GRand uses the Mersenne Twister PRNG, which was originally
+ * developed by Makoto Matsumoto and Takuji Nishimura. Further
+ * information can be found at <ulink
+ * url="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html">
  * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html</ulink>.
  *
  * If you just need a random number, you simply call the
@@ -110,7 +123,6 @@
  **/
 
 G_LOCK_DEFINE_STATIC (global_random);
-static GRand* global_random = NULL;
 
 /* Period parameters */  
 #define N 624
@@ -199,7 +211,8 @@ g_rand_new_with_seed_array (const guint32 *seed, guint seed_length)
  * 
  * Creates a new random number generator initialized with a seed taken
  * either from <filename>/dev/urandom</filename> (if existing) or from 
- * the current time (as a fallback).
+ * the current time (as a fallback).  On Windows, the seed is taken from
+ * rand_s().
  * 
  * Return value: the new #GRand.
  **/
@@ -207,9 +220,9 @@ GRand*
 g_rand_new (void)
 {
   guint32 seed[4];
-  GTimeVal now;
 #ifdef G_OS_UNIX
   static gboolean dev_urandom_exists = TRUE;
+  GTimeVal now;
 
   if (dev_urandom_exists)
     {
@@ -241,9 +254,6 @@ g_rand_new (void)
       else
 	dev_urandom_exists = FALSE;
     }
-#else
-  static gboolean dev_urandom_exists = FALSE;
-#endif
 
   if (!dev_urandom_exists)
     {  
@@ -251,12 +261,14 @@ g_rand_new (void)
       seed[0] = now.tv_sec;
       seed[1] = now.tv_usec;
       seed[2] = getpid ();
-#ifdef G_OS_UNIX
       seed[3] = getppid ();
-#else
-      seed[3] = 0;
-#endif
     }
+#else /* G_OS_WIN32 */
+  gint i;
+
+  for (i = 0; i < G_N_ELEMENTS (seed); i++)
+    rand_s (&seed[i]);
+#endif
 
   return g_rand_new_with_seed_array (seed, 4);
 }
@@ -584,6 +596,18 @@ g_rand_double_range (GRand* rand, gdouble begin, gdouble end)
   return r * end - (r - 1) * begin;
 }
 
+static GRand *
+get_global_random (void)
+{
+  static GRand *global_random;
+
+  /* called while locked */
+  if (!global_random)
+    global_random = g_rand_new ();
+
+  return global_random;
+}
+
 /**
  * g_random_boolean:
  *
@@ -604,10 +628,7 @@ g_random_int (void)
 {
   guint32 result;
   G_LOCK (global_random);
-  if (!global_random)
-    global_random = g_rand_new ();
-  
-  result = g_rand_int (global_random);
+  result = g_rand_int (get_global_random ());
   G_UNLOCK (global_random);
   return result;
 }
@@ -627,10 +648,7 @@ g_random_int_range (gint32 begin, gint32 end)
 {
   gint32 result;
   G_LOCK (global_random);
-  if (!global_random)
-    global_random = g_rand_new ();
-  
-  result = g_rand_int_range (global_random, begin, end);
+  result = g_rand_int_range (get_global_random (), begin, end);
   G_UNLOCK (global_random);
   return result;
 }
@@ -647,10 +665,7 @@ g_random_double (void)
 {
   double result;
   G_LOCK (global_random);
-  if (!global_random)
-    global_random = g_rand_new ();
-  
-  result = g_rand_double (global_random);
+  result = g_rand_double (get_global_random ());
   G_UNLOCK (global_random);
   return result;
 }
@@ -669,10 +684,7 @@ g_random_double_range (gdouble begin, gdouble end)
 {
   double result;
   G_LOCK (global_random);
-  if (!global_random)
-    global_random = g_rand_new ();
- 
-  result = g_rand_double_range (global_random, begin, end);
+  result = g_rand_double_range (get_global_random (), begin, end);
   G_UNLOCK (global_random);
   return result;
 }
@@ -688,9 +700,6 @@ void
 g_random_set_seed (guint32 seed)
 {
   G_LOCK (global_random);
-  if (!global_random)
-    global_random = g_rand_new_with_seed (seed);
-  else
-    g_rand_set_seed (global_random, seed);
+  g_rand_set_seed (get_global_random (), seed);
   G_UNLOCK (global_random);
 }
