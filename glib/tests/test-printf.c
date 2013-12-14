@@ -188,6 +188,8 @@ test_d (void)
    * the "0" in "%-03d".) But we need to test that our printf gets
    * those rules right. So we fool gcc into not warning.
    */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
   fmt = "% +d";
   res = g_snprintf (buf, 128, fmt, 5);
   g_assert_cmpint (res, ==, 2);
@@ -197,6 +199,7 @@ test_d (void)
   res = g_snprintf (buf, 128, fmt, -5);
   g_assert_cmpint (res, ==, 3);
   g_assert_cmpstr (buf, ==, "-5 ");
+#pragma GCC diagnostic pop
 }
 
 static void
@@ -548,11 +551,9 @@ test_s (void)
   g_assert_cmpint (res, ==, 5);
   g_assert_cmpstr (buf, ==, "  abc");
 
-#if 0 /* HP-UX doesn't get this right */
   res = g_snprintf (buf, 128, "%*s", -5, "abc");
   g_assert_cmpint (res, ==, 5);
   g_assert_cmpstr (buf, ==, "abc  ");
-#endif
 
   res = g_snprintf (buf, 128, "%*.*s", 5, 2, "abc");
   g_assert_cmpint (res, ==, 5);

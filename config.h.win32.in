@@ -109,9 +109,6 @@
 /* define to 1 if Carbon is available */
 /* #undef HAVE_CARBON */
 
-/* Define to 1 if you have the `chown' function. */
-/* #undef HAVE_CHOWN */
-
 /* Define to 1 if you have the `clock_gettime' function. */
 /* #undef HAVE_CLOCK_GETTIME */
 
@@ -180,9 +177,6 @@
 /* Define to 1 if you have the `fdwalk' function. */
 /* #undef HAVE_FDWALK */
 
-/* Define to 1 if you have the <float.h> header file. */
-#define HAVE_FLOAT_H 1
-
 /* Define to 1 if you have the <fstab.h> header file. */
 /* #undef HAVE_FSTAB_H */
 
@@ -192,26 +186,17 @@
 /* we have the futex(2) system call */
 /* #undef HAVE_FUTEX */
 
-/* Define to 1 if you have the `getcwd' function. */
-#define HAVE_GETCWD 1
-
 /* Define to 1 if you have the `getc_unlocked' function. */
 /* #undef HAVE_GETC_UNLOCKED */
 
 /* Define to 1 if you have the `getfsstat' function. */
 /* #undef HAVE_GETFSSTAT */
 
-/* Define to 1 if you have the `getgrgid' function. */
-/* #undef HAVE_GETGRGID */
-
 /* Define to 1 if you have the `getmntent_r' function. */
 /* #undef HAVE_GETMNTENT_R */
 
 /* Define to 1 if you have the `getprotobyname_r' function. */
 /* #undef HAVE_GETPROTOBYNAME_R */
-
-/* Define to 1 if you have the `getpwuid' function. */
-/* #undef HAVE_GETPWUID */
 
 /* Define to 1 if you have the `getresuid' function. */
 /* #undef HAVE_GETRESUID */
@@ -227,9 +212,6 @@
 
 /* define to use system printf */
 /* #undef HAVE_GOOD_PRINTF */
-
-/* Define to 1 if you have the <grp.h> header file. */
-/* #undef HAVE_GRP_H */
 
 /* Define to 1 if you have the `hasmntopt' function. */
 /* #undef HAVE_HASMNTOPT */
@@ -314,12 +296,6 @@
 /* Define if libelf is available */
 /* #undef HAVE_LIBELF */
 
-/* Define to 1 if you have the <limits.h> header file. */
-#define HAVE_LIMITS_H 1
-
-/* Define to 1 if you have the `link' function. */
-/* #undef HAVE_LINK */
-
 /* Define to 1 if you have the <linux/magic.h> header file. */
 /* #undef HAVE_LINUX_MAGIC_H */
 
@@ -354,9 +330,6 @@
 /* Define to 1 if you have the `memmem' function. */
 /* #undef HAVE_MEMMEM */
 
-/* Define to 1 if you have the `memmove' function. */
-#define HAVE_MEMMOVE 1
-
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
@@ -380,9 +353,6 @@
 
 /* Have non-POSIX function getpwuid_r */
 /* #undef HAVE_NONPOSIX_GETPWUID_R */
-
-/* Define to 1 if you have the `on_exit' function. */
-/* #undef HAVE_ON_EXIT */
 
 /* Define to 1 if you have the `pipe2' function. */
 /* #undef HAVE_PIPE2 */
@@ -417,9 +387,6 @@
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #define HAVE_PTRDIFF_T 1
 
-/* Define to 1 if you have the <pwd.h> header file. */
-/* #undef HAVE_PWD_H */
-
 /* Define to 1 if you have the `readlink' function. */
 /* #undef HAVE_READLINK */
 
@@ -437,9 +404,6 @@
 
 /* Define to 1 if you have the `setenv' function. */
 /* #undef HAVE_SETENV */
-
-/* Define to 1 if you have the `setlocale' function. */
-#define HAVE_SETLOCALE 1
 
 /* Define to 1 if you have the `setmntent' function. */
 /* #undef HAVE_SETMNTENT */
@@ -466,9 +430,6 @@
 /* Define to 1 if you have the `statvfs' function. */
 /* #undef HAVE_STATVFS */
 
-/* Define to 1 if you have the <stddef.h> header file. */
-#define HAVE_STDDEF_H 1
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #ifndef _MSC_VER
 #define HAVE_STDINT_H 1
@@ -492,9 +453,6 @@
 #endif
 #endif /* _MSC_VER */
 
-/* Define to 1 if you have the <stdlib.h> header file. */
-#define HAVE_STDLIB_H 1
-
 /* Define to 1 if you have the `stpcpy' function. */
 /* #undef HAVE_STPCPY */
 
@@ -507,18 +465,12 @@
 #define HAVE_STRCASECMP 1
 #endif /* _MSC_VER or __gcc__ */
 
-/* Define to 1 if you have the `strerror' function. */
-#define HAVE_STRERROR 1
-
 /* Define to 1 if you have the <strings.h> header file. */
 #if !defined(_MSC_VER) && !defined(__DMC__)
 #define HAVE_STRINGS_H 1
 #else /* _MSC_VER or __DMC__ */
 /* #undef HAVE_STRINGS_H */
 #endif /* _MSC_VER or __DMC__ */
-
-/* Define to 1 if you have the <string.h> header file. */
-#define HAVE_STRING_H 1
 
 /* Have functions strlcpy and strlcat */
 /* #undef HAVE_STRLCPY */
@@ -656,21 +608,12 @@
 /* Define to 1 if you have the <sys/sysctl.h> header file. */
 /* #undef HAVE_SYS_SYSCTL_H */
 
-/* Define to 1 if you have the <sys/times.h> header file. */
-/* #undef HAVE_SYS_TIMES_H */
-
 /* Define to 1 if you have the <sys/time.h> header file. */
 #ifndef _MSC_VER
 #define HAVE_SYS_TIME_H 1
 #else /* _MSC_VER */
 /* #undef HAVE_SYS_TIME_H */
 #endif /* _MSC_VER */
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 1
-
-/* Define to 1 if you have the <sys/uio.h> header file. */
-/* #undef HAVE_SYS_UIO_H */
 
 /* Define to 1 if you have the <sys/vfstab.h> header file. */
 /* #undef HAVE_SYS_VFSTAB_H */
@@ -681,21 +624,11 @@
 /* Define to 1 if you have the <sys/vmount.h> header file. */
 /* #undef HAVE_SYS_VMOUNT_H */
 
-/* Define to 1 if you have the <sys/wait.h> header file. */
-/* #undef HAVE_SYS_WAIT_H */
-
 /* Define to 1 if you have the <sys/xattr.h> header file. */
 /* #undef HAVE_SYS_XATTR_H */
 
 /* Define to 1 if you have the `timegm' function. */
 /* #undef HAVE_TIMEGM */
-
-/* Define to 1 if you have the <unistd.h> header file. */
-#ifndef _MSC_VER
-#define HAVE_UNISTD_H 1
-#else /* _MSC_VER */
-/* #undef HAVE_UNISTD_H */
-#endif /* _MSC_VER */
 
 /* Define if your printf function family supports positional parameters as
    specified by Unix98. */
@@ -723,9 +656,6 @@
 /* Define to 1 if you have the `vasprintf' function. */
 #define HAVE_VASPRINTF 1
 
-/* Define to 1 if you have the `vprintf' function. */
-#define HAVE_VPRINTF 1
-
 /* Define to 1 if you have the `vsnprintf' function. */
 #ifndef _MSC_VER
 #define HAVE_VSNPRINTF 1
@@ -747,9 +677,6 @@
 
 /* Define if you have the 'wint_t' type. */
 #define HAVE_WINT_T 1
-
-/* Have a working bcopy */
-/* #undef HAVE_WORKING_BCOPY */
 
 /* Define to 1 if xattr is available */
 /* #undef HAVE_XATTR */

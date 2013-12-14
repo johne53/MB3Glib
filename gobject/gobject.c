@@ -313,7 +313,6 @@ g_object_notify_queue_add (GObject            *object,
 #ifdef	G_ENABLE_DEBUG
 #define	IF_DEBUG(debug_type)	if (_g_type_debug_flags & G_TYPE_DEBUG_ ## debug_type)
 G_LOCK_DEFINE_STATIC     (debug_objects);
-static volatile GObject *g_trap_object_ref = NULL;
 static guint		 debug_objects_count = 0;
 static GHashTable	*debug_objects_ht = NULL;
 
@@ -1162,6 +1161,11 @@ g_object_notify_by_spec_internal (GObject    *object,
  * When possible, eg. when signaling a property change from within the class
  * that registered the property, you should use g_object_notify_by_pspec()
  * instead.
+ *
+ * Note that emission of the notify signal may be blocked with
+ * g_object_freeze_notify(). In this case, the signal emissions are queued
+ * and will be emitted (in reverse order) when g_object_thaw_notify() is
+ * called.
  */
 void
 g_object_notify (GObject     *object,
@@ -1265,7 +1269,8 @@ g_object_notify_by_pspec (GObject    *object,
  * and when it reaches zero, queued "notify" signals are emitted.
  *
  * Duplicate notifications for each property are squashed so that at most one
- * #GObject::notify signal is emitted for each property.
+ * #GObject::notify signal is emitted for each property, in the reverse order
+ * in which they have been queued.
  *
  * It is an error to call this function when the freeze count is zero.
  */
@@ -2193,6 +2198,10 @@ g_object_get_valist (GObject	 *object,
  *  name/value pairs, followed by %NULL
  *
  * Sets properties on an object.
+ *
+ * Note that the "notify" signals are queued and only emitted (in
+ * reverse order) after all properties have been set. See
+ * g_object_freeze_notify().
  */
 void
 g_object_set (gpointer     _object,
@@ -3033,12 +3042,6 @@ g_object_ref (gpointer _object)
   g_return_val_if_fail (G_IS_OBJECT (object), NULL);
   g_return_val_if_fail (object->ref_count > 0, NULL);
   
-#ifdef  G_ENABLE_DEBUG
-  if (g_trap_object_ref == object)
-    G_BREAKPOINT ();
-#endif  /* G_ENABLE_DEBUG */
-
-
   old_val = g_atomic_int_add (&object->ref_count, 1);
 
   if (old_val == 1 && OBJECT_HAS_TOGGLE_REF (object))
@@ -3065,11 +3068,6 @@ g_object_unref (gpointer _object)
   g_return_if_fail (G_IS_OBJECT (object));
   g_return_if_fail (object->ref_count > 0);
   
-#ifdef  G_ENABLE_DEBUG
-  if (g_trap_object_ref == object)
-    G_BREAKPOINT ();
-#endif  /* G_ENABLE_DEBUG */
-
   /* here we want to atomically do: if (ref_count>1) { ref_count--; return; } */
  retry_atomic_decrement1:
   old_ref = g_atomic_int_get (&object->ref_count);

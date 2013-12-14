@@ -52,14 +52,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #include <signal.h>
 #include <locale.h>
 #include <errno.h>
-
-#include "gmessages-private.h"
 
 #include "glib-init.h"
 #include "gbacktrace.h"
@@ -73,6 +68,10 @@
 #include "gstrfuncs.h"
 #include "gstring.h"
 #include "gpattern.h"
+
+#ifdef G_OS_UNIX
+#include <unistd.h>
+#endif
 
 #ifdef G_OS_WIN32
 #include <process.h>		/* For getpid() */
@@ -146,7 +145,7 @@
  *     and g_return_val_if_fail().
  * @G_LOG_LEVEL_WARNING: log level for warnings, see g_warning()
  * @G_LOG_LEVEL_MESSAGE: log level for messages, see g_message()
- * @G_LOG_LEVEL_INFO: log level for informational messages
+ * @G_LOG_LEVEL_INFO: log level for informational messages, see g_info()
  * @G_LOG_LEVEL_DEBUG: log level for debug messages, see g_debug()
  * @G_LOG_LEVEL_MASK: a mask including all log levels
  *
@@ -225,6 +224,23 @@
  */
 
 /**
+ * g_info:
+ * @...: format string, followed by parameters to insert
+ *     into the format string (as with printf())
+ *
+ * A convenience function/macro to log an informational message. Seldom used.
+ *
+ * If g_log_default_handler() is used as the log handler function, a new-line
+ * character will automatically be appended to @..., and need not be entered
+ * manually.
+ *
+ * Such messages are suppressed by the g_log_default_handler() unless
+ * the G_MESSAGES_DEBUG environment variable is set appropriately.
+ *
+ * Since: 2.40
+ */
+
+/**
  * g_debug:
  * @...: format string, followed by parameters to insert
  *     into the format string (as with printf())
@@ -234,6 +250,9 @@
  * If g_log_default_handler() is used as the log handler function, a new-line
  * character will automatically be appended to @..., and need not be entered
  * manually.
+ *
+ * Such messages are suppressed by the g_log_default_handler() unless
+ * the G_MESSAGES_DEBUG environment variable is set appropriately.
  *
  * Since: 2.6
  */
@@ -264,7 +283,6 @@ static GLogDomain    *g_log_domains = NULL;
 static GPrintFunc     glib_print_func = NULL;
 static GPrintFunc     glib_printerr_func = NULL;
 static GPrivate       g_log_depth;
-static gboolean       exit_on_fatal;
 static GLogFunc       default_log_func = g_log_default_handler;
 static gpointer       default_log_data = NULL;
 static GTestLogFatalFunc fatal_log_func = NULL;
@@ -272,11 +290,23 @@ static gpointer          fatal_log_data;
 
 /* --- functions --- */
 
-void
-_g_log_abort (void)
+static void _g_log_abort (gboolean breakpoint);
+
+static void
+_g_log_abort (gboolean breakpoint)
 {
-  if (exit_on_fatal)
-    _exit (1);
+  if (g_test_subprocess ())
+    {
+      /* If this is a test case subprocess then it probably caused
+       * this error message on purpose, so just exit() rather than
+       * abort()ing, to avoid triggering any system crash-reporting
+       * daemon.
+       */
+      _exit (1);
+    }
+
+  if (breakpoint)
+    G_BREAKPOINT ();
   else
     abort ();
 }
@@ -996,11 +1026,7 @@ g_logv (const gchar   *log_domain,
                 && !fatal_log_func (log_domain, test_level, msg, fatal_log_data);
             }
 
-          if ((test_level & G_LOG_FLAG_FATAL) && exit_on_fatal && !masquerade_fatal)
-            {
-              _g_log_abort ();
-            }
-	  else if ((test_level & G_LOG_FLAG_FATAL) && !masquerade_fatal)
+          if ((test_level & G_LOG_FLAG_FATAL) && !masquerade_fatal)
             {
 #ifdef G_OS_WIN32
               if (win32_keep_fatal_message)
@@ -1010,15 +1036,9 @@ g_logv (const gchar   *log_domain,
                   MessageBox (NULL, locale_msg, NULL,
                               MB_ICONERROR|MB_SETFOREGROUND);
                 }
-	      if (IsDebuggerPresent () && !(test_level & G_LOG_FLAG_RECURSION))
-		G_BREAKPOINT ();
-	      else
-		abort ();
+	      _g_log_abort (IsDebuggerPresent () && !(test_level & G_LOG_FLAG_RECURSION));
 #else
-	      if (!(test_level & G_LOG_FLAG_RECURSION))
-		G_BREAKPOINT ();
-	      else
-		abort ();
+	      _g_log_abort (!(test_level & G_LOG_FLAG_RECURSION));
 #endif /* !G_OS_WIN32 */
 	    }
 	  
@@ -1109,7 +1129,8 @@ g_assert_warning (const char *log_domain,
 	 line, 
 	 pretty_function,
 	 expression);
-  _g_log_abort ();
+  _g_log_abort (FALSE);
+  abort ();
 }
 
 /**
@@ -1612,10 +1633,4 @@ g_printf_string_upper_bound (const gchar *format,
 {
   gchar c;
   return _g_vsnprintf (&c, 1, format, args) + 1;
-}
-
-void
-_g_log_set_exit_on_fatal (void)
-{
-  exit_on_fatal = TRUE;
 }

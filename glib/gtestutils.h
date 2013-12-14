@@ -74,7 +74,11 @@ typedef void (*GTestFixtureFunc) (gpointer      fixture,
                                                g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
                                                                     #expr); \
                                            } while (0)
-#define g_assert_null(expr)              do { if G_LIKELY ((expr) == NULL) ; else \
+#define g_assert_null(expr)             do { if G_LIKELY ((expr) == NULL) ; else \
+                                               g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
+                                                                    #expr); \
+                                           } while (0)
+#define g_assert_nonnull(expr)          do { if G_LIKELY ((expr) != NULL) ; else \
                                                g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
                                                                     #expr); \
                                            } while (0)
@@ -107,7 +111,7 @@ void    g_test_maximized_result         (double          maximized_quantity,
 GLIB_AVAILABLE_IN_ALL
 void    g_test_init                     (int            *argc,
                                          char         ***argv,
-                                         ...);
+                                         ...) G_GNUC_NULL_TERMINATED;
 /* query testing framework config */
 #define g_test_initialized()            (g_test_config_vars->test_initialized)
 #define g_test_quick()                  (g_test_config_vars->test_quick)

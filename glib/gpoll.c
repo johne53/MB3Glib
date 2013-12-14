@@ -57,8 +57,6 @@
 #endif /* HAVE_SYS_TIME_H */
 #ifdef GLIB_HAVE_SYS_POLL_H
 #  include <sys/poll.h>
-#  undef events	 /* AIX 4.1.5 & 4.3.2 define this for SVR3,4 compatibility */
-#  undef revents /* AIX 4.1.5 & 4.3.2 define this for SVR3,4 compatibility */
 
 /* The poll() emulation on OS/X doesn't handle fds=NULL, nfds=0,
  * so we prefer our own poll emulation.
@@ -68,9 +66,9 @@
 #endif
 
 #endif /* GLIB_HAVE_SYS_POLL_H */
-#ifdef HAVE_UNISTD_H
+#ifdef G_OS_UNIX
 #include <unistd.h>
-#endif /* HAVE_UNISTD_H */
+#endif /* G_OS_UNIX */
 #include <errno.h>
 
 #ifdef G_OS_WIN32
@@ -89,10 +87,6 @@ extern gboolean _g_main_poll_debug;
 #endif
 
 #ifdef HAVE_POLL
-/* SunOS has poll, but doesn't provide a prototype. */
-#  if defined (sun) && !defined (__SVR4)
-extern gint poll (struct pollfd *fds, guint nfsd, gint timeout);
-#  endif  /* !sun */
 
 /**
  * g_poll:
@@ -358,10 +352,6 @@ g_poll (GPollFD *fds,
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif /* HAVE_SYS_SELECT_H */
-
-#ifdef G_OS_BEOS
-#undef NO_FD_SET
-#endif /* G_OS_BEOS */
 
 #ifndef NO_FD_SET
 #  define SELECT_MASK fd_set

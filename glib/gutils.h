@@ -43,7 +43,7 @@ G_BEGIN_DECLS
 #  if defined (__GNUC__) && defined (__PPC__) && (defined (_CALL_SYSV) || defined (_WIN32))
 #    define G_VA_COPY(ap1, ap2)	  (*(ap1) = *(ap2))
 #  elif defined (G_VA_COPY_AS_ARRAY)
-#    define G_VA_COPY(ap1, ap2)	  g_memmove ((ap1), (ap2), sizeof (va_list))
+#    define G_VA_COPY(ap1, ap2)	  memmove ((ap1), (ap2), sizeof (va_list))
 #  else /* va_list is a pointer */
 #    define G_VA_COPY(ap1, ap2)	  ((ap1) = (ap2))
 #  endif /* va_list is a pointer */
@@ -230,8 +230,6 @@ gchar *g_format_size        (guint64          size);
 GLIB_DEPRECATED_FOR(g_format_size)
 gchar *g_format_size_for_display (goffset size);
 
-typedef void (*GVoidFunc) (void); /* Moved out of the #ifndef section (below) by JE - 29-11-2012 */
-
 #ifndef G_DISABLE_DEPRECATED
 /**
  * GVoidFunc:
@@ -240,16 +238,8 @@ typedef void (*GVoidFunc) (void); /* Moved out of the #ifndef section (below) by
  * and has no return value. It is used to specify the type
  * function passed to g_atexit().
  */
-#ifndef ATEXIT
-# define ATEXIT(proc) g_ATEXIT(proc)
-#else
-# define G_NATIVE_ATEXIT
-#endif /* ATEXIT */
-/* we use a GLib function as a replacement for ATEXIT, so
- * the programmer is not required to check the return value
- * (if there is any in the implementation) and doesn't encounter
- * missing include files.
- */
+typedef void (*GVoidFunc) (void);
+#define ATEXIT(proc) g_ATEXIT(proc)
 GLIB_DEPRECATED
 void	g_atexit		(GVoidFunc    func);
 

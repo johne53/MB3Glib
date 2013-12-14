@@ -22,9 +22,6 @@
 #include "glibconfig.h"
 
 #include <sys/stat.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -35,6 +32,9 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
+#ifdef G_OS_UNIX
+#include <unistd.h>
+#endif
 #ifdef G_OS_WIN32
 #include <windows.h>
 #include <io.h>
@@ -614,7 +614,7 @@ get_contents_stdio (const gchar  *display_filename,
                     GError      **error)
 {
   gchar buf[4096];
-  gsize bytes;
+  gsize bytes;  /* always <= sizeof(buf) */
   gchar *str = NULL;
   gsize total_bytes = 0;
   gsize total_allocated = 0;
@@ -629,12 +629,22 @@ get_contents_stdio (const gchar  *display_filename,
       bytes = fread (buf, 1, sizeof (buf), f);
       save_errno = errno;
 
-      while ((total_bytes + bytes + 1) > total_allocated)
+      if (total_bytes > G_MAXSIZE - bytes)
+          goto file_too_large;
+
+      /* Possibility of overflow eliminated above. */
+      while (total_bytes + bytes >= total_allocated)
         {
           if (str)
-            total_allocated *= 2;
+            {
+              if (total_allocated > G_MAXSIZE / 2)
+                  goto file_too_large;
+              total_allocated *= 2;
+            }
           else
-            total_allocated = MIN (bytes + 1, sizeof (buf));
+            {
+              total_allocated = MIN (bytes + 1, sizeof (buf));
+            }
 
           tmp = g_try_realloc (str, total_allocated);
 
@@ -665,18 +675,8 @@ get_contents_stdio (const gchar  *display_filename,
           goto error;
         }
 
+      g_assert (str != NULL);
       memcpy (str + total_bytes, buf, bytes);
-
-      if (total_bytes + bytes < total_bytes) 
-        {
-          g_set_error (error,
-                       G_FILE_ERROR,
-                       G_FILE_ERROR_FAILED,
-                       _("File \"%s\" is too large"),
-                       display_filename);
-
-          goto error;
-        }
 
       total_bytes += bytes;
     }
@@ -697,6 +697,13 @@ get_contents_stdio (const gchar  *display_filename,
   *contents = str;
 
   return TRUE;
+
+ file_too_large:
+  g_set_error (error,
+               G_FILE_ERROR,
+               G_FILE_ERROR_FAILED,
+               _("File \"%s\" is too large"),
+               display_filename);
 
  error:
 
@@ -2419,7 +2426,7 @@ g_path_get_dirname (const gchar *file_name)
 
   len = (guint) 1 + base - file_name;
   base = g_new (gchar, len + 1);
-  g_memmove (base, file_name, len);
+  memmove (base, file_name, len);
   base[len] = 0;
 
   return base;
@@ -2443,6 +2450,11 @@ g_path_get_dirname (const gchar *file_name)
  * The returned string should be freed when no longer needed.
  * The encoding of the returned string is system defined.
  * On Windows, it is always UTF-8.
+ *
+ * Since GLib 2.40, this function will return the value of the "PWD"
+ * environment variable if it is set and it happens to be the same as
+ * the current directory.  This can make a difference in the case that
+ * the current directory is the target of a symbolic link.
  *
  * Returns: the current directory
  */
@@ -2469,22 +2481,21 @@ g_get_current_dir (void)
   return dir;
 
 #else
-
+  const gchar *pwd;
   gchar *buffer = NULL;
   gchar *dir = NULL;
   static gulong max_len = 0;
+  struct stat pwdbuf, dotbuf;
+
+  pwd = g_getenv ("PWD");
+  if (pwd != NULL &&
+      g_stat (".", &dotbuf) == 0 && g_stat (pwd, &pwdbuf) == 0 &&
+      dotbuf.st_dev == pwdbuf.st_dev && dotbuf.st_ino == pwdbuf.st_ino)
+    return g_strdup (pwd);
 
   if (max_len == 0)
     max_len = (G_PATH_LENGTH == -1) ? 2048 : G_PATH_LENGTH;
 
-  /* We don't use getcwd(3) on SUNOS, because, it does a popen("pwd")
-   * and, if that wasn't bad enough, hangs in doing so.
-   */
-#if (defined (sun) && !defined (__SVR4)) || !defined(HAVE_GETCWD)
-  buffer = g_new (gchar, max_len + 1);
-  *buffer = 0;
-  dir = getwd (buffer);
-#else
   while (max_len < G_MAXULONG / 2)
     {
       g_free (buffer);
@@ -2497,7 +2508,6 @@ g_get_current_dir (void)
 
       max_len *= 2;
     }
-#endif  /* !sun || !HAVE_GETCWD */
 
   if (!dir || !*buffer)
     {

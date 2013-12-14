@@ -35,13 +35,29 @@ static void
 test_basic (void)
 {
   gchar *str = NULL;
+  GObject *b;
+  gchar *path;
+  gboolean has_unapplied;
+  gboolean delay_apply;
   GSettings *settings;
 
   settings = g_settings_new ("org.gtk.test");
 
-  g_object_get (settings, "schema", &str, NULL);
+  g_object_get (settings,
+                "schema", &str,
+                "backend", &b,
+                "path", &path,
+                "has-unapplied", &has_unapplied,
+                "delay-apply", &delay_apply,
+                NULL);
   g_assert_cmpstr (str, ==, "org.gtk.test");
+  g_assert (b != NULL);
+  g_assert_cmpstr (path, ==, "/tests/");
+  g_assert (!has_unapplied);
+  g_assert (!delay_apply);
   g_free (str);
+  g_object_unref (b);
+  g_free (path);
 
   g_settings_get (settings, "greeting", "s", &str);
   g_assert_cmpstr (str, ==, "Hello, earthlings");
@@ -2302,7 +2318,7 @@ test_null_backend (void)
   gboolean writable;
 
   backend = g_null_settings_backend_new ();
-  settings = g_settings_new_with_backend ("org.gtk.test", backend);
+  settings = g_settings_new_with_backend_and_path ("org.gtk.test", backend, "/tests/");
 
   g_object_get (settings, "schema", &str, NULL);
   g_assert_cmpstr (str, ==, "org.gtk.test");
@@ -2365,6 +2381,55 @@ test_read_descriptions (void)
 
   g_settings_schema_key_unref (key);
   g_settings_schema_unref (schema);
+
+  g_object_unref (settings);
+}
+
+static void
+test_default_value (void)
+{
+  GSettings *settings;
+  GSettingsSchema *schema;
+  GSettingsSchemaKey *key;
+  GVariant *v;
+  const gchar *str;
+
+  settings = g_settings_new ("org.gtk.test");
+  g_object_get (settings, "settings-schema", &schema, NULL);
+  key = g_settings_schema_get_key (schema, "greeting");
+  g_settings_schema_unref (schema);
+  g_settings_schema_key_ref (key);
+
+  g_assert_cmpstr (g_settings_schema_key_get_value_type (key), ==, G_VARIANT_TYPE_STRING);
+
+  v = g_settings_schema_key_get_default_value (key);
+  str = g_variant_get_string (v, NULL);
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_variant_unref (v);
+
+  g_settings_schema_key_unref (key);
+  g_settings_schema_key_unref (key);
+
+  g_settings_set (settings, "greeting", "s", "goodbye world");
+
+  v = g_settings_get_user_value (settings, "greeting");
+  str = g_variant_get_string (v, NULL);
+  g_assert_cmpstr (str, ==, "goodbye world");
+  g_variant_unref (v);
+
+  v = g_settings_get_default_value (settings, "greeting");
+  str = g_variant_get_string (v, NULL);
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_variant_unref (v);
+
+  g_settings_reset (settings, "greeting");
+
+  v = g_settings_get_user_value (settings, "greeting");
+  g_assert_null (v);
+
+  str = g_settings_get_string (settings, "greeting");
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_free (str);
 
   g_object_unref (settings);
 }
@@ -2501,6 +2566,7 @@ main (int argc, char *argv[])
   g_test_add_func ("/gsettings/memory-backend", test_memory_backend);
   g_test_add_func ("/gsettings/read-descriptions", test_read_descriptions);
   g_test_add_func ("/gsettings/test-extended-schema", test_extended_schema);
+  g_test_add_func ("/gsettings/default-value", test_default_value);
 
   result = g_test_run ();
 

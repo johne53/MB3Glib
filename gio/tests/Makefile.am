@@ -6,10 +6,12 @@ test_ltlibraries =
 SUBDIRS = gdbus-object-manager-example services
 
 LDADD = \
-	$(top_builddir)/glib/libglib-2.0.la		\
+	$(top_builddir)/gio/libgio-2.0.la		\
 	$(top_builddir)/gobject/libgobject-2.0.la	\
 	$(top_builddir)/gmodule/libgmodule-2.0.la	\
-	$(top_builddir)/gio/libgio-2.0.la
+	$(top_builddir)/glib/libglib-2.0.la		\
+	$(NULL)
+
 AM_CPPFLAGS = $(gio_INCLUDES) $(GLIB_DEBUG_FLAGS) -I$(top_builddir)/gio -I$(top_srcdir)/gio
 DEFS = -DG_LOG_DOMAIN=\"GLib-GIO\" -DTEST_SERVICES=\""$(abs_top_builddir)/gio/tests/services"\"
 AM_CFLAGS = $(GLIB_WARN_CFLAGS)
@@ -18,6 +20,7 @@ AM_CFLAGS = $(GLIB_WARN_CFLAGS)
 #  Test programs buildable on all platforms
 
 test_programs = \
+	appmonitor				\
 	async-close-output-stream		\
 	async-splice-output-stream		\
 	buffered-input-stream			\
@@ -231,7 +234,6 @@ gdbus_daemon_SOURCES = \
 
 if OS_UNIX
 test_programs += \
-	basic-application			\
 	contenttype				\
 	file					\
 	gdbus-peer-object-manager		\
@@ -239,6 +241,10 @@ test_programs += \
 	socket-address				\
 	unix-fd					\
 	unix-streams				\
+	$(NULL)
+
+test_extra_programs += \
+	basic-application			\
 	$(NULL)
 
 # Uninstalled because of the check-for-executable logic in DesktopAppInfo unable to find the installed executable
@@ -273,6 +279,7 @@ usr_desktop_files = \
 	kde4/kate.desktop			\
 	kde4/konqbrowser.desktop		\
 	kde4/okular.desktop			\
+	mimeinfo.cache				\
 	nautilus-autorun-software.desktop	\
 	nautilus-classic.desktop		\
 	nautilus-connect-server.desktop		\
@@ -392,6 +399,7 @@ test_programs += \
 	gdbus-test-codegen-old			\
 	gdbus-threading				\
 	gmenumodel				\
+	gnotification				\
 	$(NULL)
 
 gdbus_proxy_threads_CFLAGS = $(AM_CFLAGS) $(DBUS1_CFLAGS)
@@ -419,6 +427,7 @@ nodist_gdbus_test_codegen_old_SOURCES    = gdbus-test-codegen-generated.c gdbus-
 gdbus_test_codegen_old_CPPFLAGS          = $(AM_CPPFLAGS) -DGLIB_VERSION_MIN_REQUIRED=GLIB_VERSION_2_36 -DGLIB_VERSION_MAX_ALLOWED=GLIB_VERSION_2_36
 gdbus_threading_SOURCES                  = $(gdbus_sessionbus_sources) gdbus-threading.c
 gmenumodel_SOURCES                       = $(gdbus_sessionbus_sources) gmenumodel.c
+gnotification_SOURCES                    = $(gdbus_sessionbus_sources) gnotification.c gnotification-server.h gnotification-server.c
 
 gdbus-test-codegen.o: gdbus-test-codegen-generated.h
 gdbus-test-codegen-generated.h gdbus-test-codegen-generated.c: test-codegen.xml Makefile $(top_builddir)/gio/gdbus-2.0/codegen/gdbus-codegen

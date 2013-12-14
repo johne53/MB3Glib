@@ -25,12 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef _WIN32
-#include <io.h>
-#endif
 
 #include "giotypes.h"
 #include "gioerror.h"
@@ -50,6 +44,13 @@
 #include "ginetsocketaddress.h"
 #include "ginputstream.h"
 #include "giostream.h"
+
+#ifdef G_OS_UNIX
+#include <unistd.h>
+#endif
+#ifdef G_OS_WIN32
+#include <io.h>
+#endif
 
 #ifdef G_OS_UNIX
 #include "gunixsocketaddress.h"
@@ -897,7 +898,8 @@ try_tcp (GDBusServer  *server,
 
  out:
   g_list_free_full (resolved_addresses, g_object_unref);
-  g_object_unref (resolver);
+  if (resolver)
+    g_object_unref (resolver);
   return ret;
 }
 

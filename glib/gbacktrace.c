@@ -40,30 +40,27 @@
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-#ifdef HAVE_SYS_TIMES_H
-#include <sys/times.h>
-#endif
 #include <sys/types.h>
-#ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
 
 #include <time.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 
+#ifdef G_OS_UNIX
+#include <unistd.h>
+#include <sys/wait.h>
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif /* HAVE_SYS_SELECT_H */
+#endif
 
-#include <string.h> /* for bzero on BSD systems */
+#include <string.h>
 
 #ifdef G_OS_WIN32
 #  define STRICT                /* Strict typing, please */
 #  define _WIN32_WINDOWS 0x0401 /* to get IsDebuggerPresent */
 #  include <windows.h>
 #  undef STRICT
+#else
+#  include <fcntl.h>
 #endif
 
 #include "gbacktrace.h"
@@ -228,7 +225,7 @@ g_on_error_query (const gchar *prg_name)
 void
 g_on_error_stack_trace (const gchar *prg_name)
 {
-#if defined(G_OS_UNIX) || defined(G_OS_BEOS)
+#if defined(G_OS_UNIX)
   pid_t pid;
   gchar buf[16];
   gchar *args[4] = { "gdb", NULL, NULL, NULL };
@@ -298,12 +295,19 @@ stack_trace (char **args)
   pid = fork ();
   if (pid == 0)
     {
+      /* Save stderr for printing failure below */
+      int old_err = dup (2);
+      fcntl (old_err, F_SETFD, fcntl (old_err, F_GETFD) | FD_CLOEXEC);
+
       close (0); dup (in_fd[0]);   /* set the stdin to the in pipe */
       close (1); dup (out_fd[1]);  /* set the stdout to the out pipe */
       close (2); dup (out_fd[1]);  /* set the stderr to the out pipe */
 
       execvp (args[0], args);      /* exec gdb */
-      perror ("exec failed");
+
+      /* Print failure to original stderr */
+      close (2); dup (old_err);
+      perror ("exec gdb failed");
       _exit (0);
     }
   else if (pid == (pid_t) -1)

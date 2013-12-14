@@ -27,7 +27,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#ifdef HAVE_UNISTD_H
+#ifdef G_OS_UNIX
 #include <unistd.h>
 #endif
 
@@ -48,7 +48,7 @@
 #undef  _O_ACCMODE /* Added by JE - 14-12-2012 */
 #define _O_ACCMODE (O_RDONLY|_O_WRONLY|O_RDWR)
 
-#if !defined (G_OS_UNIX) && !defined (G_OS_WIN32) && !defined (G_OS_BEOS)
+#if !defined (G_OS_UNIX) && !defined (G_OS_WIN32)
 #error Please port this to your operating system
 #endif
 

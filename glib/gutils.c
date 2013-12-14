@@ -29,10 +29,8 @@
  */
 
 #include "config.h"
+#include "glibconfig.h"
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,8 +40,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef HAVE_PWD_H
+#ifdef G_OS_UNIX
 #include <pwd.h>
+#include <unistd.h>
 #endif
 #include <sys/types.h>
 #ifdef HAVE_SYS_PARAM_H
@@ -172,7 +171,6 @@ _glib_get_dll_directory (void)
 
 #endif
 
-#if !defined (HAVE_MEMMOVE) && !defined (HAVE_WORKING_BCOPY)
 /**
  * g_memmove: 
  * @dest: the destination address to copy the bytes to.
@@ -182,37 +180,8 @@ _glib_get_dll_directory (void)
  * Copies a block of memory @len bytes long, from @src to @dest.
  * The source and destination areas may overlap.
  *
- * In order to use this function, you must include 
- * <filename>string.h</filename> yourself, because this macro will 
- * typically simply resolve to memmove() and GLib does not include 
- * <filename>string.h</filename> for you.
+ * Deprecated:2.40: Just use memmove().
  */
-void 
-g_memmove (gpointer      dest, 
-	   gconstpointer src, 
-	   gulong        len)
-{
-  gchar* destptr = dest;
-  const gchar* srcptr = src;
-  if (src + len < dest || dest + len < src)
-    {
-      bcopy (src, dest, len);
-      return;
-    }
-  else if (dest <= src)
-    {
-      while (len--)
-	*(destptr++) = *(srcptr++);
-    }
-  else
-    {
-      destptr += len;
-      srcptr += len;
-      while (len--)
-	*(--destptr) = *(--srcptr);
-    }
-}
-#endif /* !HAVE_MEMMOVE && !HAVE_WORKING_BCOPY */
 
 #ifdef G_OS_WIN32
 #undef g_atexit
@@ -259,35 +228,13 @@ void
 g_atexit (GVoidFunc func)
 {
   gint result;
-  const gchar *error = NULL;
 
-  /* keep this in sync with glib.h */
-
-#ifdef	G_NATIVE_ATEXIT
-  result = ATEXIT (func);
-  if (result)
-    error = g_strerror (errno);
-#elif defined (HAVE_ATEXIT)
-#  ifdef NeXT /* @#%@! NeXTStep */
-  result = !atexit ((void (*)(void)) func);
-  if (result)
-    error = g_strerror (errno);
-#  else
   result = atexit ((void (*)(void)) func);
   if (result)
-    error = g_strerror (errno);
-#  endif /* NeXT */
-#elif defined (HAVE_ON_EXIT)
-  result = on_exit ((void (*)(int, void *)) func, NULL);
-  if (result)
-    error = g_strerror (errno);
-#else
-  result = 0;
-  error = "no implementation";
-#endif /* G_NATIVE_ATEXIT */
-
-  if (error)
-    g_error ("Could not register atexit() function: %s", error);
+    {
+      g_error ("Could not register atexit() function: %s",
+               g_strerror (errno));
+    }
 }
 
 /* Based on execvp() from GNU Libc.
@@ -421,7 +368,7 @@ g_find_program_in_path (const gchar *program)
     }
   
   path = g_getenv ("PATH");
-#if defined(G_OS_UNIX) || defined(G_OS_BEOS)
+#if defined(G_OS_UNIX)
   if (path == NULL)
     {
       /* There is no 'PATH' in the environment.  The default
@@ -655,7 +602,7 @@ g_get_user_database_entry (void)
     {
       static UserDatabaseEntry e;
 
-#ifdef HAVE_PWD_H
+#ifdef G_OS_UNIX
       {
         struct passwd *pw = NULL;
         gpointer buffer = NULL;
@@ -697,8 +644,7 @@ g_get_user_database_entry (void)
             }
             error = error < 0 ? errno : error;
 #    else /* HAVE_NONPOSIX_GETPWUID_R */
-       /* HPUX 11 falls into the HAVE_POSIX_GETPWUID_R case */
-#      if defined(_AIX) || defined(__hpux)
+#      if defined(_AIX)
             error = getpwuid_r (getuid (), &pwd, buffer, bufsize);
             pw = error == 0 ? &pwd : NULL;
 #      else /* !_AIX */
@@ -771,7 +717,7 @@ g_get_user_database_entry (void)
         g_free (buffer);
       }
 
-#else /* !HAVE_PWD_H */
+#endif /* G_OS_UNIX */
 
 #ifdef G_OS_WIN32
       {
@@ -786,12 +732,6 @@ g_get_user_database_entry (void)
       }
 #endif /* G_OS_WIN32 */
 
-#endif /* !HAVE_PWD_H */
-
-#ifdef __EMX__
-      /* change '\\' in %HOME% to '/' */
-      g_strdelimit (e.home_dir, "\\",'/');
-#endif
       if (!e.user_name)
         e.user_name = g_strdup ("somebody");
       if (!e.real_name)

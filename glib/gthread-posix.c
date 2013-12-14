@@ -54,12 +54,9 @@
 #include <errno.h>
 #include <pthread.h>
 
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
-#endif
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <sys/time.h>
+#include <unistd.h>
+
 #ifdef HAVE_SCHED_H
 #include <sched.h>
 #endif
@@ -271,7 +268,10 @@ g_rec_mutex_impl_new (void)
   pthread_mutexattr_t attr;
   pthread_mutex_t *mutex;
 
-  mutex = g_slice_new (pthread_mutex_t);
+  mutex = malloc (sizeof (pthread_mutex_t));
+  if G_UNLIKELY (mutex == NULL)
+    g_thread_abort (errno, "malloc");
+
   pthread_mutexattr_init (&attr);
   pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init (mutex, &attr);
@@ -284,7 +284,7 @@ static void
 g_rec_mutex_impl_free (pthread_mutex_t *mutex)
 {
   pthread_mutex_destroy (mutex);
-  g_slice_free (pthread_mutex_t, mutex);
+  free (mutex);
 }
 
 static pthread_mutex_t *

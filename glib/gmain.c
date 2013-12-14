@@ -62,9 +62,9 @@
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif /* HAVE_SYS_TIME_H */
-#ifdef HAVE_UNISTD_H
+#ifdef G_OS_UNIX
 #include <unistd.h>
-#endif /* HAVE_UNISTD_H */
+#endif /* G_OS_UNIX */
 #include <errno.h>
 #include <string.h>
 
@@ -73,10 +73,7 @@
 #include <windows.h>
 #endif /* G_OS_WIN32 */
 
-#ifdef G_OS_BEOS
-#include <sys/socket.h>
-#include <sys/wait.h>
-#endif /* G_OS_BEOS */
+#include "glib_trace.h"
 
 #include "gmain.h"
 
@@ -1170,6 +1167,8 @@ g_source_attach (GSource      *source,
   g_return_val_if_fail (source->context == NULL, 0);
   g_return_val_if_fail (!SOURCE_DESTROYED (source), 0);
   
+  TRACE (GLIB_MAIN_SOURCE_ATTACH (g_source_get_name (source)));
+
   if (!context)
     context = g_main_context_default ();
 
@@ -1187,6 +1186,8 @@ g_source_destroy_internal (GSource      *source,
 			   GMainContext *context,
 			   gboolean      have_lock)
 {
+  TRACE (GLIB_MAIN_SOURCE_DESTROY (g_source_get_name (source)));
+
   if (!have_lock)
     LOCK_CONTEXT (context);
   
@@ -3063,7 +3064,9 @@ g_main_dispatch (GMainContext *context)
           current->source = source;
           current->depth++;
 
+	  TRACE( GLIB_MAIN_BEFORE_DISPATCH (g_source_get_name (source)));
           need_destroy = !(* dispatch) (source, callback, user_data);
+	  TRACE( GLIB_MAIN_AFTER_DISPATCH (g_source_get_name (source)));
 
           current->source = prev_source;
           current->depth--;

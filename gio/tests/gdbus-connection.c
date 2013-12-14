@@ -121,6 +121,23 @@ a_gdestroynotify_that_sets_a_gboolean_to_true_and_quits_loop (gpointer user_data
 }
 
 static void
+test_connection_bus_failure (void)
+{
+  GDBusConnection *c;
+  GError *error = NULL;
+
+  /*
+   * Check for correct behavior when no bus is present
+   *
+   */
+  c = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+  g_assert (error != NULL);
+  g_assert (!g_dbus_error_is_remote_error (error));
+  g_assert (c == NULL);
+  g_error_free (error);
+}
+
+static void
 test_connection_life_cycle (void)
 {
   gboolean ret;
@@ -135,16 +152,6 @@ test_connection_life_cycle (void)
   guint registration_id;
 
   error = NULL;
-
-  /*
-   * Check for correct behavior when no bus is present
-   *
-   */
-  c = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-  g_assert (error != NULL);
-  g_assert (!g_dbus_error_is_remote_error (error));
-  g_assert (c == NULL);
-  g_error_free (error);
 
   /*
    *  Check for correct behavior when a bus is present
@@ -1000,9 +1007,6 @@ test_connection_filter (void)
   g_assert_cmpint (data.num_handled, ==, 4);
   g_assert_cmpint (data.num_outgoing, ==, 4);
 
-  /* this is safe; testserver will exit once the bus goes away */
-  g_assert (g_spawn_command_line_async (g_test_get_filename (G_TEST_BUILT, "gdbus-testserver", NULL), NULL));
-
   /* wait for service to be available */
   signal_handler_id = g_dbus_connection_signal_subscribe (c,
                                                           "org.freedesktop.DBus", /* sender */
@@ -1015,6 +1019,10 @@ test_connection_filter (void)
                                                           NULL,
                                                           NULL);
   g_assert_cmpint (signal_handler_id, !=, 0);
+
+  /* this is safe; testserver will exit once the bus goes away */
+  g_assert (g_spawn_command_line_async (g_test_get_filename (G_TEST_BUILT, "gdbus-testserver", NULL), NULL));
+
   timeout_mainloop_id = g_timeout_add (30000, test_connection_filter_on_timeout, NULL);
   g_main_loop_run (loop);
   g_source_remove (timeout_mainloop_id);
@@ -1225,6 +1233,9 @@ main (int   argc,
   loop = g_main_loop_new (NULL, FALSE);
 
   g_test_dbus_unset ();
+
+  /* gdbus cleanup is pretty racy due to worker threads, so always do this test first */
+  g_test_add_func ("/gdbus/connection/bus-failure", test_connection_bus_failure);
 
   g_test_add_func ("/gdbus/connection/basic", test_connection_basic);
   g_test_add_func ("/gdbus/connection/life-cycle", test_connection_life_cycle);

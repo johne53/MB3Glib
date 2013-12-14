@@ -103,6 +103,17 @@ test_basic (void)
   g_assert (!a.did_run);
 }
 
+static void
+test_name (void)
+{
+  g_assert (!g_action_name_is_valid (""));
+  g_assert (!g_action_name_is_valid ("("));
+  g_assert (!g_action_name_is_valid ("%abc"));
+  g_assert (!g_action_name_is_valid ("$x1"));
+  g_assert (g_action_name_is_valid ("abc.def"));
+  g_assert (g_action_name_is_valid ("ABC-DEF"));
+}
+
 static gboolean
 strv_has_string (gchar       **haystack,
                  const gchar  *needle)
@@ -167,6 +178,8 @@ strv_set_equal (gchar **strv, ...)
 
   return res;
 }
+
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 static void
 test_simple_group (void)
@@ -233,10 +246,16 @@ test_simple_group (void)
   action = g_simple_action_group_lookup (group, "bar");
   g_assert (action == NULL);
 
+  simple = g_simple_action_new ("foo", NULL);
+  g_simple_action_group_insert (group, G_ACTION (simple));
+  g_object_unref (simple);
+
   a.did_run = FALSE;
   g_object_unref (group);
   g_assert (!a.did_run);
 }
+
+G_GNUC_END_IGNORE_DEPRECATIONS
 
 static void
 test_stateful (void)
@@ -319,6 +338,8 @@ change_volume_state (GSimpleAction *action,
     g_simple_action_set_state (action, value);
 }
 
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
 static void
 test_entries (void)
 {
@@ -388,6 +409,8 @@ test_entries (void)
   g_object_unref (actions);
 }
 
+G_GNUC_END_IGNORE_DEPRECATIONS
+
 static void
 test_parse_detailed (void)
 {
@@ -396,25 +419,26 @@ test_parse_detailed (void)
     const gchar *expected_name;
     const gchar *expected_target;
     const gchar *expected_error;
+    const gchar *detailed_roundtrip;
   } testcases[] = {
-    { "abc",              "abc",    NULL,       NULL },
-    { " abc",             NULL,     NULL,       "invalid format" },
-    { " abc",             NULL,     NULL,       "invalid format" },
-    { "abc:",             NULL,     NULL,       "invalid format" },
-    { ":abc",             NULL,     NULL,       "invalid format" },
-    { "abc(",             NULL,     NULL,       "invalid format" },
-    { "abc)",             NULL,     NULL,       "invalid format" },
-    { "(abc",             NULL,     NULL,       "invalid format" },
-    { ")abc",             NULL,     NULL,       "invalid format" },
-    { "abc::xyz",         "abc",    "'xyz'",    NULL },
-    { "abc('xyz')",       "abc",    "'xyz'",    NULL },
-    { "abc(42)",          "abc",    "42",       NULL },
-    { "abc(int32 42)",    "abc",    "42",       NULL },
-    { "abc(@i 42)",       "abc",    "42",       NULL },
-    { "abc (42)",         NULL,     NULL,       "invalid format" },
-    { "abc(42abc)",       NULL,     NULL,       "invalid character in number" },
-    { "abc(42, 4)",       "abc",    "(42, 4)",  "expected end of input" },
-    { "abc(42,)",         "abc",    "(42,)",    "expected end of input" }
+    { "abc",              "abc",    NULL,       NULL,             "abc" },
+    { " abc",             NULL,     NULL,       "invalid format", NULL },
+    { " abc",             NULL,     NULL,       "invalid format", NULL },
+    { "abc:",             NULL,     NULL,       "invalid format", NULL },
+    { ":abc",             NULL,     NULL,       "invalid format", NULL },
+    { "abc(",             NULL,     NULL,       "invalid format", NULL },
+    { "abc)",             NULL,     NULL,       "invalid format", NULL },
+    { "(abc",             NULL,     NULL,       "invalid format", NULL },
+    { ")abc",             NULL,     NULL,       "invalid format", NULL },
+    { "abc::xyz",         "abc",    "'xyz'",    NULL,             "abc::xyz" },
+    { "abc('xyz')",       "abc",    "'xyz'",    NULL,             "abc::xyz" },
+    { "abc(42)",          "abc",    "42",       NULL,             "abc(42)" },
+    { "abc(int32 42)",    "abc",    "42",       NULL,             "abc(42)" },
+    { "abc(@i 42)",       "abc",    "42",       NULL,             "abc(42)" },
+    { "abc (42)",         NULL,     NULL,       "invalid format", NULL },
+    { "abc(42abc)",       NULL,     NULL,       "invalid character in number", NULL },
+    { "abc(42, 4)",       "abc",    "(42, 4)",  "expected end of input", NULL },
+    { "abc(42,)",         "abc",    "(42,)",    "expected end of input", NULL }
   };
   gint i;
 
@@ -446,6 +470,16 @@ test_parse_detailed (void)
 
       g_assert_cmpstr (name, ==, testcases[i].expected_name);
       g_assert ((target == NULL) == (testcases[i].expected_target == NULL));
+
+      if (success)
+        {
+          gchar *detailed;
+
+          detailed = g_action_print_detailed_name (name, target);
+          g_assert_cmpstr (detailed, ==, testcases[i].detailed_roundtrip);
+          g_free (detailed);
+        }
+
       if (target)
         {
           GVariant *expected;
@@ -678,6 +712,8 @@ call_describe (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
 static void
 test_dbus_export (void)
 {
@@ -878,6 +914,8 @@ test_dbus_threaded (void)
 
   session_bus_down ();
 }
+
+G_GNUC_END_IGNORE_DEPRECATIONS
 
 static void
 test_bug679509 (void)
@@ -1082,12 +1120,14 @@ main (int argc, char **argv)
   g_test_init (&argc, &argv, NULL);
 
   g_test_add_func ("/actions/basic", test_basic);
+  g_test_add_func ("/actions/name", test_name);
   g_test_add_func ("/actions/simplegroup", test_simple_group);
   g_test_add_func ("/actions/stateful", test_stateful);
   g_test_add_func ("/actions/entries", test_entries);
   g_test_add_func ("/actions/parse-detailed", test_parse_detailed);
   g_test_add_func ("/actions/dbus/export", test_dbus_export);
   g_test_add_func ("/actions/dbus/threaded", test_dbus_threaded);
+  g_test_add_func ("/actions/dbus/bug679509", test_bug679509);
   g_test_add_func ("/actions/property", test_property_actions);
 
   return g_test_run ();

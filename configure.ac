@@ -117,17 +117,6 @@ AM_CONDITIONAL(HAVE_GCC, [test "$GCC" = "yes"])
 
 AC_CANONICAL_HOST
 
-AC_MSG_CHECKING([for the BeOS])
-case $host in
-  *-*-beos*)
-    glib_native_beos="yes"
-    ;;
-  *)
-    glib_native_beos="no"
-    ;;
-esac
-AC_MSG_RESULT([$glib_native_beos])
-
 dnl
 
 AC_MSG_CHECKING([for Win32])
@@ -518,47 +507,10 @@ AS_IF([test "$glib_native_win32" = "yes"], [
 ])
 AM_CONDITIONAL(OS_WIN32_AND_DLL_COMPILATION, [test x$glib_native_win32 = xyes -a x$glib_win32_static_compilation != xyes])
 
-dnl
-dnl DU4 native cc currently needs -std1 for ANSI mode (instead of K&R)
-dnl
-AS_IF([test $cross_compiling != yes], [
-    AC_MSG_CHECKING([for extra flags to get ANSI library prototypes])
-    glib_save_LIBS=$LIBS
-    LIBS="$LIBS -lm"
-    AC_TRY_RUN([#include <math.h>
-		 int main (void) { return (log(1) != log(1.)); }],
-	 AC_MSG_RESULT(none needed),
-	 glib_save_CFLAGS=$CFLAGS
-	 CFLAGS="$CFLAGS -std1"
-	 AC_TRY_RUN([#include <math.h>
-		     int main (void) { return (log(1) != log(1.)); }],
-	     AC_MSG_RESULT(-std1),
-	     AC_MSG_RESULT()
-	     CFLAGS=$glib_save_CFLAGS
-	     AC_MSG_WARN(
-		    [No ANSI prototypes found in library. (-std1 didn't work.)])
-	 )
-    )
-    LIBS=$glib_save_LIBS
-])
-
-dnl NeXTStep cc seems to need this
-AC_MSG_CHECKING([for extra flags for POSIX compliance])
-AC_TRY_COMPILE([#include <dirent.h>], [DIR *dir;],
-  AC_MSG_RESULT(none needed),
-  glib_save_CFLAGS=$CFLAGS
-  CFLAGS="$CFLAGS -posix"
-  AC_TRY_COMPILE([#include <dirent.h>], [DIR *dir;],
-    AC_MSG_RESULT(-posix),
-    AC_MSG_RESULT()
-    CFLAGS=$glib_save_CFLAGS
-    AC_MSG_WARN([Could not determine POSIX flag. (-posix didn't work.)])))
-
 # Checks for library functions.
-AC_FUNC_VPRINTF
 AC_FUNC_ALLOCA
 AC_CHECK_FUNCS(mmap posix_memalign memalign valloc fsync pipe2 issetugid)
-AC_CHECK_FUNCS(atexit on_exit timegm gmtime_r)
+AC_CHECK_FUNCS(timegm gmtime_r)
 
 AC_CACHE_CHECK([for __libc_enable_secure], glib_cv_have_libc_enable_secure,
   [AC_TRY_LINK([#include <unistd.h>
@@ -644,13 +596,12 @@ dnl
 AC_CACHE_CHECK([for growing stack pointer],glib_cv_stack_grows,[
         AC_TRY_RUN([
 	volatile int *a = 0, *b = 0;
-	void foo (void);
-	int main () { volatile int y = 7; a = &y; foo (); return b > a; }
-	void foo (void) { volatile int x = 5; b = &x; }
+	void f (int i) { volatile int x = 5; if (i == 0) b = &x; else f (i - 1); }
+	int main () { volatile int y = 7; a = &y; f (100); return b > a ? 0 : 1; }
        	],
-	glib_cv_stack_grows=no
-        ,
 	glib_cv_stack_grows=yes
+        ,
+	glib_cv_stack_grows=no
         ,)
 ])
 
@@ -725,21 +676,6 @@ main (void) {
   int i = 1;
 }]])],[g_can_inline=yes],[g_can_inline=no])
 AC_MSG_RESULT($g_can_inline)
-
-dnl *** check for working do while(0) macros ***
-AC_CACHE_CHECK([for working do while(0) macros], g_cv_support_dowhile_macros, [
-	AC_TRY_COMPILE([],[
-	#define STMT_START do
-	#define STMT_END while(0)
-	#define STMT_TEST STMT_START { i = 0; } STMT_END
-	int main(void) { int i = 1; STMT_TEST; return i; }],
-	[g_cv_support_dowhile_macros=yes],
-	[g_cv_support_dowhile_macros=no],
-	[g_cv_support_dowhile_macros=yes])
-])
-if test x$g_cv_support_dowhile_macros = xyes; then
-  AC_DEFINE(HAVE_DOWHILE_MACROS, 1, [define for working do while(0) macros])
-fi
 
 # check for flavours of varargs macros
 AC_MSG_CHECKING(for ISO C99 varargs macros in C)
@@ -835,14 +771,18 @@ fi
 
 
 # check for header files
-AC_CHECK_HEADERS([dirent.h float.h limits.h pwd.h grp.h sys/param.h sys/poll.h sys/resource.h])
-AC_CHECK_HEADERS([sys/time.h sys/times.h sys/wait.h unistd.h values.h])
-AC_CHECK_HEADERS([sys/select.h sys/types.h stdint.h inttypes.h sched.h malloc.h])
+AC_CHECK_HEADERS([sys/param.h sys/poll.h sys/resource.h])
+AC_CHECK_HEADERS([sys/select.h stdint.h inttypes.h sched.h malloc.h])
 AC_CHECK_HEADERS([sys/vfs.h sys/vmount.h sys/statfs.h sys/statvfs.h sys/filio.h])
 AC_CHECK_HEADERS([mntent.h sys/mnttab.h sys/vfstab.h sys/mntctl.h fstab.h])
-AC_CHECK_HEADERS([sys/uio.h sys/mkdev.h])
-AC_CHECK_HEADERS([linux/magic.h])
-AC_CHECK_HEADERS([sys/prctl.h])
+AC_CHECK_HEADERS([linux/magic.h sys/prctl.h])
+
+# Some versions of MSC lack these
+AC_CHECK_HEADERS([dirent.h sys/time.h])
+
+# We don't care about this, but we need to keep including it in
+# glibconfig.h for backward compatibility
+AC_CHECK_HEADERS([values.h])
 
 AC_CHECK_HEADERS([sys/mount.h sys/sysctl.h], [], [],
 [#if HAVE_SYS_PARAM_H
@@ -851,13 +791,16 @@ AC_CHECK_HEADERS([sys/mount.h sys/sysctl.h], [], [],
 ])
 AC_CHECK_FUNCS(sysctlbyname)
 
+AC_HEADER_MAJOR
 AC_CHECK_HEADERS([xlocale.h])
 
 # check for structure fields
 AC_CHECK_MEMBERS([struct stat.st_mtimensec, struct stat.st_mtim.tv_nsec, struct stat.st_atimensec, struct stat.st_atim.tv_nsec, struct stat.st_ctimensec, struct stat.st_ctim.tv_nsec])
 AC_CHECK_MEMBERS([struct stat.st_blksize, struct stat.st_blocks, struct statfs.f_fstypename, struct statfs.f_bavail],,, [#include <sys/types.h>
 #include <sys/stat.h>
+#ifdef G_OS_UNIX
 #include <unistd.h>
+#endif
 #ifdef HAVE_SYS_STATFS_H
 #include <sys/statfs.h>
 #endif
@@ -876,8 +819,6 @@ AC_STRUCT_DIRENT_D_TYPE
 
 # Checks for libcharset
 AM_LANGINFO_CODESET
-AC_CHECK_HEADERS([stddef.h stdlib.h string.h])
-AC_CHECK_FUNCS(setlocale)
 gl_GLIBC21
 
 # check additional type sizes
@@ -982,12 +923,7 @@ AS_IF([test $ac_cv_sizeof_ssize_t = $ac_cv_sizeof_int &&
 #ifdef HAVE_STDINT_H
 # include <stdint.h>
 #endif
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
+#include <sys/types.h>
 int main ()
 {
   ssize_t s = 1;
@@ -1006,12 +942,7 @@ int main ()
 #ifdef HAVE_STDINT_H
 # include <stdint.h>
 #endif
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
+#include <sys/types.h>
 int main ()
 {
    ssize_t s = 1;
@@ -1024,10 +955,10 @@ int main ()
 AC_MSG_RESULT($glib_ssize_type)
 
 # Check for some functions
-AC_CHECK_FUNCS(lstat strerror strsignal memmove vsnprintf stpcpy strcasecmp strncasecmp poll getcwd vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk memmem)
-AC_CHECK_FUNCS(chown lchmod lchown fchmod fchown link utimes getgrgid getpwuid getresuid)
+AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk memmem)
+AC_CHECK_FUNCS(lchmod lchown fchmod fchown utimes getresuid)
 AC_CHECK_FUNCS(getmntent_r setmntent endmntent hasmntopt getfsstat getvfsstat fallocate)
-# Check for high-resolution sleep functions
+case $host_os in aix*) ac_cv_func_splice=no ;; esac # AIX splice() is something else
 AC_CHECK_FUNCS(splice)
 AC_CHECK_FUNCS(prlimit)
 
@@ -1063,9 +994,6 @@ AC_CHECK_HEADERS(crt_externs.h)
 AC_CHECK_FUNCS(_NSGetEnviron)
 
 AC_CHECK_FUNCS(newlocale uselocale strtod_l strtoll_l strtoull_l)
-
-AC_FUNC_VSNPRINTF_C99
-AC_FUNC_PRINTF_UNIX98
 
 # Internet address families
 if test $glib_native_win32 = yes; then
@@ -1240,6 +1168,8 @@ AC_TRY_COMPILE([#include <fcntl.h>
 #
 # Check whether to use an included printf
 #
+AC_FUNC_VSNPRINTF_C99
+AC_FUNC_PRINTF_UNIX98
 
 AC_ARG_ENABLE(included-printf,
               [AS_HELP_STRING([--enable-included-printf],
@@ -1291,33 +1221,6 @@ AC_CHECK_TYPES(ptrdiff_t)
 jm_AC_TYPE_INTMAX_T
 AC_CHECK_FUNCS([snprintf wcslen])
 AC_FUNC_SNPRINTF_C99
-
-# Check if bcopy can be used for overlapping copies, if memmove isn't found.
-# The check is borrowed from the PERL Configure script.
-AS_IF([test "$ac_cv_func_memmove" != "yes"], [
-  AC_CACHE_CHECK(whether bcopy can handle overlapping copies,
-    glib_cv_working_bcopy,[AC_TRY_RUN([
-      int main() {
-        char buf[128], abc[128], *b;
-        int len, off, align;
-        bcopy("abcdefghijklmnopqrstuvwxyz0123456789", abc, 36);
-        for (align = 7; align >= 0; align--) {
-          for (len = 36; len; len--) {
-            b = buf+align; bcopy(abc, b, len);
-            for (off = 1; off <= len; off++) {
-              bcopy(b, b+off, len); bcopy(b+off, b, len);
-                if (bcmp(b, abc, len)) return(1);
-            }
-          }
-        }
-        return(0);
-      }],glib_cv_working_bcopy=yes,glib_cv_working_bcopy=no)])
-
-  GLIB_ASSERT_SET(glib_cv_working_bcopy)
-  if test "$glib_cv_working_bcopy" = "yes"; then
-    AC_DEFINE(HAVE_WORKING_BCOPY,1,[Have a working bcopy])
-  fi
-])
 
 # Check if <sys/select.h> needs to be included for fd_set
 AC_MSG_CHECKING([for fd_set])
@@ -1567,15 +1470,6 @@ AS_IF([ test -z "$G_MODULE_IMPL"], [
 			             [G_MODULE_IMPL=G_MODULE_IMPL_DL],[])],
 		      [])
 ])
-dnl *** load_image (BeOS)
-AS_IF([test -z "$G_MODULE_IMPL" && test "x$glib_native_beos" = "xyes"], [
-  AC_CHECK_LIB(root, load_image,
-      [G_MODULE_LIBS="-lbe -lroot -lglib-2.0 "
-      G_MODULE_LIBS_EXTRA="-L\$(top_builddir_full)/.libs"
-      G_MODULE_PLUGIN_LIBS="-L\$(top_builddir_full)/gmodule/.libs -lgmodule"
-      G_MODULE_IMPL=G_MODULE_IMPL_BEOS],
-      [])
-])
 dnl *** NSLinkModule (dyld) in system libraries (Darwin)
 AS_IF([ test -z "$G_MODULE_IMPL" ], [
  	AC_CHECK_FUNC(NSLinkModule,
@@ -1590,13 +1484,6 @@ AS_IF([ test -z "$G_MODULE_IMPL"], [
 			           [G_MODULE_LIBS=-ldl
 		                   G_MODULE_IMPL=G_MODULE_IMPL_DL],[])],
 		     [])
-])
-dnl *** shl_load() in libdld (HP-UX)
-AS_IF([ test -z "$G_MODULE_IMPL"], [
-	AC_CHECK_LIB(dld, shl_load,
-		[G_MODULE_LIBS=-ldld
-		G_MODULE_IMPL=G_MODULE_IMPL_DLD],
-		[])
 ])
 dnl *** additional checks for G_MODULE_IMPL_DL
 AS_IF([ test "$G_MODULE_IMPL" = "G_MODULE_IMPL_DL" ], [
@@ -2011,24 +1898,20 @@ AC_MSG_CHECKING(for thread implementation)
 
 have_threads=no
 AS_IF([ test "x$with_threads" = xyes || test "x$with_threads" = xposix], [
-	# -D_POSIX4_DRAFT_SOURCE -D_POSIX4A_DRAFT10_SOURCE is for DG/UX
-	# -U_OSF_SOURCE is for Digital UNIX 4.0d
-	GTHREAD_COMPILE_IMPL_DEFINES="-D_POSIX4_DRAFT_SOURCE -D_POSIX4A_DRAFT10_SOURCE -U_OSF_SOURCE"
-	glib_save_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS $GTHREAD_COMPILE_IMPL_DEFINES"
         AS_IF([ test "x$have_threads" = xno], [
                 AC_TRY_COMPILE([#include <pthread.h>],
 			[pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;],
 			have_threads=posix)
 	])
 	# Tru64Unix requires -pthread to find pthread.h. See #103020
-	CPPFLAGS="$CPPFLAGS -pthread"
 	if test "x$have_threads" = xno; then
-	AC_TRY_COMPILE([#include <pthread.h>],
+		glib_save_CPPFLAGS="$CPPFLAGS"
+		CPPFLAGS="$CPPFLAGS -pthread"
+		AC_TRY_COMPILE([#include <pthread.h>],
 		       [pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;],
 		       have_threads=posix)
+		CPPFLAGS="$glib_save_CPPFLAGS"
         fi
-	CPPFLAGS="$glib_save_CPPFLAGS"
 ])
 if test "x$with_threads" = xyes || test "x$with_threads" = xwin32; then
         case $host in
@@ -2127,9 +2010,6 @@ AS_IF([ test x"$G_THREAD_CFLAGS" = x], [
 			# Guide".
 			G_THREAD_CFLAGS="-D_THREAD_SAFE"
 		fi
-		;;
-	*-dg-dgux*)  # DG/UX
-		G_THREAD_CFLAGS="-D_REENTRANT -D_POSIX4A_DRAFT10_SOURCE"
 		;;
 	*-sysv5uw7*) # UnixWare 7 
 		# We are not using gcc with -pthread. Catched above.
@@ -2243,15 +2123,6 @@ if test "x$G_THREAD_LIBS" = xerror; then
         AC_MSG_ERROR($LIBS_NOT_FOUND_1$have_threads$LIBS_NOT_FOUND_2)
 fi
 
-case $host in
-  *-*-beos*)
-    G_THREAD_LIBS="-lbe -lroot -lglib-2.0 "
-    G_THREAD_LIBS_EXTRA="-L\$(top_builddir_full)/.libs"
-    ;;
-  *)
-    ;;
-esac
-
 AC_MSG_CHECKING(thread related libraries)
 AC_MSG_RESULT($G_THREAD_LIBS)
 
@@ -2263,7 +2134,7 @@ glib_save_LIBS="$LIBS"
 # to always be linked with the thread libs on some platforms. 
 # LIBS="$LIBS $G_THREAD_LIBS"
 AC_CHECK_FUNCS(localtime_r gmtime_r)
-AS_IF([ test "$ac_cv_header_pwd_h" = "yes"], [
+AS_IF([ test "$glib_native_win32" != "yes"], [
  	AC_CACHE_CHECK([for posix getpwuid_r],
 		ac_cv_func_posix_getpwuid_r,
 		[AC_TRY_RUN([
@@ -2302,7 +2173,7 @@ int main () {
 		fi
 	fi
 ])
-AS_IF([ test "$ac_cv_header_grp_h" = "yes"], [
+AS_IF([ test "$glib_native_win32" != "yes"], [
    	AC_CACHE_CHECK([for posix getgrgid_r],
 		ac_cv_func_posix_getgrgid_r,
 		[AC_TRY_RUN([
@@ -2924,12 +2795,8 @@ AC_CONFIG_COMMANDS([glib/glibconfig.h],
 
 _______EOF
 
-	if test x$glib_limits_h = xyes; then
-	  echo '#include <limits.h>' >> $outfile
-	fi
-	if test x$glib_float_h = xyes; then
-	  echo '#include <float.h>' >> $outfile
-	fi
+	echo '#include <limits.h>' >> $outfile
+	echo '#include <float.h>' >> $outfile
 	if test x$glib_values_h = xyes; then
 	  echo '#include <values.h>' >> $outfile
 	fi
@@ -2952,19 +2819,19 @@ _______EOF
 
 G_BEGIN_DECLS
 
-#define G_MINFLOAT	$glib_mf
-#define G_MAXFLOAT	$glib_Mf
-#define G_MINDOUBLE	$glib_md
-#define G_MAXDOUBLE	$glib_Md
-#define G_MINSHORT	$glib_ms
-#define G_MAXSHORT	$glib_Ms
-#define G_MAXUSHORT	$glib_Mus
-#define G_MININT	$glib_mi
-#define G_MAXINT	$glib_Mi
-#define G_MAXUINT	$glib_Mui
-#define G_MINLONG	$glib_ml
-#define G_MAXLONG	$glib_Ml
-#define G_MAXULONG	$glib_Mul
+#define G_MINFLOAT	FLT_MIN
+#define G_MAXFLOAT	FLT_MAX
+#define G_MINDOUBLE	DBL_MIN
+#define G_MAXDOUBLE	DBL_MAX
+#define G_MINSHORT	SHRT_MIN
+#define G_MAXSHORT	SHRT_MAX
+#define G_MAXUSHORT	USHRT_MAX
+#define G_MININT	INT_MIN
+#define G_MAXINT	INT_MAX
+#define G_MAXUINT	UINT_MAX
+#define G_MINLONG	LONG_MIN
+#define G_MAXLONG	LONG_MAX
+#define G_MAXULONG	ULONG_MAX
 
 _______EOF
 
@@ -3075,8 +2942,10 @@ _______EOF
 
 
 	cat >>$outfile <<_______EOF
-$glib_atexit
-$glib_memmove
+#ifndef G_DISABLE_DEPRECATED
+#define g_ATEXIT(proc)	(atexit (proc))
+#define g_memmove(dest,src,len) G_STMT_START { memmove ((dest), (src), (len)); } G_STMT_END
+#endif
 $glib_defines
 $glib_os
 $glib_static_compilation
@@ -3144,7 +3013,7 @@ _______EOF
 	if test x$g_have_eilseq = xno; then
 		cat >>$outfile <<_______EOF
 #ifndef EILSEQ
-/* On some systems, like SunOS and NetBSD, EILSEQ is not defined.
+/* On some pre-C99 systems, EILSEQ is not defined.
  * The correspondence between this and the corresponding definition
  * in libiconv is essential.
  */
@@ -3254,34 +3123,6 @@ if test "x${ac_cv_working_alloca_h+set}" = xset ; then
 else
   glib_header_alloca_h="$ac_cv_header_alloca_h"
 fi
-
-case xyes in
-x$ac_cv_header_float_h)
-  glib_float_h=yes
-  glib_mf=FLT_MIN glib_Mf=FLT_MAX
-  glib_md=DBL_MIN glib_Md=DBL_MAX
-  ;;
-x$ac_cv_header_values_h)
-  glib_values_h=yes
-  glib_mf=MINFLOAT  glib_Mf=MAXFLOAT
-  glib_md=MINDOUBLE glib_Md=MAXDOUBLE
-  ;;
-esac
-
-case xyes in
-x$ac_cv_header_limits_h)
-  glib_limits_h=yes
-  glib_ms=SHRT_MIN glib_Ms=SHRT_MAX glib_Mus=USHRT_MAX
-  glib_mi=INT_MIN  glib_Mi=INT_MAX  glib_Mui=UINT_MAX
-  glib_ml=LONG_MIN glib_Ml=LONG_MAX glib_Mul=ULONG_MAX
-  ;;
-x$ac_cv_header_values_h)
-  glib_values_h=yes
-  glib_ms=MINSHORT glib_Ms=MAXSHORT glib_Mus="(((gushort)G_MAXSHORT)*2+1)"
-  glib_mi=MININT   glib_Mi=MAXINT   glib_Mui="(((guint)G_MAXINT)*2+1)"
-  glib_ml=MINLONG  glib_Ml=MAXLONG  glib_Mul="(((gulong)G_MAXLONG)*2+1)"
-  ;;
-esac
 
 if test x$ac_cv_header_sys_poll_h = xyes ; then
   glib_sys_poll_h=yes
@@ -3464,39 +3305,6 @@ $ac_cv_sizeof___int64)
 esac
 
 
-case xyes in
-x$ac_cv_func_atexit)
-  glib_atexit="
-#ifdef NeXT /* @#%@! NeXTStep */
-# define g_ATEXIT(proc)	(!atexit (proc))
-#else
-# define g_ATEXIT(proc)	(atexit (proc))
-#endif"
-  ;;
-x$ac_cv_func_on_exit)
-  glib_atexit="
-#define g_ATEXIT(proc)	(on_exit ((void (*)(int, void*))(proc), NULL))"
-  ;;
-esac
-
-case xyes in
-x$ac_cv_func_memmove)
-  glib_memmove='
-#define g_memmove(dest,src,len) G_STMT_START { memmove ((dest), (src), (len)); } G_STMT_END'
-  ;;
-x$glib_cv_working_bcopy)
-  glib_memmove="
-/* memmove isn't available, but bcopy can copy overlapping memory regions */
-#define g_memmove(d,s,n) G_STMT_START { bcopy ((s), (d), (n)); } G_STMT_END"
-  ;;
-*)  
-  glib_memmove="
-/* memmove isn't found and bcopy can't copy overlapping memory regions, 
- * so we have to roll our own copy routine. */
-void g_memmove (void* dest, const void * src, unsigned long len);"
-  ;;
-esac
-
 glib_defines="
 #define GLIB_MAJOR_VERSION $GLIB_MAJOR_VERSION
 #define GLIB_MINOR_VERSION $GLIB_MINOR_VERSION
@@ -3583,9 +3391,6 @@ g_module_suffix="$glib_gmodule_suffix"
 
 g_pid_type="$glib_pid_type"
 case $host in
-  *-*-beos*)
-    glib_os="#define G_OS_BEOS"
-    ;;
   *-*-cygwin*)
     glib_os="#define G_OS_UNIX
 #define G_PLATFORM_WIN32

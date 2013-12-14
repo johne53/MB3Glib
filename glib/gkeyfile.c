@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef HAVE_UNISTD_H
+#ifdef G_OS_UNIX
 #include <unistd.h>
 #endif
 #ifdef G_OS_WIN32
@@ -859,7 +859,7 @@ g_key_file_load_from_file (GKeyFile       *key_file,
  * g_key_file_load_from_data:
  * @key_file: an empty #GKeyFile struct
  * @data: key file loaded in memory
- * @length: the length of @data in bytes (or -1 if data is nul-terminated)
+ * @length: the length of @data in bytes (or (gsize)-1 if data is nul-terminated)
  * @flags: flags from #GKeyFileFlags
  * @error: return location for a #GError, or %NULL
  *
