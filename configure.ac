@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [39])
-m4_define([glib_micro_version], [2])
+m4_define([glib_micro_version], [3])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -771,7 +771,7 @@ fi
 
 
 # check for header files
-AC_CHECK_HEADERS([sys/param.h sys/poll.h sys/resource.h])
+AC_CHECK_HEADERS([sys/param.h sys/resource.h])
 AC_CHECK_HEADERS([sys/select.h stdint.h inttypes.h sched.h malloc.h])
 AC_CHECK_HEADERS([sys/vfs.h sys/vmount.h sys/statfs.h sys/statvfs.h sys/filio.h])
 AC_CHECK_HEADERS([mntent.h sys/mnttab.h sys/vfstab.h sys/mntctl.h fstab.h])
@@ -2429,11 +2429,11 @@ dnl ****************************************
 
 glib_poll_includes=["
 #include <sys/types.h>
-#include <sys/poll.h>
+#include <poll.h>
 "]
 
 AS_IF([ test $ac_cv_header_sys_types_h = yes &&
-   test $ac_cv_header_sys_poll_h = yes ], [
+   test $ac_cv_func_poll = yes ], [
   glib_failed=false
   GLIB_CHECK_VALUE(POLLIN, $glib_poll_includes, glib_failed=true)
   GLIB_CHECK_VALUE(POLLOUT, $glib_poll_includes, glib_failed=true)
@@ -2458,9 +2458,6 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([[
 	#include <stdlib.h>
 	#include <fcntl.h>
 	#include <poll.h>
-	#ifdef HAVE_SYS_POLL_H
-	#include <sys/poll.h>
-	#endif
 	int main(void) {
 	  struct pollfd fds[1];
 	  int fd;
@@ -2710,15 +2707,15 @@ dnl ************************************
 dnl *** Enable lcov coverage reports ***
 dnl ************************************
 
-AC_ARG_ENABLE(gcov,
-  AS_HELP_STRING([--enable-gcov],
+AC_ARG_ENABLE(coverage,
+  AS_HELP_STRING([--enable-coverage],
 		 [enable coverage testing with gcov]),
   [use_gcov=$enableval], [use_gcov=no])
 
 AS_IF([ test "x$use_gcov" = "xyes"], [
   dnl we need gcc:
   if test "$GCC" != "yes"; then
-    AC_MSG_ERROR([GCC is required for --enable-gcov])
+    AC_MSG_ERROR([GCC is required for --enable-coverage])
   fi
 
   dnl Check if ccache is being used
@@ -2729,7 +2726,7 @@ AS_IF([ test "x$use_gcov" = "xyes"], [
   esac
 
   if test "$gcc_ccache" = "yes" && (test -z "$CCACHE_DISABLE" || test "$CCACHE_DISABLE" != "1"); then
-    AC_MSG_ERROR([ccache must be disabled when --enable-gcov option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
+    AC_MSG_ERROR([ccache must be disabled when --enable-coverage option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
   fi
 
   ltp_version_list="1.6 1.7 1.8 1.9 1.10"
@@ -2802,9 +2799,6 @@ _______EOF
 	fi
 	if test "$glib_header_alloca_h" = "yes"; then
 	  echo '#define GLIB_HAVE_ALLOCA_H' >> $outfile
-	fi
-	if test x$glib_sys_poll_h = xyes; then
-	  echo '#define GLIB_HAVE_SYS_POLL_H' >> $outfile
 	fi
 	if test x$glib_included_printf != xyes; then
           echo "
@@ -3122,10 +3116,6 @@ if test "x${ac_cv_working_alloca_h+set}" = xset ; then
   glib_header_alloca_h="$ac_cv_working_alloca_h"
 else
   glib_header_alloca_h="$ac_cv_header_alloca_h"
-fi
-
-if test x$ac_cv_header_sys_poll_h = xyes ; then
-  glib_sys_poll_h=yes
 fi
 
 if test x$enable_included_printf = xyes ; then

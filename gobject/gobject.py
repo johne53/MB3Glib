@@ -1,7 +1,20 @@
+import os.path
 import gdb
 import glib
-import gdb.backtrace
-import gdb.command.backtrace
+import sys
+
+if sys.version_info[0] >= 3:
+    long = int
+
+try:
+    import gdb.backtrace
+    import gdb.command.backtrace
+except ImportError:
+    print(os.path.basename(__file__) + ": gdb was not built with "
+          "custom backtrace support, disabling.")
+    HAVE_GDB_BACKTRACE = 0
+else:
+    HAVE_GDB_BACKTRACE = 1
 
 # This is not quite right, as local vars may override symname
 def read_global_var (symname):
@@ -81,39 +94,17 @@ def pretty_printer_lookup (val):
     return None
 
 def get_signal_name (id):
-  if id == None:
+    if id == None:
+        return None
+    id = long(id)
+    if id == 0:
+        return None
+    val = read_global_var ("g_signal_nodes")
+    max_s = read_global_var ("g_n_signal_nodes")
+    max_s = long(max_s)
+    if id < max_s:
+        return val[id]["name"].string()
     return None
-  id = long(id)
-  if id == 0:
-    return None
-  val = read_global_var ("g_signal_nodes")
-  max_s = read_global_var ("g_n_signal_nodes")
-  max_s = long(max_s)
-  if id < max_s:
-    return val[id]["name"].string()
-  return None
-
-class GFrameWrapper:
-    def __init__ (self, frame):
-        self.frame = frame;
-
-    def name (self):
-        name = self.frame.name()
-        if name and name.startswith("IA__"):
-            return name[4:]
-        return name
-
-    def __getattr__ (self, name):
-        return getattr (self.frame, name)
-
-# Monkey patch FrameWrapper to avoid IA__ in symbol names
-old__init__ = gdb.command.backtrace.FrameWrapper.__init__
-def monkey_patched_init(self, frame):
-    name = frame.name()
-    if name and name.startswith("IA__"):
-        frame = GFrameWrapper(frame)
-    old__init__(self,frame)
-gdb.command.backtrace.FrameWrapper.__init__ = monkey_patched_init
 
 class DummyFrame:
     def __init__ (self, frame):
@@ -131,7 +122,7 @@ class DummyFrame:
 class SignalFrame:
     def __init__ (self, frames):
         self.frame = frames[-1]
-        self.frames = frames;
+        self.frames = frames
 
     def name (self):
         return "signal-emission"
@@ -169,16 +160,16 @@ class SignalFrame:
     def or_join_array (self, array):
         if len(array) == 0:
             return "???"
+        else:
+            return ' or '.join(set(array))
 
-        v = {}
-        for i in range(len(array)):
-            v[str(array[i])] = 1
-        array = v.keys()
-        s = array[0]
-        for i in range(1, len(array)):
-            s = s + " or %s"%array[i]
-
-        return s
+    def get_detailed_signal_from_frame(self, frame, signal):
+        detail = self.read_var (frame, "detail")
+        detail = glib.g_quark_to_string (detail)
+        if detail is not None:
+            return signal + ":" + detail
+        else:
+            return detail
 
     def describe (self, stream, full):
         instances = []
@@ -191,11 +182,8 @@ class SignalFrame:
                 node = self.read_var (frame, "node")
                 if node:
                     signal = node["name"].string()
-                    detail = self.read_var (frame, "detail")
-                    detail = glib.g_quark_to_string (detail)
-                    if detail != None:
-                        signal = signal + ":" + detail
-                    self.append (signals, signal)
+                    signal = self.get_detailed_signal_from_frame(frame, signal)
+                    self.append(signals, signal)
 
             if name == "g_signal_emitv":
                 instance_and_params = self.read_var (frame, "instance_and_params")
@@ -205,10 +193,7 @@ class SignalFrame:
                 id = self.read_var (frame, "signal_id")
                 signal = get_signal_name (id)
                 if signal:
-                    detail = self.read_var (frame, "detail")
-                    detail = glib.g_quark_to_string (detail)
-                    if detail != None:
-                        signal = signal + ":" + detail
+                    signal = self.get_detailed_signal_from_frame(frame, signal)
                     self.append (signals, signal)
 
             if name == "g_signal_emit_valist" or name == "g_signal_emit":
@@ -216,10 +201,7 @@ class SignalFrame:
                 id = self.read_var (frame, "signal_id")
                 signal = get_signal_name (id)
                 if signal:
-                    detail = self.read_var (frame, "detail")
-                    detail = glib.g_quark_to_string (detail)
-                    if detail != None:
-                        signal = signal + ":" + detail
+                    signal = self.get_detailed_signal_from_frame(frame, signal)
                     self.append (signals, signal)
 
             if name == "g_signal_emit_by_name":
@@ -301,5 +283,6 @@ def register (obj):
     if obj == None:
         obj = gdb
 
-    gdb.backtrace.push_frame_filter (GFrameFilter)
+    if HAVE_GDB_BACKTRACE:
+        gdb.backtrace.push_frame_filter (GFrameFilter)
     obj.pretty_printers.append(pretty_printer_lookup)

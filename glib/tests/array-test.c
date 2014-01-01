@@ -216,24 +216,23 @@ static GMemVTable array_large_size_mem_vtable = {
 };
 
 static void
-array_large_size_subprocess (void)
-{
-  GArray *array;
-
-  array = g_array_new (FALSE, FALSE, sizeof (char));
-
-  g_mem_set_vtable (&array_large_size_mem_vtable);
-  g_array_set_size (array, 1073750016);
-  g_assert_not_reached ();
-}
-
-static void
 array_large_size (void)
 {
   g_test_bug ("568760");
 
-  g_test_trap_subprocess ("/array/large-size/subprocess",
-                          5 /* s */ * 1000 /* ms */ * 1000 /* µs */, 0);
+  if (g_test_subprocess ())
+    {
+      GArray *array;
+
+      array = g_array_new (FALSE, FALSE, sizeof (char));
+
+      g_mem_set_vtable (&array_large_size_mem_vtable);
+      g_array_set_size (array, 1073750016);
+      g_assert_not_reached ();
+      return;
+    }
+
+  g_test_trap_subprocess (NULL, 5000000, 0);
   g_test_trap_assert_passed ();
 }
 
@@ -366,6 +365,28 @@ pointer_array_add (void)
   for (i = 0; i < 10000; i++)
     g_assert (segment[i] == GINT_TO_POINTER (i));
   g_free (segment);
+}
+
+static void
+pointer_array_insert (void)
+{
+  GPtrArray *gparray;
+  gint i;
+  gint sum = 0;
+  gint index;
+
+  gparray = g_ptr_array_sized_new (1000);
+
+  for (i = 0; i < 10000; i++)
+    {
+      index = g_random_int_range (-1, i + 1);
+      g_ptr_array_insert (gparray, index, GINT_TO_POINTER (i));
+    }
+
+  g_ptr_array_foreach (gparray, sum_up, &sum);
+  g_assert (sum == 49995000);
+
+  g_ptr_array_free (gparray, TRUE);
 }
 
 static void
@@ -853,13 +874,13 @@ main (int argc, char *argv[])
   g_test_add_func ("/array/remove-range", array_remove_range);
   g_test_add_func ("/array/ref-count", array_ref_count);
   g_test_add_func ("/array/large-size", array_large_size);
-  g_test_add_func ("/array/large-size/subprocess", array_large_size_subprocess);
   g_test_add_func ("/array/sort", array_sort);
   g_test_add_func ("/array/sort-with-data", array_sort_with_data);
   g_test_add_func ("/array/clear-func", array_clear_func);
 
   /* pointer arrays */
   g_test_add_func ("/pointerarray/add", pointer_array_add);
+  g_test_add_func ("/pointerarray/insert", pointer_array_insert);
   g_test_add_func ("/pointerarray/ref-count", pointer_array_ref_count);
   g_test_add_func ("/pointerarray/free-func", pointer_array_free_func);
   g_test_add_func ("/pointerarray/sort", pointer_array_sort);

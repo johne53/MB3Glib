@@ -224,7 +224,7 @@ g_subprocess_launcher_new (GSubprocessFlags flags)
 /**
  * g_subprocess_launcher_set_environ:
  * @self: a #GSubprocess
- * @environ: the replacement environment
+ * @env: the replacement environment
  *
  * Replace the entire environment of processes launched from this
  * launcher with the given 'environ' variable.
@@ -244,10 +244,10 @@ g_subprocess_launcher_new (GSubprocessFlags flags)
  **/
 void
 g_subprocess_launcher_set_environ (GSubprocessLauncher  *self,
-                                   gchar               **environ)
+                                   gchar               **env)
 {
   g_strfreev (self->envp);
-  self->envp = g_strdupv (environ);
+  self->envp = g_strdupv (env);
 }
 
 /**
@@ -714,7 +714,7 @@ g_subprocess_launcher_spawn (GSubprocessLauncher  *launcher,
 /**
  * g_subprocess_launcher_spawnv:
  * @self: a #GSubprocessLauncher
- * @argv: Command line arguments
+ * @argv: (array zero-terminated=1) (element-type utf8): Command line arguments
  * @error: Error
  *
  * A convenience helper for creating a #GSubprocess given a provided
