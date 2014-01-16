@@ -4819,17 +4819,39 @@ wake_source (GSource *source)
 }
 
 static void
-dispatch_unix_signals (void)
+dispatch_unix_signals_unlocked (void)
 {
+  gboolean pending[NSIG];
   GSList *node;
+  gint i;
 
   /* clear this first incase another one arrives while we're processing */
   any_unix_signal_pending = FALSE;
 
-  G_LOCK(unix_signal_lock);
+  /* We atomically test/clear the bit from the global array in case
+   * other signals arrive while we are dispatching.
+   *
+   * We then can safely use our own array below without worrying about
+   * races.
+   */
+  for (i = 0; i < NSIG; i++)
+    {
+      /* Be very careful with (the volatile) unix_signal_pending.
+       *
+       * We must ensure that it's not possible that we clear it without
+       * handling the signal.  We therefore must ensure that our pending
+       * array has a field set (ie: we will do something about the
+       * signal) before we clear the item in unix_signal_pending.
+       *
+       * Note specifically: we must check _our_ array.
+       */
+      pending[i] = unix_signal_pending[i];
+      if (pending[i])
+        unix_signal_pending[i] = FALSE;
+    }
 
   /* handle GChildWatchSource instances */
-  if (unix_signal_pending[SIGCHLD])
+  if (pending[SIGCHLD])
     {
       /* The only way we can do this is to scan all of the children.
        *
@@ -4874,7 +4896,7 @@ dispatch_unix_signals (void)
 
       if (!source->pending)
         {
-          if (unix_signal_pending[source->signum])
+          if (pending[source->signum])
             {
               source->pending = TRUE;
 
@@ -4883,8 +4905,13 @@ dispatch_unix_signals (void)
         }
     }
 
-  memset ((void*)unix_signal_pending, 0, sizeof (unix_signal_pending));
+}
 
+static void
+dispatch_unix_signals (void)
+{
+  G_LOCK(unix_signal_lock);
+  dispatch_unix_signals_unlocked ();
   G_UNLOCK(unix_signal_lock);
 }
 
@@ -5003,8 +5030,7 @@ _g_main_create_unix_signal_watch (int signum)
   G_LOCK (unix_signal_lock);
   ref_unix_signal_handler_unlocked (signum);
   unix_signal_watches = g_slist_prepend (unix_signal_watches, unix_signal_source);
-  if (unix_signal_pending[signum])
-    unix_signal_source->pending = TRUE;
+  dispatch_unix_signals_unlocked ();
   G_UNLOCK (unix_signal_lock);
 
   return source;

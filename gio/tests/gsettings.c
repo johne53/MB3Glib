@@ -597,8 +597,9 @@ test_delay_child (void)
 
   g_settings_set (child, "test-byte", "y", 42);
 
+  /* make sure the child was delayed too */
   g_settings_get (base, "test-byte", "y", &byte);
-  g_assert_cmpuint (byte, ==, 42);
+  g_assert_cmpuint (byte, ==, 36);
 
   g_object_unref (child);
   g_object_unref (settings);
@@ -2413,6 +2414,15 @@ test_null_backend (void)
 
   writable = g_settings_is_writable (settings, "greeting");
   g_assert (!writable);
+
+  g_settings_reset (settings, "greeting");
+
+  g_settings_delay (settings);
+  g_settings_set (settings, "greeting", "s", "goodbye world");
+  g_settings_apply (settings);
+  g_settings_get (settings, "greeting", "s", &str);
+  g_assert_cmpstr (str, ==, "Hello, earthlings");
+  g_free (str);
 
   g_object_unref (settings);
   g_object_unref (backend);

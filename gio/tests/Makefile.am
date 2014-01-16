@@ -3,7 +3,7 @@ include $(top_srcdir)/glib-tap.mk
 dist_uninstalled_test_data =
 test_ltlibraries =
 
-SUBDIRS = gdbus-object-manager-example services
+SUBDIRS = gdbus-object-manager-example services modules
 
 LDADD = \
 	$(top_builddir)/gio/libgio-2.0.la		\
@@ -31,8 +31,10 @@ test_programs = \
 	credentials				\
 	data-input-stream			\
 	data-output-stream			\
+	defaultvalue				\
 	fileattributematcher			\
 	filter-streams				\
+	giomodule				\
 	gsubprocess				\
 	g-file					\
 	g-file-info				\
@@ -299,6 +301,10 @@ dist_test_data += \
 	appinfo-test2.desktop			\
 	file.c					\
 	org.gtk.test.dbusappinfo.desktop	\
+	x-content/image-dcf/DCIM/Camera/20130831_203925.jpg \
+	x-content/image-dcf/DCIM/Camera/20130831_203928.jpg \
+	x-content/unix-software/autorun.sh 	\
+	x-content/win32-software/autorun.exe	\
 	$(NULL)
 
 test_extra_programs += \
@@ -317,7 +323,7 @@ clean-mimeapps:
 
 uninstalled_test_programs += gsettings gschema-compile
 gsettings_DEPENDENCIES = test.mo
-CLEANFILES += test.mo de/LC_MESSAGES/test.mo
+CLEANFILES += test.mo de/LC_MESSAGES/test.mo keyfile/gsettings.store
 gsettings_CFLAGS = $(AM_CFLAGS) -DSRCDIR=\"$(abs_srcdir)\"
 test.mo: de.po
 	$(AM_V_GEN) $(MSGFMT) -o test.mo $(srcdir)/de.po; \
@@ -523,3 +529,22 @@ test.gresource: test.gresource.xml Makefile $(shell $(glib_compile_resources) --
 EXTRA_DIST += test.gresource.xml test1.txt test2.gresource.xml test2.txt test3.gresource.xml test3.txt test4.gresource.xml
 
 CLEANFILES += test_resources.c test_resources2.[ch] plugin_resources.c test.gresource
+
+BUILT_SOURCES += giotypefuncs.c
+
+giotypefuncs.c: Makefile
+	$(AM_V_GEN) echo '#include <gio/gio.h>' > xgen-giosrc.c && \
+	  echo "G_GNUC_BEGIN_IGNORE_DEPRECATIONS" > xgen-gio && \
+	  ${CPP} $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) xgen-giosrc.c | \
+	  $(GREP) -o '\bg_.*_get_type\b' | \
+	  $(GREP) -v 'g_io_extension_get_type\|g_variant_get_type' | \
+	  sort | uniq | \
+	  $(SED) -e 's/^/*tp++ = /' -e 's/$$/ ();/' >> xgen-gio && \
+	  cp xgen-gio $@ # && rm -f xgen-gio xgen-giosrc.c
+
+CLEANFILES += xgen-giosrc.c xgen-gio giotypefuncs.c
+
+if ENABLE_INSTALLED_TESTS
+install-data-hook:
+	$(AM_V_at) chmod a+x $(DESTDIR)$(installed_testdir)/x-content/win32-software/autorun.exe
+endif

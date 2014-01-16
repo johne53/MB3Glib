@@ -17,8 +17,6 @@ EXTRA_DIST = \
 	gthread.vcxproj.filters \
 	gio.vcxproj \
 	gio.vcxproj.filters \
-	testglib.vcxproj \
-	testglib.vcxproj.filters \
 	glib-compile-schemas.vcxproj \
 	glib-compile-schemas.vcxproj.filters \
 	gsettings.vcxproj \
@@ -35,7 +33,7 @@ EXTRA_DIST = \
 	glib-build-defines.props	\
 	glib-install.props	\
 	glib-version-paths.props	\
-	glibprepbuild.props
+	glib-gen-srcs.props
 
 DISTCLEANFILES = $(EXTRA_DIST)
 

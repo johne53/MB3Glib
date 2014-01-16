@@ -355,7 +355,6 @@ find_first (gpointer key,
   return (*v == *test);
 }
 
-
 static void
 direct_hash_test (void)
 {
@@ -363,6 +362,31 @@ direct_hash_test (void)
   GHashTable     *h;
 
   h = g_hash_table_new (NULL, NULL);
+  g_assert (h != NULL);
+  for (i = 1; i <= 20; i++)
+    g_hash_table_insert (h, GINT_TO_POINTER (i),
+                         GINT_TO_POINTER (i + 42));
+
+  g_assert (g_hash_table_size (h) == 20);
+
+  for (i = 1; i <= 20; i++)
+    {
+      rc = GPOINTER_TO_INT (g_hash_table_lookup (h, GINT_TO_POINTER (i)));
+
+      g_assert (rc != 0);
+      g_assert ((rc - 42) == i);
+    }
+
+  g_hash_table_destroy (h);
+}
+
+static void
+direct_hash_test2 (void)
+{
+  gint       i, rc;
+  GHashTable     *h;
+
+  h = g_hash_table_new (g_direct_hash, g_direct_equal);
   g_assert (h != NULL);
   for (i = 1; i <= 20; i++)
     g_hash_table_insert (h, GINT_TO_POINTER (i),
@@ -1372,6 +1396,51 @@ test_set_to_strv (void)
   g_strfreev (strv);
 }
 
+static gboolean
+is_prime (guint p)
+{
+  guint i;
+
+  if (p % 2 == 0)
+    return FALSE;
+
+  i = 3;
+  while (TRUE)
+    {
+      if (i * i > p)
+        return TRUE;
+
+      if (p % i == 0)
+        return FALSE;
+
+      i += 2;       
+    }
+}
+
+static void
+test_primes (void)
+{
+  guint p, q;
+  gdouble r, min, max;
+
+  max = 1.0;
+  min = 10.0;
+  q = 1;
+  while (1) {
+    p = q;
+    q = g_spaced_primes_closest (p);
+    g_assert (is_prime (q));
+    if (p == 1) continue;
+    if (q == p) break;
+    r = q / (gdouble) p;
+    min = MIN (min, r);
+    max = MAX (max, r);
+  };
+
+  g_assert_cmpfloat (1.3, <, min);
+  g_assert_cmpfloat (max, <, 2.0);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -1383,6 +1452,7 @@ main (int argc, char *argv[])
   g_test_add_data_func ("/hash/one", GINT_TO_POINTER (TRUE), second_hash_test);
   g_test_add_data_func ("/hash/honeyman", GINT_TO_POINTER (FALSE), second_hash_test);
   g_test_add_func ("/hash/direct", direct_hash_test);
+  g_test_add_func ("/hash/direct2", direct_hash_test2);
   g_test_add_func ("/hash/int", int_hash_test);
   g_test_add_func ("/hash/int64", int64_hash_test);
   g_test_add_func ("/hash/double", double_hash_test);
@@ -1402,6 +1472,7 @@ main (int argc, char *argv[])
   g_test_add_func ("/hash/iter-replace", test_iter_replace);
   g_test_add_func ("/hash/set-insert-corruption", test_set_insert_corruption);
   g_test_add_func ("/hash/set-to-strv", test_set_to_strv);
+  g_test_add_func ("/hash/primes", test_primes);
 
   return g_test_run ();
 

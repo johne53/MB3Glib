@@ -1264,26 +1264,6 @@ start_element_raw_cb (GMarkupParseContext *context,
         	     element_name,
         	     BOOKMARK_GROUP_ELEMENT);
       break;
-    case STATE_ICON:
-      if (IS_ELEMENT_NS (parse_data, element_name, BOOKMARK_NAMESPACE_URI, BOOKMARK_ICON_ELEMENT))
-        {
-          GError *inner_error = NULL;
-          
-          parse_icon_element (context,
-          		      parse_data,
-          		      attribute_names,
-          		      attribute_values,
-          		      &inner_error);
-          if (inner_error)
-            g_propagate_error (error, inner_error);
-        }
-      else
-        g_set_error (error, G_MARKUP_ERROR,
-        	     G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-        	     _("Unexpected tag '%s' inside '%s'"),
-        	     element_name,
-        	     XBEL_METADATA_ELEMENT);
-      break;
     default:
       g_warn_if_reached ();
       break;
@@ -3547,7 +3527,6 @@ g_bookmark_file_move_item (GBookmarkFile  *bookmark,
 			   GError        **error)
 {
   BookmarkItem *item;
-  GError *remove_error;
   
   g_return_val_if_fail (bookmark != NULL, FALSE);
   g_return_val_if_fail (old_uri != NULL, FALSE);
@@ -3566,14 +3545,8 @@ g_bookmark_file_move_item (GBookmarkFile  *bookmark,
     {
       if (g_bookmark_file_has_item (bookmark, new_uri))
         {
-          remove_error = NULL;
-          g_bookmark_file_remove_item (bookmark, new_uri, &remove_error);
-          if (remove_error)
-            {
-              g_propagate_error (error, remove_error);
-              
-              return FALSE;
-            }
+          if (!g_bookmark_file_remove_item (bookmark, new_uri, error))
+            return FALSE;
         }
 
       g_hash_table_steal (bookmark->items_by_uri, item->uri);
@@ -3588,14 +3561,8 @@ g_bookmark_file_move_item (GBookmarkFile  *bookmark,
     }
   else
     {
-      remove_error = NULL;
-      g_bookmark_file_remove_item (bookmark, old_uri, &remove_error);
-      if (remove_error)
-        {
-          g_propagate_error (error, remove_error);
-          
-          return FALSE;
-        }
+      if (!g_bookmark_file_remove_item (bookmark, old_uri, error))
+        return FALSE;
 
       return TRUE;
     }
