@@ -217,7 +217,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate Gdbus configuration files"
-				CommandLine="cd ../gio&#x0D;&#x0A;copy /Y &quot;gnetworking.h.win32&quot; &quot;gnetworking.h&quot;&#x0D;&#x0A;python &quot;gdbus-2.0/codegen/gdbus-codegen.in&quot; --interface-prefix org. --generate-c-code gdbus-daemon-generated --c-namespace _G dbus-daemon.xml&#x0D;&#x0A;copy /Y &quot;gdbus-daemon-generated.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h&quot;&#x0D;&#x0A;"
+				CommandLine="mkdir &quot;$(GenericIncludeFolder)\glib-2.0\gio&quot; 2&gt; NUL&#x0D;&#x0A;cd ../gio&#x0D;&#x0A;copy /Y &quot;gnetworking.h.win32&quot; &quot;gnetworking.h&quot;&#x0D;&#x0A;python &quot;gdbus-2.0/codegen/gdbus-codegen.in&quot; --interface-prefix org. --generate-c-code gdbus-daemon-generated --c-namespace _G dbus-daemon.xml&#x0D;&#x0A;copy /Y &quot;gdbus-daemon-generated.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -296,7 +296,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;..\gio\*.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).dll&quot; &quot;$(Release32TestSuiteFolder)\$(TargetName).dll&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).lib&quot; &quot;$(GenericWin32LibraryFolder)\$(TargetName).lib&quot;&#x0D;&#x0A;copy /Y &quot;..\gio-2.0.pc&quot; &quot;$(GenericLibraryFolder)\pkgconfig&quot;&#x0D;&#x0A;"
+				CommandLine="mkdir &quot;$(GenericLibraryFolder)\pkgconfig&quot; 2&gt; NUL&#x0D;&#x0A;mkdir &quot;$(GenericIncludeFolder)\glib-2.0\gio&quot; 2&gt; NUL&#x0D;&#x0A;copy /Y &quot;..\gio\*.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).dll&quot; &quot;$(Release32TestSuiteFolder)\$(TargetName).dll&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).lib&quot; &quot;$(GenericWin32LibraryFolder)\$(TargetName).lib&quot;&#x0D;&#x0A;copy /Y &quot;..\gio-2.0.pc&quot; &quot;$(GenericLibraryFolder)\pkgconfig&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

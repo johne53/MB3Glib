@@ -293,7 +293,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;..\gmodule\gmodule.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).dll&quot; &quot;$(Release32TestSuiteFolder)\$(TargetName).dll&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).lib&quot; &quot;$(GenericWin32LibraryFolder)\$(TargetName).lib&quot;&#x0D;&#x0A;copy /Y &quot;..\gmodule-2.0.pc&quot; &quot;$(GenericLibraryFolder)\pkgconfig&quot;&#x0D;&#x0A;"
+				CommandLine="mkdir &quot;$(GenericLibraryFolder)\pkgconfig&quot; 2&gt; NUL&#x0D;&#x0A;mkdir &quot;$(GenericIncludeFolder)\glib-2.0&quot; 2&gt; NUL&#x0D;&#x0A;copy /Y &quot;..\gmodule\gmodule.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).dll&quot; &quot;$(Release32TestSuiteFolder)\$(TargetName).dll&quot;&#x0D;&#x0A;copy /Y &quot;$(OutDir)\$(TargetName).lib&quot; &quot;$(GenericWin32LibraryFolder)\$(TargetName).lib&quot;&#x0D;&#x0A;copy /Y &quot;..\gmodule-2.0.pc&quot; &quot;$(GenericLibraryFolder)\pkgconfig&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

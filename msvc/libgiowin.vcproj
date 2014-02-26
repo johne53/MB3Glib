@@ -238,7 +238,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /Y &quot;..\gio-windows-2.0.pc&quot; &quot;$(GenericLibraryFolder)\pkgconfig&quot;"
+				CommandLine="mkdir &quot;$(GenericLibraryFolder)\pkgconfig&quot; 2&gt; NUL&#x0D;&#x0A;copy /Y &quot;..\gio-windows-2.0.pc&quot; &quot;$(GenericLibraryFolder)\pkgconfig&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
