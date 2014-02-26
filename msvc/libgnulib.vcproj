@@ -180,7 +180,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Prepare configuration files"
-				CommandLine="cd ..&#x0D;&#x0A;copy /Y &quot;config.h.win32&quot; &quot;config.h&quot;&#x0D;&#x0A;copy /Y &quot;glib\glibconfig.h.win32&quot; &quot;glibconfig.h&quot;&#x0D;&#x0A;copy /Y &quot;glib\glibconfig.h.win32&quot; &quot;$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h&quot;&#x0D;&#x0A;"
+				CommandLine="mkdir &quot;$(GenericLibraryFolder)\glib-2.0\include&quot; 2&gt; NUL&#x0D;&#x0A;cd ..&#x0D;&#x0A;copy /Y &quot;config.h.win32&quot; &quot;config.h&quot;&#x0D;&#x0A;copy /Y &quot;glib\glibconfig.h.win32&quot; &quot;glibconfig.h&quot;&#x0D;&#x0A;copy /Y &quot;glib\glibconfig.h.win32&quot; &quot;$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
