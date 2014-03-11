@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * gvalue.h: generic GValue functions
  */
@@ -175,10 +173,9 @@ void	g_value_register_transform_func	(GType		 src_type,
 /**
  * G_VALUE_INIT:
  *
- * A #GValue must be initialized before it can be used.
- * This macro can be used as initializer instead of an explicit
- * <literal>{ 0 }</literal> when declaring a variable,
- * but it cannot be assigned to a variable.
+ * A #GValue must be initialized before it can be used. This macro can
+ * be used as initializer instead of an explicit `{ 0 }` when declaring
+ * a variable, but it cannot be assigned to a variable.
  *
  * |[
  *   GValue value = G_VALUE_INIT;

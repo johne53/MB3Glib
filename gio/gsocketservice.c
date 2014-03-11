@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Ryan Lortie <desrt@desrt.ca>
  *          Alexander Larsson <alexl@redhat.com>
@@ -49,9 +47,9 @@
  * If you are interested in writing connection handlers that contain
  * blocking code then see #GThreadedSocketService.
  *
- * The socket service runs on the main loop of the <link
- * linkend="g-main-context-push-thread-default-context">thread-default
- * context</link> of the thread it is created in, and is not
+ * The socket service runs on the main loop of the 
+ * [thread-default context][g-main-context-push-thread-default-context]
+ * of the thread it is created in, and is not
  * threadsafe in general. However, the calls to start and stop the
  * service are thread-safe so these can be used from threads that
  * handle incoming clients.
@@ -204,6 +202,12 @@ g_socket_service_start (GSocketService *service)
  *
  * This call is thread-safe, so it may be called from a thread
  * handling an incoming client request.
+ *
+ * Note that this only stops accepting new connections; it does not
+ * close the listening sockets, and you can call
+ * g_socket_service_start() again later to begin listening again. To
+ * close the listening sockets, call g_socket_listener_close(). (This
+ * will happen automatically when the #GSocketService is finalized.)
  *
  * Since: 2.22
  */

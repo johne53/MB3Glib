@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -45,58 +43,59 @@
  * methods for all object types in GTK+, Pango and other libraries
  * based on GObject.  The GObject class provides methods for object
  * construction and destruction, property access methods, and signal
- * support.  Signals are described in detail in <xref
- * linkend="gobject-Signals"/>.
+ * support.  Signals are described in detail [here][gobject-Signals].
  *
- * <para id="floating-ref">
+ * ## Floating references # {#floating-ref}
+ *
  * GInitiallyUnowned is derived from GObject. The only difference between
  * the two is that the initial reference of a GInitiallyUnowned is flagged
- * as a <firstterm>floating</firstterm> reference.
- * This means that it is not specifically claimed to be "owned" by
- * any code portion. The main motivation for providing floating references is
- * C convenience. In particular, it allows code to be written as:
- * |[
+ * as a "floating" reference. This means that it is not specifically
+ * claimed to be "owned" by any code portion. The main motivation for
+ * providing floating references is C convenience. In particular, it
+ * allows code to be written as:
+ * |[<!-- language="C" --> 
  * container = create_container ();
  * container_add_child (container, create_child());
  * ]|
- * If <function>container_add_child()</function> will g_object_ref_sink() the
- * passed in child, no reference of the newly created child is leaked.
- * Without floating references, <function>container_add_child()</function>
- * can only g_object_ref() the new child, so to implement this code without
- * reference leaks, it would have to be written as:
- * |[
+ * If container_add_child() calls g_object_ref_sink() on the passed-in child,
+ * no reference of the newly created child is leaked. Without floating
+ * references, container_add_child() can only g_object_ref() the new child,
+ * so to implement this code without reference leaks, it would have to be
+ * written as:
+ * |[<!-- language="C" --> 
  * Child *child;
  * container = create_container ();
  * child = create_child ();
  * container_add_child (container, child);
  * g_object_unref (child);
  * ]|
- * The floating reference can be converted into
- * an ordinary reference by calling g_object_ref_sink().
- * For already sunken objects (objects that don't have a floating reference
- * anymore), g_object_ref_sink() is equivalent to g_object_ref() and returns
- * a new reference.
+ * The floating reference can be converted into an ordinary reference by
+ * calling g_object_ref_sink(). For already sunken objects (objects that
+ * don't have a floating reference anymore), g_object_ref_sink() is equivalent
+ * to g_object_ref() and returns a new reference.
+ *
  * Since floating references are useful almost exclusively for C convenience,
  * language bindings that provide automated reference and memory ownership
  * maintenance (such as smart pointers or garbage collection) should not
  * expose floating references in their API.
- * </para>
  *
  * Some object implementations may need to save an objects floating state
  * across certain code portions (an example is #GtkMenu), to achieve this,
  * the following sequence can be used:
  *
- * |[
- * /&ast; save floating state &ast;/
+ * |[<!-- language="C" --> 
+ * // save floating state
  * gboolean was_floating = g_object_is_floating (object);
  * g_object_ref_sink (object);
- * /&ast; protected code portion &ast;/
- * ...;
- * /&ast; restore floating state &ast;/
+ * // protected code portion
+ *
+ * ...
+ *
+ * // restore floating state
  * if (was_floating)
  *   g_object_force_floating (object);
  * else
- *   g_object_unref (object); /&ast; release previously acquired reference &ast;/
+ *   g_object_unref (object); // release previously acquired reference
  * ]|
  */
 
@@ -475,13 +474,13 @@ g_object_do_class_init (GObjectClass *class)
    * This signal is typically used to obtain change notification for a
    * single property, by specifying the property name as a detail in the
    * g_signal_connect() call, like this:
-   * |[
+   * |[<!-- language="C" --> 
    * g_signal_connect (text_view->buffer, "notify::paste-target-list",
    *                   G_CALLBACK (gtk_text_view_target_list_notify),
    *                   text_view)
    * ]|
    * It is important to note that you must use
-   * <link linkend="canonical-parameter-name">canonical</link> parameter names as
+   * [canonical][canonical-parameter-name] parameter names as
    * detail strings for the notify signal.
    */
   gobject_signals[NOTIFY] =
@@ -574,11 +573,11 @@ g_object_class_install_property (GObjectClass *class,
 /**
  * g_object_class_install_properties:
  * @oclass: a #GObjectClass
- * @n_pspecs: the length of the #GParamSpec<!-- -->s array
- * @pspecs: (array length=n_pspecs): the #GParamSpec<!-- -->s array
+ * @n_pspecs: the length of the #GParamSpecs array
+ * @pspecs: (array length=n_pspecs): the #GParamSpecs array
  *   defining the new properties
  *
- * Installs new properties from an array of #GParamSpec<!-- -->s. This is
+ * Installs new properties from an array of #GParamSpecs. This is
  * usually done in the class initializer.
  *
  * The property id of each property is the index of each #GParamSpec in
@@ -588,10 +587,10 @@ g_object_class_install_property (GObjectClass *class,
  * be used to store a #GParamSpec.
  *
  * This function should be used if you plan to use a static array of
- * #GParamSpec<!-- -->s and g_object_notify_by_pspec(). For instance, this
+ * #GParamSpecs and g_object_notify_by_pspec(). For instance, this
  * class initialization:
  *
- * |[
+ * |[<!-- language="C" --> 
  * enum {
  *   PROP_0, PROP_FOO, PROP_BAR, N_PROPERTIES
  * };
@@ -624,7 +623,7 @@ g_object_class_install_property (GObjectClass *class,
  *
  * allows calling g_object_notify_by_pspec() to notify of property changes:
  *
- * |[
+ * |[<!-- language="C" --> 
  * void
  * my_object_set_foo (MyObject *self, gint foo)
  * {
@@ -811,13 +810,12 @@ g_object_interface_find_property (gpointer      g_iface,
  * @name: the name of a property registered in a parent class or
  *  in an interface of this class.
  *
- * Registers @property_id as referring to a property with the
- * name @name in a parent class or in an interface implemented
- * by @oclass. This allows this class to <firstterm>override</firstterm>
- * a property implementation in a parent class or to provide
- * the implementation of a property from an interface.
+ * Registers @property_id as referring to a property with the name
+ * @name in a parent class or in an interface implemented by @oclass.
+ * This allows this class to "override" a property implementation in
+ * a parent class or to provide the implementation of a property from
+ * an interface.
  *
- * <note>
  * Internally, overriding is implemented by creating a property of type
  * #GParamSpecOverride; generally operations that query the properties of
  * the object class, such as g_object_class_find_property() or
@@ -828,7 +826,6 @@ g_object_interface_find_property (gpointer      g_iface,
  * correct.  For virtually all uses, this makes no difference. If you
  * need to get the overridden property, you can call
  * g_param_spec_get_redirect_target().
- * </note>
  *
  * Since: 2.4
  */
@@ -1026,8 +1023,8 @@ g_object_finalize (GObject *object)
 {
   if (object_in_construction (object))
     {
-      g_error ("object %s %p finalized while still in-construction",
-               G_OBJECT_TYPE_NAME (object), object);
+      g_critical ("object %s %p finalized while still in-construction",
+                  G_OBJECT_TYPE_NAME (object), object);
     }
 
   g_datalist_clear (&object->qdata);
@@ -1213,7 +1210,7 @@ g_object_notify (GObject     *object,
  * instead, is to store the GParamSpec used with
  * g_object_class_install_property() inside a static array, e.g.:
  *
- *|[
+ *|[<!-- language="C" --> 
  *   enum
  *   {
  *     PROP_0,
@@ -1238,7 +1235,7 @@ g_object_notify (GObject     *object,
  *
  * and then notify a change on the "foo" property with:
  *
- * |[
+ * |[<!-- language="C" --> 
  *   g_object_notify_by_pspec (self, properties[PROP_FOO]);
  * ]|
  *
@@ -2231,12 +2228,9 @@ g_object_set (gpointer     _object,
  * is responsible for freeing the memory in the appropriate manner for
  * the type, for instance by calling g_free() or g_object_unref().
  *
- * <example>
- * <title>Using g_object_get(<!-- -->)</title>
- * An example of using g_object_get() to get the contents
- * of three properties - one of type #G_TYPE_INT,
- * one of type #G_TYPE_STRING, and one of type #G_TYPE_OBJECT:
- * <programlisting>
+ * Here is an example of using g_object_get() to get the contents
+ * of three properties: an integer, a string and an object:
+ * |[<!-- language="C" --> 
  *  gint intval;
  *  gchar *strval;
  *  GObject *objval;
@@ -2251,8 +2245,7 @@ g_object_set (gpointer     _object,
  *
  *  g_free (strval);
  *  g_object_unref (objval);
- * </programlisting>
- * </example>
+ *  ]|
  */
 void
 g_object_get (gpointer     _object,
@@ -2407,72 +2400,23 @@ g_object_get_property (GObject	   *object,
  *
  * The signal specs expected by this function have the form
  * "modifier::signal_name", where modifier can be one of the following:
- * <variablelist>
- * <varlistentry>
- * <term>signal</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_data (..., NULL, 0)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>object_signal</term>
- * <term>object-signal</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_object (..., 0)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>swapped_signal</term>
- * <term>swapped-signal</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_data (..., NULL, G_CONNECT_SWAPPED)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>swapped_object_signal</term>
- * <term>swapped-object-signal</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_object (..., G_CONNECT_SWAPPED)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>signal_after</term>
- * <term>signal-after</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_data (..., NULL, G_CONNECT_AFTER)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>object_signal_after</term>
- * <term>object-signal-after</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_object (..., G_CONNECT_AFTER)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>swapped_signal_after</term>
- * <term>swapped-signal-after</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_data (..., NULL, G_CONNECT_SWAPPED | G_CONNECT_AFTER)</literal>
- * </para></listitem>
- * </varlistentry>
- * <varlistentry>
- * <term>swapped_object_signal_after</term>
- * <term>swapped-object-signal-after</term>
- * <listitem><para>
- * equivalent to <literal>g_signal_connect_object (..., G_CONNECT_SWAPPED | G_CONNECT_AFTER)</literal>
- * </para></listitem>
- * </varlistentry>
- * </variablelist>
+ * * - signal: equivalent to g_signal_connect_data (..., NULL, 0)
+ * - object-signal, object_signal: equivalent to g_signal_connect_object (..., 0)
+ * - swapped-signal, swapped_signal: equivalent to g_signal_connect_data (..., NULL, G_CONNECT_SWAPPED)
+ * - swapped_object_signal, swapped-object-signal: equivalent to g_signal_connect_object (..., G_CONNECT_SWAPPED)
+ * - signal_after, signal-after: equivalent to g_signal_connect_data (..., NULL, G_CONNECT_AFTER)
+ * - object_signal_after, object-signal-after: equivalent to g_signal_connect_object (..., G_CONNECT_AFTER)
+ * - swapped_signal_after, swapped-signal-after: equivalent to g_signal_connect_data (..., NULL, G_CONNECT_SWAPPED | G_CONNECT_AFTER)
+ * - swapped_object_signal_after, swapped-object-signal-after: equivalent to g_signal_connect_object (..., G_CONNECT_SWAPPED | G_CONNECT_AFTER)
  *
- * |[
+ * |[<!-- language="C" --> 
  *   menu->toplevel = g_object_connect (g_object_new (GTK_TYPE_WINDOW,
  * 						   "type", GTK_WINDOW_POPUP,
  * 						   "child", menu,
  * 						   NULL),
  * 				     "signal::event", gtk_menu_window_event, menu,
  * 				     "signal::size_request", gtk_menu_window_size_request, menu,
- * 				     "signal::destroy", gtk_widget_destroyed, &amp;menu-&gt;toplevel,
+ * 				     "signal::destroy", gtk_widget_destroyed, &menu->toplevel,
  * 				     NULL);
  * ]|
  *
@@ -2796,8 +2740,7 @@ object_floating_flag_handler (GObject        *object,
  * g_object_is_floating:
  * @object: (type GObject.Object): a #GObject
  *
- * Checks whether @object has a <link linkend="floating-ref">floating</link>
- * reference.
+ * Checks whether @object has a [floating][floating-ref] reference.
  *
  * Since: 2.10
  *
@@ -2816,8 +2759,7 @@ g_object_is_floating (gpointer _object)
  * @object: (type GObject.Object): a #GObject
  *
  * Increase the reference count of @object, and possibly remove the
- * <link linkend="floating-ref">floating</link> reference, if @object
- * has a floating reference.
+ * [floating][floating-ref] reference, if @object has a floating reference.
  *
  * In other words, if the object is floating, then this call "assumes
  * ownership" of the floating reference, converting it to a normal
@@ -2847,11 +2789,10 @@ g_object_ref_sink (gpointer _object)
  * g_object_force_floating:
  * @object: a #GObject
  *
- * This function is intended for #GObject implementations to re-enforce a
- * <link linkend="floating-ref">floating</link> object reference.
- * Doing this is seldom required: all
- * #GInitiallyUnowned<!-- -->s are created with a floating reference which
- * usually just needs to be sunken by calling g_object_ref_sink().
+ * This function is intended for #GObject implementations to re-enforce
+ * a [floating][floating-ref] object reference. Doing this is seldom
+ * required: all #GInitiallyUnowneds are created with a floating reference
+ * which usually just needs to be sunken by calling g_object_ref_sink().
  *
  * Since: 2.10
  */
@@ -2915,8 +2856,8 @@ toggle_refs_notify (GObject *object,
  * to the proxy object, but when there are other references held to
  * @object, a strong reference is held. The @notify callback is called
  * when the reference from @object to the proxy object should be
- * <firstterm>toggled</firstterm> from strong to weak (@is_last_ref
- * true) or weak to strong (@is_last_ref false).
+ * "toggled" from strong to weak (@is_last_ref true) or weak to strong
+ * (@is_last_ref false).
  *
  * Since a (normal) reference must be held to the object before
  * calling g_object_add_toggle_ref(), the initial state of the reverse
@@ -3381,7 +3322,7 @@ g_object_set_qdata_full (GObject       *object,
  * set).
  * Usually, calling this function is only required to update
  * user data pointers with a destroy notifier, for example:
- * |[
+ * |[<!-- language="C" --> 
  * void
  * object_add_to_user_list (GObject     *object,
  *                          const gchar *new_string)
@@ -3988,7 +3929,7 @@ g_object_watch_closure (GObject  *object,
 /**
  * g_closure_new_object:
  * @sizeof_closure: the size of the structure to allocate, must be at least
- *  <literal>sizeof (GClosure)</literal>
+ *  `sizeof (GClosure)`
  * @object: a #GObject pointer to store in the @data field of the newly
  *  allocated #GClosure
  *
@@ -4124,9 +4065,9 @@ g_initially_unowned_class_init (GInitiallyUnownedClass *klass)
  * objects.
  *
  * If the object's #GObjectClass.dispose method results in additional
- * references to the object being held, any #GWeakRef<!-- -->s taken
+ * references to the object being held, any #GWeakRefs taken
  * before it was disposed will continue to point to %NULL.  If
- * #GWeakRef<!-- -->s are taken after the object is disposed and
+ * #GWeakRefs are taken after the object is disposed and
  * re-referenced, they will continue to point to it until its refcount
  * goes back to zero, at which point they too will be invalidated.
  */

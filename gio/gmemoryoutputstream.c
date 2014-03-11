@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors:
  *   Christian Kellner <gicmo@gnome.org>
@@ -369,19 +367,19 @@ g_memory_output_stream_init (GMemoryOutputStream *stream)
  * @size as 0 (allowing #GMemoryOutputStream to do the initial
  * allocation for itself).
  *
- * |[
- * /&ast; a stream that can grow &ast;/
+ * |[<!-- language="C" -->
+ * // a stream that can grow
  * stream = g_memory_output_stream_new (NULL, 0, realloc, free);
  *
- * /&ast; another stream that can grow &ast;/
+ * // another stream that can grow
  * stream2 = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
  *
- * /&ast; a fixed-size stream &ast;/
+ * // a fixed-size stream
  * data = malloc (200);
  * stream3 = g_memory_output_stream_new (data, 200, NULL, free);
  * ]|
  *
- * Return value: A newly created #GMemoryOutputStream object.
+ * Returns: A newly created #GMemoryOutputStream object.
  **/
 GOutputStream *
 g_memory_output_stream_new (gpointer       data,

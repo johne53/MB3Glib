@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef __G_SIGNAL_H__
 #define __G_SIGNAL_H__
@@ -194,9 +192,8 @@ typedef enum
  * assume that instances thereof remain persistent across all signal emissions
  * they are used in. This is only useful for non ref-counted, value-copy types.
  * 
- * To flag a signal argument in this way, add 
- * <literal>| G_SIGNAL_TYPE_STATIC_SCOPE</literal> to the corresponding argument
- * of g_signal_new().
+ * To flag a signal argument in this way, add `| G_SIGNAL_TYPE_STATIC_SCOPE`
+ * to the corresponding argument of g_signal_new().
  * |[
  * g_signal_new ("size_request",
  *   G_TYPE_FROM_CLASS (gobject_class),

@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -81,9 +79,9 @@ static const char *_resolve_dev_root (void);
  *
  * Routines for managing mounted UNIX mount points and paths.
  *
- * Note that <filename>&lt;gio/gunixmounts.h&gt;</filename> belongs to the
- * UNIX-specific GIO interfaces, thus you have to use the
- * <filename>gio-unix-2.0.pc</filename> pkg-config file when using it.
+ * Note that `<gio/gunixmounts.h>` belongs to the UNIX-specific GIO
+ * interfaces, thus you have to use the `gio-unix-2.0.pc` pkg-config
+ * file when using it.
  */
 
 /*
@@ -219,8 +217,7 @@ is_in (const char *value, const char *set[])
 
 /**
  * g_unix_is_mount_path_system_internal:
- * @mount_path: a mount path, e.g. <filename>/media/disk</filename> 
- *    or <filename>/usr</filename>
+ * @mount_path: a mount path, e.g. `/media/disk` or `/usr`
  *
  * Determines if @mount_path is considered an implementation of the
  * OS. This is primarily used for hiding mountable and mounted volumes
@@ -240,22 +237,31 @@ g_unix_is_mount_path_system_internal (const char *mount_path)
     "/",              /* we already have "Filesystem root" in Nautilus */ 
     "/bin",
     "/boot",
+    "/compat/linux/proc",
+    "/compat/linux/sys",
     "/dev",
     "/etc",
     "/home",
     "/lib",
     "/lib64",
+    "/libexec",
     "/live/cow",
     "/live/image",
     "/media",
     "/mnt",
     "/opt",
+    "/rescue",
     "/root",
     "/sbin",
     "/srv",
     "/tmp",
     "/usr",
+    "/usr/X11R6",
     "/usr/local",
+    "/usr/obj",
+    "/usr/ports",
+    "/usr/src",
+    "/usr/xobj",
     "/var",
     "/var/crash",
     "/var/local",
@@ -296,8 +302,11 @@ guess_system_internal (const char *mountpoint,
     "devfs",
     "devpts",
     "ecryptfs",
+    "fdescfs",
     "kernfs",
     "linprocfs",
+    "mfs",
+    "nullfs",
     "proc",
     "procfs",
     "ptyfs",

@@ -14,8 +14,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with GLib; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *   Boston, MA 02111-1307, USA.
+ * see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -73,8 +72,8 @@
  *
  * The pathname argument should be in the GLib file name encoding.
  * On POSIX this is the actual on-disk encoding which might correspond
- * to the locale settings of the process (or the
- * <envar>G_FILENAME_ENCODING</envar> environment variable), or not.
+ * to the locale settings of the process (or the `G_FILENAME_ENCODING`
+ * environment variable), or not.
  *
  * On Windows the GLib file name encoding is UTF-8. Note that the
  * Microsoft C library does not use UTF-8, but has separate APIs for
@@ -271,11 +270,11 @@ g_mkdir_with_parents (const gchar *pathname,
  * @test: bitfield of #GFileTest flags
  * 
  * Returns %TRUE if any of the tests in the bitfield @test are
- * %TRUE. For example, <literal>(G_FILE_TEST_EXISTS | 
- * G_FILE_TEST_IS_DIR)</literal> will return %TRUE if the file exists; 
- * the check whether it's a directory doesn't matter since the existence 
- * test is %TRUE. With the current set of available tests, there's no point
- * passing in more than one test at a time.
+ * %TRUE. For example, `(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)`
+ * will return %TRUE if the file exists; the check whether it's a
+ * directory doesn't matter since the existence test is %TRUE. With
+ * the current set of available tests, there's no point passing in
+ * more than one test at a time.
  * 
  * Apart from %G_FILE_TEST_IS_SYMLINK all tests follow symbolic links,
  * so for a symbolic link to a regular file g_file_test() will return
@@ -290,12 +289,12 @@ g_mkdir_with_parents (const gchar *pathname,
  * For example, you might think you could use %G_FILE_TEST_IS_SYMLINK
  * to know whether it is safe to write to a file without being
  * tricked into writing into a different location. It doesn't work!
- * |[
- * /&ast; DON'T DO THIS &ast;/
+ * |[<!-- language="C" -->
+ *  // DON'T DO THIS
  *  if (!g_file_test (filename, G_FILE_TEST_IS_SYMLINK)) 
  *    {
  *      fd = g_open (filename, O_WRONLY);
- *      /&ast; write to fd &ast;/
+ *      // write to fd
  *    }
  * ]|
  *
@@ -310,9 +309,9 @@ g_mkdir_with_parents (const gchar *pathname,
  * %G_FILE_TEST_IS_SYMLINK will always return %FALSE. Testing for
  * %G_FILE_TEST_IS_EXECUTABLE will just check that the file exists and
  * its name indicates that it is executable, checking for well-known
- * extensions and those listed in the <envar>PATHEXT</envar> environment variable.
+ * extensions and those listed in the `PATHEXT` environment variable.
  *
- * Return value: whether a test was %TRUE
+ * Returns: whether a test was %TRUE
  **/
 gboolean
 g_file_test (const gchar *filename,
@@ -466,15 +465,15 @@ G_DEFINE_QUARK (g-file-error-quark, g_file_error)
  * @err_no: an "errno" value
  * 
  * Gets a #GFileError constant based on the passed-in @err_no.
- * For example, if you pass in <literal>EEXIST</literal> this function returns
- * #G_FILE_ERROR_EXIST. Unlike <literal>errno</literal> values, you can portably
+ * For example, if you pass in `EEXIST` this function returns
+ * #G_FILE_ERROR_EXIST. Unlike `errno` values, you can portably
  * assume that all #GFileError values will exist.
  *
  * Normally a #GFileError value goes into a #GError returned
  * from a function that manipulates files. So you would use
  * g_file_error_from_errno() when constructing a #GError.
  * 
- * Return value: #GFileError corresponding to the given @errno
+ * Returns: #GFileError corresponding to the given @errno
  **/
 GFileError
 g_file_error_from_errno (gint err_no)
@@ -958,7 +957,7 @@ get_contents_win32 (const gchar  *filename,
  * codes are those in the #GFileError enumeration. In the error case,
  * @contents is set to %NULL and @length is set to zero.
  *
- * Return value: %TRUE on success, %FALSE if an error occurred
+ * Returns: %TRUE on success, %FALSE if an error occurred
  **/
 gboolean
 g_file_get_contents (const gchar  *filename,
@@ -1134,24 +1133,19 @@ write_to_temp_file (const gchar  *contents,
  *
  * This write is atomic in the sense that it is first written to a temporary
  * file which is then renamed to the final name. Notes:
- * <itemizedlist>
- * <listitem>
- *    On Unix, if @filename already exists hard links to @filename will break.
- *    Also since the file is recreated, existing permissions, access control
- *    lists, metadata etc. may be lost. If @filename is a symbolic link,
- *    the link itself will be replaced, not the linked file.
- * </listitem>
- * <listitem>
- *   On Windows renaming a file will not remove an existing file with the
+ *
+ * - On UNIX, if @filename already exists hard links to @filename will break.
+ *   Also since the file is recreated, existing permissions, access control
+ *   lists, metadata etc. may be lost. If @filename is a symbolic link,
+ *   the link itself will be replaced, not the linked file.
+ *
+ * - On Windows renaming a file will not remove an existing file with the
  *   new name, so on Windows there is a race condition between the existing
  *   file being removed and the temporary file being renamed.
- * </listitem>
- * <listitem>
- *   On Windows there is no way to remove a file that is open to some
+ *
+ * - On Windows there is no way to remove a file that is open to some
  *   process, or mapped into memory. Thus, this function will fail if
  *   @filename already exists and is open.
- * </listitem>
- * </itemizedlist>
  *
  * If the call was successful, it returns %TRUE. If the call was not successful,
  * it returns %FALSE and sets @error. The error domain is #G_FILE_ERROR.
@@ -1160,10 +1154,10 @@ write_to_temp_file (const gchar  *contents,
  * Note that the name for the temporary file is constructed by appending up
  * to 7 characters to @filename.
  *
- * Return value: %TRUE on success, %FALSE if an error occurred
+ * Returns: %TRUE on success, %FALSE if an error occurred
  *
  * Since: 2.8
- **/
+ */
 gboolean
 g_file_set_contents (const gchar  *filename,
 		     const gchar  *contents,
@@ -1351,7 +1345,7 @@ wrap_g_open (const gchar *filename,
  * in the GLib file name encoding. Most importantly, on Windows it
  * should be in UTF-8.
  *
- * Return value: A pointer to @tmpl, which has been modified
+ * Returns: A pointer to @tmpl, which has been modified
  *     to hold the directory name. In case of errors, %NULL is
  *     returned, and %errno will be set.
  *
@@ -1383,7 +1377,7 @@ g_mkdtemp_full (gchar *tmpl,
  * The string should be in the GLib file name encoding. Most importantly,
  * on Windows it should be in UTF-8.
  *
- * Return value: A pointer to @tmpl, which has been modified
+ * Returns: A pointer to @tmpl, which has been modified
  *     to hold the directory name.  In case of errors, %NULL is
  *     returned and %errno will be set.
  *
@@ -1414,7 +1408,7 @@ g_mkdtemp (gchar *tmpl)
  * The string should be in the GLib file name encoding. Most importantly,
  * on Windows it should be in UTF-8.
  *
- * Return value: A file handle (as from open()) to the file
+ * Returns: A file handle (as from open()) to the file
  *     opened for reading and writing. The file handle should be
  *     closed with close(). In case of errors, -1 is returned
  *     and %errno will be set.
@@ -1446,7 +1440,7 @@ g_mkstemp_full (gchar *tmpl,
  * didn't exist. The string should be in the GLib file name encoding.
  * Most importantly, on Windows it should be in UTF-8.
  *
- * Return value: A file handle (as from open()) to the file
+ * Returns: A file handle (as from open()) to the file
  *     opened for reading and writing. The file is opened in binary
  *     mode on platforms where there is a difference. The file handle
  *     should be closed with close(). In case of errors, -1 is
@@ -1557,7 +1551,7 @@ g_get_tmp_name (const gchar      *tmpl,
  * when not needed any longer. The returned name is in the GLib file
  * name encoding.
  *
- * Return value: A file handle (as from open()) to the file opened for
+ * Returns: A file handle (as from open()) to the file opened for
  *     reading and writing. The file is opened in binary mode on platforms
  *     where there is a difference. The file handle should be closed with
  *     close(). In case of errors, -1 is returned and @error will be set.
@@ -1604,7 +1598,7 @@ g_file_open_tmp (const gchar  *tmpl,
  * Note that in contrast to g_mkdtemp() (and mkdtemp()) @tmpl is not
  * modified, and might thus be a read-only literal string.
  *
- * Return value: (type filename): The actual name used. This string
+ * Returns: (type filename): The actual name used. This string
  *     should be freed with g_free() when not needed any longer and is
  *     is in the GLib file name encoding. In case of errors, %NULL is
  *     returned and @error will be set.
@@ -1735,7 +1729,7 @@ g_build_path_va (const gchar  *separator,
  * as a string array, instead of varargs. This function is mainly
  * meant for language bindings.
  *
- * Return value: a newly-allocated string that must be freed with g_free().
+ * Returns: a newly-allocated string that must be freed with g_free().
  *
  * Since: 2.8
  */
@@ -1772,8 +1766,7 @@ g_build_pathv (const gchar  *separator,
  * the same as the number of trailing copies of the separator on
  * the last non-empty element. (Determination of the number of
  * trailing copies is done without stripping leading copies, so
- * if the separator is <literal>ABA</literal>, <literal>ABABA</literal>
- * has 1 trailing copy.)
+ * if the separator is `ABA`, then `ABABA` has 1 trailing copy.)
  *
  * However, if there is only a single non-empty element, and there
  * are no characters in that element not part of the leading or
@@ -1784,7 +1777,7 @@ g_build_pathv (const gchar  *separator,
  * copies of the separator, elements consisting only of copies
  * of the separator are ignored.
  * 
- * Return value: a newly-allocated string that must be freed with g_free().
+ * Returns: a newly-allocated string that must be freed with g_free().
  **/
 gchar *
 g_build_path (const gchar *separator,
@@ -1927,7 +1920,7 @@ g_build_pathname_va (const gchar  *first_element,
  * as a string array, instead of varargs. This function is mainly
  * meant for language bindings.
  *
- * Return value: a newly-allocated string that must be freed with g_free().
+ * Returns: a newly-allocated string that must be freed with g_free().
  * 
  * Since: 2.8
  */
@@ -1953,21 +1946,20 @@ g_build_filenamev (gchar **args)
  * Creates a filename from a series of elements using the correct
  * separator for filenames.
  *
- * On Unix, this function behaves identically to <literal>g_build_path
- * (G_DIR_SEPARATOR_S, first_element, ....)</literal>.
+ * On Unix, this function behaves identically to `g_build_path
+ * (G_DIR_SEPARATOR_S, first_element, ....)`.
  *
  * On Windows, it takes into account that either the backslash
- * (<literal>\</literal> or slash (<literal>/</literal>) can be used
- * as separator in filenames, but otherwise behaves as on Unix. When
- * file pathname separators need to be inserted, the one that last
- * previously occurred in the parameters (reading from left to right)
- * is used.
+ * (`\` or slash (`/`) can be used as separator in filenames, but
+ * otherwise behaves as on UNIX. When file pathname separators need
+ * to be inserted, the one that last previously occurred in the
+ * parameters (reading from left to right) is used.
  *
  * No attempt is made to force the resulting filename to be an absolute
  * path. If the first element is a relative path, the result will
  * be a relative path. 
  * 
- * Return value: a newly-allocated string that must be freed with g_free().
+ * Returns: a newly-allocated string that must be freed with g_free().
  **/
 gchar *
 g_build_filename (const gchar *first_element, 
@@ -2171,7 +2163,7 @@ g_path_skip_root (const gchar *file_name)
  * components. It returns a pointer into the given file name
  * string.
  *
- * Return value: the name of the file without any leading
+ * Returns: the name of the file without any leading
  *     directory components
  *
  * Deprecated:2.2: Use g_path_get_basename() instead, but notice
@@ -2219,7 +2211,7 @@ g_basename (const gchar *file_name)
  * separators (and on Windows, possibly a drive letter), a single
  * separator is returned. If @file_name is empty, it gets ".".
  *
- * Return value: a newly allocated string containing the last
+ * Returns: a newly allocated string containing the last
  *    component of the filename
  */
 gchar *

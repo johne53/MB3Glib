@@ -13,8 +13,7 @@
 
    You should have received a copy of the GNU Library General Public
    License along with the Gnome Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.
+   see <http://www.gnu.org/licenses/>.
 
    Authors:.
 		John McCutchan <john@johnmccutchan.com>
@@ -197,11 +196,8 @@ gboolean _ik_startup (void (*cb)(ik_event_t *event))
 
   initialized = TRUE;
 
-#ifdef HAVE_INOTIFY_INIT1
   inotify_instance_fd = inotify_init1 (IN_CLOEXEC);
-#else
-  inotify_instance_fd = -1;
-#endif
+
   if (inotify_instance_fd < 0)
     inotify_instance_fd = inotify_init ();
 

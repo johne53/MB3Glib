@@ -16,8 +16,7 @@
 
    You should have received a copy of the GNU Library General Public
    License along with the Gnome Library; see the file COPYING.LIB.  If not,
-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.
+   see <http://www.gnu.org/licenses/>.
 
    Authors: 
 		 John McCutchan <john@johnmccutchan.com>
@@ -65,7 +64,7 @@ static GFileMonitorEvent ih_mask_to_EventFlags (guint32 mask);
  * Initializes the inotify backend.  This must be called before
  * any other functions in this module.
  *
- * Return value: #TRUE if initialization succeeded, #FALSE otherwise
+ * Returns: #TRUE if initialization succeeded, #FALSE otherwise
  */
 gboolean
 _ih_startup (void)

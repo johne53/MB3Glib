@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Christian Kellner <gicmo@gnome.org>
  */
@@ -456,8 +454,7 @@ async_fill_callback_wrapper (GObject      *source_object,
  * g_buffered_input_stream_fill_async:
  * @stream: a #GBufferedInputStream
  * @count: the number of bytes that will be read from the stream
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object
  * @callback: (scope async): a #GAsyncReadyCallback
  * @user_data: (closure): a #gpointer

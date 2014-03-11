@@ -1,3 +1,103 @@
+Overview of changes from GLib 2.39.90 to GLib 2.39.91
+=====================================================
+
+This release introduces a hard dependency on present and functioning
+clock_gettime() and CLOCK_MONOTONIC.  It also introduces a dependency on
+pthread_condattr_setclock() unless your system happens to have
+pthread_cond_timedwait_relative_np() (as do Mac OS and Android).  This
+release is known to be broken with at least GNU/Hurd, pending addition
+of working pthread_condattr_setclock(CLOCK_MONOTONIC) there.
+
+New API: g_str_to_ascii()
+
+* Fixed bugs:
+ 670144 unconditional use of CLOCK_MONOTONIC is broken
+ 673607 invalid assumption in g_cond_wait_until() / g_get_monotonic_time() API
+ 710142 Add more impressive transliteration to GLib
+ 722360 make check fails
+ 722604 (partial) Various tests are failing with 2.39.3
+ 723316 g_hash_table_iter_remove() should be explicit whether or not it is safe while iterating the table
+ 724609 Fix build of GIO on Windows
+ 724687 gmain: make monotonic time really monotonic, everywhere
+ 724706 gsource: document priority of child sources
+ 724707 some GSocket source improvements
+ 724839 GMainContext: some source ID cleanups
+ 724858 Dist gtranslit-data.h
+ 724994 Missing icons for bookmarks in file chooser
+ 725023 Can no longer find apps by executable/desktop file name
+
+* Translations:
+ Lithuanian
+ Polish
+ Thai
+
+Overview of changes from GLib 2.39.4 to GLib 2.39.90
+====================================================
+
+* Fixed bugs:
+ 625408 make GVariant dictionaries more useful
+ 660809 document that if you fail a precondition check, documented guarantees do not apply
+ 661576 fix handling of constructors that destroy half-constructed objects
+ 679957 g_inet_address_new_from_string is not able to handle dots and numbers IPv4 addresses
+ 712837 gvariant: Document the need to cast varargs when constructing GVariants
+ 721458 g_simple_async_result_is_valid has a NULL check for the wrong source_tag
+ 721977 improve split handling of command line arguments
+ 722033 win32: fixup lib.exe invocation
+ 723422 Fix g_socket_get_available() with TCP on Windows
+ 723616 gio/tests: fix race when generating code
+ 724001 gsubprocess: Fix a broken link in the documentation
+ 724124 glib/tests/collate.c fails if no en_US locale
+ 724126 intermittent GApplication test failure: /gapplication/local-actions: lines of output permuted
+ 724233 gsocketservice: Note g_socket_listener_close() for closing open sockets
+ 724239 soup_session_queue_message - Connection terminated unexpectedly
+ 724278 gsocketconnection: Document closing connections with g_io_stream_close()
+ 724330 configure.ac: tweak inotify check
+ 724385 gtestutils: make the new assert messages more detailed
+ 724401 gsubprocess: Mutex leak
+ 724417 glib master build broken on OpenBSD
+ 724434 Build failure in gio/gresolver.c
+
+* Updated translations:
+ Brazilian Portuguese
+ Galician
+ Indonesian
+ Italian
+ Kannada
+ Norwegian bokmål
+ Spanish
+ Thai
+
+Overview of changes from GLib 2.39.3 to GLib 2.39.4
+===================================================
+
+* Fixed Bugs:
+ 139699 Correction for g_main_context_unref()
+ 583036 g_strchomp and g_strchug are not declared const
+ 683388 improve documentation for application developers
+ 685204 ./configure fails to add the '-g' flag to CFLAGS
+ 688406 GStaticMutex broke ABI on at least ARM EABI during 2.31.x
+ 693299 cannot compile on Solaris: error in gbitlock.c
+ 707111 Clarify type transformability and compatibility
+ 711547 win32: silence some build warnings
+ 719344 Fix the various test programs (or GLib itself) on Windows
+ 722025 cleanup/clarify command line argument encoding on Windows
+ 722323 remove unused include 'gslist.h' in 'gbookmarkfile.c'
+ 722326 gstringchunk: Use g_slist_free_full() where possible
+ 722357 gio: fix small memory leak on local xattr
+ 722436 Adjust doc to Makefile.decl renaming
+ 722503 GSimpleAction: add default activate handler
+ 722526 glib/deprecated/gthread.h error on FreeBSD
+ 722591 [documentation] broken link to GtkAction from GAction.html
+ 722973 Broken example in GApplication reference
+ 723048 'network-access' test can fail to guess interface index
+ 723360 gmain: Note that g_source_destroy() can be called multiple times 
+
+* Updated Translations:
+ Assamese
+ Tamil
+ Traditional Chinese
+
+
 Overview of changes from GLib 2.39.2 to GLib 2.39.3
 ===================================================
 

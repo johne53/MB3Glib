@@ -551,6 +551,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\glib\gtranslit.c"
+				>
+			</File>
+			<File
 				RelativePath="..\glib\gtrashstack.c"
 				>
 			</File>
@@ -741,6 +745,10 @@
 			</File>
 			<File
 				RelativePath="..\glib\gtimezone.h"
+				>
+			</File>
+			<File
+				RelativePath="..\glib\gtranslit-data.h"
 				>
 			</File>
 			<File

@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Ryan Lortie <desrt@desrt.ca>
  */
@@ -702,9 +700,9 @@ g_application_impl_cmdline_done (GObject      *source,
 }
 
 int
-g_application_impl_command_line (GApplicationImpl  *impl,
-                                 gchar            **arguments,
-                                 GVariant          *platform_data)
+g_application_impl_command_line (GApplicationImpl    *impl,
+                                 const gchar * const *arguments,
+                                 GVariant            *platform_data)
 {
   const static GDBusInterfaceVTable vtable = {
     g_application_impl_cmdline_method_call

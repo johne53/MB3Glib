@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -256,11 +254,9 @@
  * @identifier_2_string: specifies if identifiers are reported as strings
  *     (the default is %FALSE).
  * @char_2_token: specifies if characters are reported by setting
- *     <literal>token = ch</literal> or as %G_TOKEN_CHAR (the default
- *     is %TRUE).
+ *     `token = ch` or as %G_TOKEN_CHAR (the default is %TRUE).
  * @symbol_2_token: specifies if symbols are reported by setting
- *     <literal>token = v_symbol</literal> or as %G_TOKEN_SYMBOL (the
- *     default is %FALSE).
+ *     `token = v_symbol` or as %G_TOKEN_SYMBOL (the default is %FALSE).
  * @scope_0_fallback: specifies if a symbol is searched for in the
  *     default scope in addition to the current scope (the default is %FALSE).
  * @store_int64: use value.v_int64 rather than v_int

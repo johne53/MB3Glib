@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -306,10 +304,18 @@ GPrintFunc      g_set_printerr_handler  (GPrintFunc      func);
  * g_return_if_fail:
  * @expr: the expression to check
  *
- * Verifies that the expression evaluates to %TRUE.  If the expression
- * evaluates to %FALSE, a critical message is logged and the current
- * function returns.  This can only be used in functions which do not
- * return a value.
+ * Verifies that the expression @expr, usually representing a precondition,
+ * evaluates to %TRUE. If the function returns a value, use
+ * g_return_val_if_fail() instead.
+ *
+ * If @expr evaluates to %FALSE, the current function should be considered to
+ * have undefined behaviour (a programmer error). The only correct solution
+ * to such an error is to change the module that is calling the current
+ * function, so that it avoids this incorrect call.
+ *
+ * To make this undefined behaviour visible, if @expr evaluates to %FALSE,
+ * the result is usually that a critical message is logged and the current
+ * function returns.
  *
  * If G_DISABLE_CHECKS is defined then the check is not performed.  You
  * should therefore not depend on any side effects of @expr.
@@ -322,8 +328,17 @@ GPrintFunc      g_set_printerr_handler  (GPrintFunc      func);
  * @val: the value to return from the current function
  *       if the expression is not true
  *
- * Verifies that the expression evaluates to %TRUE.  If the expression
- * evaluates to %FALSE, a critical message is logged and @val is
+ * Verifies that the expression @expr, usually representing a precondition,
+ * evaluates to %TRUE. If the function does not return a value, use
+ * g_return_if_fail() instead.
+ *
+ * If @expr evaluates to %FALSE, the current function should be considered to
+ * have undefined behaviour (a programmer error). The only correct solution
+ * to such an error is to change the module that is calling the current
+ * function, so that it avoids this incorrect call.
+ *
+ * To make this undefined behaviour visible, if @expr evaluates to %FALSE,
+ * the result is usually that a critical message is logged and @val is
  * returned from the current function.
  *
  * If G_DISABLE_CHECKS is defined then the check is not performed.  You

@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Ryan Lortie <desrt@desrt.ca>
  */
@@ -88,40 +86,39 @@
  * Similar to GConf, the default values in GSettings schemas can be
  * localized, but the localized values are stored in gettext catalogs
  * and looked up with the domain that is specified in the
- * <tag class="attribute">gettext-domain</tag> attribute of the
- * <tag class="starttag">schemalist</tag> or <tag class="starttag">schema</tag>
- * elements and the category that is specified in the l10n attribute of the
- * <tag class="starttag">key</tag> element.
+ * gettext-domain attribute of the <schemalist> or <schema>
+ * elements and the category that is specified in the l10n attribute of
+ * the <key> element.
  *
  * GSettings uses schemas in a compact binary form that is created
- * by the <link linkend="glib-compile-schemas">glib-compile-schemas</link>
- * utility. The input is a schema description in an XML format that can be
- * described by the following DTD:
- * |[<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" parse="text" href="../../../../gio/gschema.dtd"><xi:fallback>FIXME: MISSING XINCLUDE CONTENT</xi:fallback></xi:include>]|
+ * by the [glib-compile-schemas][glib-compile-schemas]
+ * utility. The input is a schema description in an XML format.
  *
- * glib-compile-schemas expects schema files to have the extension <filename>.gschema.xml</filename>
+ * A DTD for the gschema XML format can be found here:
+ * [gschema.dtd](https://git.gnome.org/browse/glib/tree/gio/gschema.dtd)
  *
- * At runtime, schemas are identified by their id (as specified
- * in the <tag class="attribute">id</tag> attribute of the
- * <tag class="starttag">schema</tag> element). The
- * convention for schema ids is to use a dotted name, similar in
- * style to a D-Bus bus name, e.g. "org.gnome.SessionManager". In particular,
- * if the settings are for a specific service that owns a D-Bus bus name,
- * the D-Bus bus name and schema id should match. For schemas which deal
- * with settings not associated with one named application, the id should
- * not use StudlyCaps, e.g. "org.gnome.font-rendering".
+ * The [glib-compile-schemas][glib-compile-schemas] tool expects schema
+ * files to have the extension `.gschema.xml`.
  *
- * In addition to #GVariant types, keys can have types that have enumerated
- * types. These can be described by a <tag class="starttag">choice</tag>,
- * <tag class="starttag">enum</tag> or <tag class="starttag">flags</tag> element, see
- * <xref linkend="schema-enumerated"/>. The underlying type of
- * such a key is string, but you can use g_settings_get_enum(),
- * g_settings_set_enum(), g_settings_get_flags(), g_settings_set_flags()
- * access the numeric values corresponding to the string value of enum
- * and flags keys.
+ * At runtime, schemas are identified by their id (as specified in the
+ * id attribute of the <schema> element). The convention for schema
+ * ids is to use a dotted name, similar in style to a D-Bus bus name,
+ * e.g. "org.gnome.SessionManager". In particular, if the settings are
+ * for a specific service that owns a D-Bus bus name, the D-Bus bus name
+ * and schema id should match. For schemas which deal with settings not
+ * associated with one named application, the id should not use
+ * StudlyCaps, e.g. "org.gnome.font-rendering".
  *
- * <example id="schema-default-values"><title>Default values</title>
- * <programlisting><![CDATA[
+ * In addition to #GVariant types, keys can have types that have
+ * enumerated types. These can be described by a <choice>,
+ * <enum> or <flags> element, as seen in the
+ * [example][schema-enumerated]. The underlying type of such a key
+ * is string, but you can use g_settings_get_enum(), g_settings_set_enum(),
+ * g_settings_get_flags(), g_settings_set_flags() access the numeric values
+ * corresponding to the string value of enum and flags keys.
+ *
+ * An example for default value:
+ * |[
  * <schemalist>
  *   <schema id="org.gtk.Test" path="/org/gtk/Test/" gettext-domain="test">
  *
@@ -139,10 +136,10 @@
  *
  *   </schema>
  * </schemalist>
- * ]]></programlisting></example>
+ * ]|
  *
- * <example id="schema-enumerated"><title>Ranges, choices and enumerated types</title>
- * <programlisting><![CDATA[
+ * An example for ranges, choices and enumerated types:
+ * |[
  * <schemalist>
  *
  *   <enum id="org.gtk.Test.myenum">
@@ -185,52 +182,43 @@
  *     </key>
  *   </schema>
  * </schemalist>
- * ]]></programlisting></example>
+ * ]|
  *
- * <refsect2>
- *   <title>Vendor overrides</title>
- *   <para>
- *     Default values are defined in the schemas that get installed by
- *     an application. Sometimes, it is necessary for a vendor or distributor
- *     to adjust these defaults. Since patching the XML source for the schema
- *     is inconvenient and error-prone,
- *     <link linkend="glib-compile-schemas">glib-compile-schemas</link> reads
- *     so-called 'vendor override' files. These are keyfiles in the same
- *     directory as the XML schema sources which can override default values.
- *     The schema id serves as the group name in the key file, and the values
- *     are expected in serialized GVariant form, as in the following example:
- *     <informalexample><programlisting>
+ * ## Vendor overrides
+ *
+ * Default values are defined in the schemas that get installed by
+ * an application. Sometimes, it is necessary for a vendor or distributor
+ * to adjust these defaults. Since patching the XML source for the schema
+ * is inconvenient and error-prone,
+ * [glib-compile-schemas][glib-compile-schemas] reads so-called vendor
+ * override' files. These are keyfiles in the same directory as the XML
+ * schema sources which can override default values. The schema id serves
+ * as the group name in the key file, and the values are expected in
+ * serialized GVariant form, as in the following example:
+ * |[
  *     [org.gtk.Example]
  *     key1='string'
  *     key2=1.5
- *     </programlisting></informalexample>
- *   </para>
- *   <para>
- *     glib-compile-schemas expects schema files to have the extension
- *     <filename>.gschema.override</filename>
- *   </para>
- * </refsect2>
+ * ]|
  *
- * <refsect2>
- *   <title>Binding</title>
- *   <para>
- *     A very convenient feature of GSettings lets you bind #GObject properties
- *     directly to settings, using g_settings_bind(). Once a GObject property
- *     has been bound to a setting, changes on either side are automatically
- *     propagated to the other side. GSettings handles details like
- *     mapping between GObject and GVariant types, and preventing infinite
- *     cycles.
- *   </para>
- *   <para>
- *     This makes it very easy to hook up a preferences dialog to the
- *     underlying settings. To make this even more convenient, GSettings
- *     looks for a boolean property with the name "sensitivity" and
- *     automatically binds it to the writability of the bound setting.
- *     If this 'magic' gets in the way, it can be suppressed with the
- *     #G_SETTINGS_BIND_NO_SENSITIVITY flag.
- *   </para>
- * </refsect2>
- **/
+ * glib-compile-schemas expects schema files to have the extension
+ * `.gschema.override`.
+ *
+ * ## Binding
+ *
+ * A very convenient feature of GSettings lets you bind #GObject properties
+ * directly to settings, using g_settings_bind(). Once a GObject property
+ * has been bound to a setting, changes on either side are automatically
+ * propagated to the other side. GSettings handles details like mapping
+ * between GObject and GVariant types, and preventing infinite cycles.
+ *
+ * This makes it very easy to hook up a preferences dialog to the
+ * underlying settings. To make this even more convenient, GSettings
+ * looks for a boolean property with the name "sensitivity" and
+ * automatically binds it to the writability of the bound setting.
+ * If this 'magic' gets in the way, it can be suppressed with the
+ * #G_SETTINGS_BIND_NO_SENSITIVITY flag.
+ */
 
 struct _GSettingsPrivate
 {
@@ -645,7 +633,7 @@ g_settings_class_init (GSettingsClass *class)
    * GSettings::change-event:
    * @settings: the object on which the signal was emitted
    * @keys: (array length=n_keys) (element-type GQuark) (allow-none):
-   *        an array of #GQuark<!-- -->s for the changed keys, or %NULL
+   *        an array of #GQuarks for the changed keys, or %NULL
    * @n_keys: the length of the @keys array, or 0
    *
    * The "change-event" signal is emitted once per change event that
@@ -1138,7 +1126,7 @@ g_settings_get_value (GSettings   *settings,
  * It is a programmer error to give a @key that isn't contained in the
  * schema for @settings.
  *
- * Returns: (allow none) (transfer full): the user's value, if set
+ * Returns: (allow-none) (transfer full): the user's value, if set
  *
  * Since: 2.40
  **/
@@ -1186,7 +1174,7 @@ g_settings_get_user_value (GSettings   *settings,
  * It is a programmer error to give a @key that isn't contained in the
  * schema for @settings.
  *
- * Returns: (allow none) (transfer full): the default value
+ * Returns: (allow-none) (transfer full): the default value
  *
  * Since: 2.40
  **/
@@ -2183,14 +2171,14 @@ g_settings_is_writable (GSettings   *settings,
 /**
  * g_settings_get_child:
  * @settings: a #GSettings object
- * @name: the name of the 'child' schema
+ * @name: the name of the child schema
  *
- * Creates a 'child' settings object which has a base path of
- * <replaceable>base-path</replaceable>/@name, where
- * <replaceable>base-path</replaceable> is the base path of @settings.
+ * Creates a child settings object which has a base path of
+ * `base-path/@name`, where `base-path` is the base path of
+ * @settings.
  *
  * The schema for the child settings object must have been declared
- * in the schema of @settings using a <tag class="starttag">child</tag> element.
+ * in the schema of @settings using a <child> element.
  *
  * Returns: (transfer full): a 'child' settings object
  *
@@ -2852,8 +2840,7 @@ g_settings_binding_writable_changed (GSettings   *settings,
  *
  * When the @inverted argument is %TRUE, the binding inverts the
  * value as it passes from the setting to the object, i.e. @property
- * will be set to %TRUE if the key is <emphasis>not</emphasis>
- * writable.
+ * will be set to %TRUE if the key is not writable.
  *
  * Note that the lifecycle of the binding is tied to the object,
  * and that you can have only one binding per object property.

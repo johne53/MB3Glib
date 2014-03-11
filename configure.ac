@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [39])
-m4_define([glib_micro_version], [3])
+m4_define([glib_micro_version], [91])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -61,7 +61,7 @@ AC_CONFIG_SRCDIR([glib/glib.h])
 AC_CONFIG_MACRO_DIR([m4macros])
 
 # Save this value here, since automake will set cflags later
-cflags_set=${CFLAGS+set}
+cflags_set=${CFLAGS:+set}
 
 AM_INIT_AUTOMAKE([1.11 -Wno-portability no-define no-dist-gzip dist-xz tar-ustar])
 AM_MAINTAINER_MODE([enable])
@@ -285,7 +285,7 @@ AC_SYS_LARGEFILE
 PKG_PROG_PKG_CONFIG(0.16)
 
 if test "x$enable_debug" = "xyes"; then
-  if test x$cflags_set != xset ; then
+  if test "x$cflags_set" != "x" ; then
       case " $CFLAGS " in
       *[[\ \	]]-g[[\ \	]]*) ;;
       *) CFLAGS="$CFLAGS -g" ;;
@@ -771,7 +771,7 @@ fi
 
 
 # check for header files
-AC_CHECK_HEADERS([sys/param.h sys/resource.h])
+AC_CHECK_HEADERS([sys/param.h sys/resource.h mach/mach_time.h])
 AC_CHECK_HEADERS([sys/select.h stdint.h inttypes.h sched.h malloc.h])
 AC_CHECK_HEADERS([sys/vfs.h sys/vmount.h sys/statfs.h sys/statvfs.h sys/filio.h])
 AC_CHECK_HEADERS([mntent.h sys/mnttab.h sys/vfstab.h sys/mntctl.h fstab.h])
@@ -1665,8 +1665,7 @@ dnl *****************************
 inotify_support=no
 AC_CHECK_HEADERS([sys/inotify.h],
 [
-	inotify_support=yes
-	AC_CHECK_FUNCS(inotify_init1)
+  AC_CHECK_FUNCS(inotify_init1, [inotify_support=yes], [inotify_support=no])
 ])
 
 AM_CONDITIONAL(HAVE_INOTIFY, [test "$inotify_support" = "yes"])
@@ -2236,23 +2235,14 @@ AS_IF([ test x"$have_threads" = xposix], [
              AC_DEFINE(HAVE_PTHREAD_CONDATTR_SETCLOCK,1,
                 [Have function pthread_condattr_setclock])],
             [AC_MSG_RESULT(no)])
-        AC_MSG_CHECKING(for pthread_cond_timedwait_monotonic)
+        AC_MSG_CHECKING(for pthread_cond_timedwait_relative_np)
         AC_LINK_IFELSE(
             [AC_LANG_PROGRAM(
                 [#include <pthread.h>],
-                [pthread_cond_timedwait_monotonic(NULL, NULL, NULL)])],
+                [pthread_cond_timedwait_relative_np(NULL, NULL, NULL)])],
             [AC_MSG_RESULT(yes)
-             AC_DEFINE(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC,1,
-                [Have function pthread_cond_timedwait_monotonic])],
-            [AC_MSG_RESULT(no)])
-        AC_MSG_CHECKING(for pthread_cond_timedwait_monotonic_np)
-        AC_LINK_IFELSE(
-            [AC_LANG_PROGRAM(
-                [#include <pthread.h>],
-                [pthread_cond_timedwait_monotonic_np(NULL, NULL, NULL)])],
-            [AC_MSG_RESULT(yes)
-             AC_DEFINE(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC_NP,1,
-                [Have function pthread_cond_timedwait_monotonic_np])],
+             AC_DEFINE(HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE_NP,1,
+                [Have function pthread_cond_timedwait_relative_np])],
             [AC_MSG_RESULT(no)])
         CPPFLAGS="$glib_save_CPPFLAGS"
 ])
@@ -2297,7 +2287,6 @@ AC_SUBST(G_THREAD_LIBS_EXTRA)
 
 AC_CHECK_FUNCS(clock_gettime, [], [
   AC_CHECK_LIB(rt, clock_gettime, [
-    AC_DEFINE(HAVE_CLOCK_GETTIME, 1)
     G_THREAD_LIBS="$G_THREAD_LIBS -lrt"
     G_THREAD_LIBS_FOR_GTHREAD="$G_THREAD_LIBS_FOR_GTHREAD -lrt"
   ])
@@ -2593,7 +2582,7 @@ dnl **************************
 # gtkdocize greps for ^GTK_DOC_CHECK and parses it, so you need to have
 # it on it's own line.
 m4_ifdef([GTK_DOC_CHECK], [
-GTK_DOC_CHECK([1.15], [--flavour no-tmpl])
+GTK_DOC_CHECK([1.20], [--flavour no-tmpl])
 ],[
 AM_CONDITIONAL([ENABLE_GTK_DOC],[false])
 ])

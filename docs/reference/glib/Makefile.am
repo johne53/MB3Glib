@@ -15,7 +15,7 @@ DOC_SOURCE_DIR=$(top_srcdir)/glib $(top_srcdir)/gmodule
 SCAN_OPTIONS=--deprecated-guards="G_DISABLE_DEPRECATED" --ignore-decorators="GLIB_VAR|G_GNUC_WARN_UNUSED_RESULT"
 
 # Extra options to supply to gtkdoc-mkdb
-MKDB_OPTIONS=--sgml-mode --output-format=xml --name-space=g
+MKDB_OPTIONS=--output-format=xml --name-space=g
 
 # Used for dependencies
 HFILE_GLOB=$(top_srcdir)/glib/*.h $(top_srcdir)/gmodule/*.h
@@ -53,9 +53,13 @@ IGNORE_HFILES = \
 	gwakeup.h
 
 # Images to copy into HTML directory
-HTML_IMAGES =  				\
-	file-name-encodings.png		\
-	mainloop-states.gif
+HTML_IMAGES =  						\
+	file-name-encodings.png				\
+	mainloop-states.gif				\
+	Sorted_binary_tree_breadth-first_traversal.svg 	\
+	Sorted_binary_tree_inorder.svg 			\
+	Sorted_binary_tree_postorder.svg 		\
+	Sorted_binary_tree_preorder.svg
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
 content_files =				\
@@ -90,6 +94,10 @@ EXTRA_DIST +=				\
 	mainloop-states.fig		\
 	mainloop-states.png		\
 	mainloop-states.eps		\
+	Sorted_binary_tree_breadth-first_traversal.svg 	\
+	Sorted_binary_tree_inorder.svg 			\
+	Sorted_binary_tree_postorder.svg 		\
+	Sorted_binary_tree_preorder.svg			\
 	version.xml.in
 
 ########################################################################

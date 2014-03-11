@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -78,13 +76,11 @@
  * (see #GInputStream and #GOutputStream).
  *
  * To construct a #GFile, you can use:
- * <simplelist>
- * <member>g_file_new_for_path() if you have a path.</member>
- * <member>g_file_new_for_uri() if you have a URI.</member>
- * <member>g_file_new_for_commandline_arg() for a command line argument.</member>
- * <member>g_file_new_tmp() to create a temporary file from a template.</member>
- * <member>g_file_parse_name() from a UTF-8 string gotten from g_file_get_parse_name().</member>
- * </simplelist>
+ * - g_file_new_for_path() if you have a path.
+ * - g_file_new_for_uri() if you have a URI.
+ * - g_file_new_for_commandline_arg() for a command line argument.
+ * - g_file_new_tmp() to create a temporary file from a template.
+ * - g_file_parse_name() from a UTF-8 string gotten from g_file_get_parse_name().
  *
  * One way to think of a #GFile is as an abstraction of a pathname. For
  * normal files the system pathname is what is stored internally, but as
@@ -133,21 +129,20 @@
  * Some #GFile operations do not have synchronous analogs, as they may
  * take a very long time to finish, and blocking may leave an application
  * unusable. Notable cases include:
- * <simplelist>
- * <member>g_file_mount_mountable() to mount a mountable file.</member>
- * <member>g_file_unmount_mountable_with_operation() to unmount a mountable file.</member>
- * <member>g_file_eject_mountable_with_operation() to eject a mountable file.</member>
- * </simplelist>
+ * - g_file_mount_mountable() to mount a mountable file.
+ * - g_file_unmount_mountable_with_operation() to unmount a mountable file.
+ * - g_file_eject_mountable_with_operation() to eject a mountable file.
  *
- * <para id="gfile-etag"><indexterm><primary>entity tag</primary></indexterm>
+ * ## Entity Tags # {#gfile-etag}
+ *
  * One notable feature of #GFiles are entity tags, or "etags" for
  * short. Entity tags are somewhat like a more abstract version of the
- * traditional mtime, and can be used to quickly determine if the file has
- * been modified from the version on the file system. See the HTTP 1.1
- * <ulink url="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">specification</ulink>
+ * traditional mtime, and can be used to quickly determine if the file
+ * has been modified from the version on the file system. See the
+ * HTTP 1.1 
+ * [specification](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html)
  * for HTTP Etag headers, which are a very similar concept.
- * </para>
- **/
+ */
 
 static void               g_file_real_query_info_async            (GFile                  *file,
                                                                    const char             *attributes,
@@ -449,9 +444,9 @@ g_file_has_uri_scheme (GFile      *file,
  *
  * Gets the URI scheme for a #GFile.
  * RFC 3986 decodes the scheme as:
- * <programlisting>
+ * |[
  * URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
- * </programlisting>
+ * ]|
  * Common schemes include "file", "http", "ftp", etc.
  *
  * This call does no blocking I/O.
@@ -972,8 +967,7 @@ g_file_enumerate_children (GFile                *file,
  * @file: input #GFile
  * @attributes: an attribute query string
  * @flags: a set of #GFileQueryInfoFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call when the
@@ -1210,8 +1204,7 @@ g_file_query_info (GFile                *file,
  * @file: input #GFile
  * @attributes: an attribute query string
  * @flags: a set of #GFileQueryInfoFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call when the
@@ -1348,8 +1341,7 @@ g_file_query_filesystem_info (GFile         *file,
  * g_file_query_filesystem_info_async:
  * @file: input #GFile
  * @attributes: an attribute query string
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -1471,8 +1463,7 @@ g_file_find_enclosing_mount (GFile         *file,
 /**
  * g_file_find_enclosing_mount_async:
  * @file: a #GFile
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -1700,7 +1691,7 @@ g_file_create (GFile             *file,
 /**
  * g_file_replace:
  * @file: input #GFile
- * @etag: (allow-none): an optional <link linkend="gfile-etag">entity tag</link>
+ * @etag: (allow-none): an optional [entity tag][gfile-etag]
  *     for the current #GFile, or #NULL to ignore
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
@@ -1905,7 +1896,7 @@ g_file_create_readwrite (GFile             *file,
 /**
  * g_file_replace_readwrite:
  * @file: a #GFile
- * @etag: (allow-none): an optional <link linkend="gfile-etag">entity tag</link>
+ * @etag: (allow-none): an optional [entity tag][gfile-etag]
  *     for the current #GFile, or #NULL to ignore
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
@@ -1960,8 +1951,7 @@ g_file_replace_readwrite (GFile             *file,
 /**
  * g_file_read_async:
  * @file: input #GFile
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -2029,8 +2019,7 @@ g_file_read_finish (GFile         *file,
  * g_file_append_to_async:
  * @file: input #GFile
  * @flags: a set of #GFileCreateFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -2101,8 +2090,7 @@ g_file_append_to_finish (GFile         *file,
  * g_file_create_async:
  * @file: input #GFile
  * @flags: a set of #GFileCreateFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -2172,12 +2160,11 @@ g_file_create_finish (GFile         *file,
 /**
  * g_file_replace_async:
  * @file: input #GFile
- * @etag: (allow-none): an <link linkend="gfile-etag">entity tag</link>
- *     for the current #GFile, or NULL to ignore
+ * @etag: (allow-none): an [entity tag][gfile-etag] for the current #GFile,
+ *     or %NULL to ignore
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -2251,8 +2238,7 @@ g_file_replace_finish (GFile         *file,
 /**
  * g_file_open_readwrite_async
  * @file: input #GFile
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -2324,8 +2310,7 @@ g_file_open_readwrite_finish (GFile         *file,
  * g_file_create_readwrite_async:
  * @file: input #GFile
  * @flags: a set of #GFileCreateFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -2399,12 +2384,11 @@ g_file_create_readwrite_finish (GFile         *file,
 /**
  * g_file_replace_readwrite_async:
  * @file: input #GFile
- * @etag: (allow-none): an <link linkend="gfile-etag">entity tag</link>
- *     for the current #GFile, or NULL to ignore
+ * @etag: (allow-none): an [entity tag][gfile-etag] for the current #GFile,
+ *     or %NULL to ignore
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -3405,8 +3389,7 @@ g_file_copy (GFile                  *source,
  * @source: input #GFile
  * @destination: destination #GFile
  * @flags: set of #GFileCopyFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @progress_callback: (allow-none): function to callback with progress
@@ -3666,8 +3649,7 @@ g_file_make_directory (GFile         *file,
 /**
  * g_file_make_directory_async:
  * @file: input #GFile
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: a #GAsyncReadyCallback to call
@@ -3916,8 +3898,7 @@ g_file_delete (GFile         *file,
 /**
  * g_file_delete_async:
  * @file: input #GFile
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: a #GAsyncReadyCallback to call
@@ -4026,8 +4007,7 @@ g_file_trash (GFile         *file,
 /**
  * g_file_trash_async:
  * @file: input #GFile
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: a #GAsyncReadyCallback to call
@@ -4145,8 +4125,7 @@ g_file_set_display_name (GFile         *file,
  * g_file_set_display_name_async:
  * @file: input #GFile
  * @display_name: a string
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call
@@ -4475,8 +4454,7 @@ g_file_real_set_attributes_from_info (GFile                *file,
  * @file: input #GFile
  * @info: a #GFileInfo
  * @flags: a #GFileQueryInfoFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object,
  *     %NULL to ignore
  * @callback: (scope async): a #GAsyncReadyCallback
@@ -6462,6 +6440,15 @@ new_for_cmdline_arg (const gchar *arg,
  * This operation never fails, but the returned object might not
  * support any I/O operation if @arg points to a malformed path.
  *
+ * Note that on Windows, this function expects its argument to be in
+ * UTF-8 -- not the system code page.  This means that you
+ * should not use this function with string from argv as it is passed
+ * to main().  g_win32_get_command_line() will return a UTF-8 version of
+ * the commandline.  #GApplication also uses UTF-8 but
+ * g_application_command_line_create_file_for_arg() may be more useful
+ * for you there.  It is also always possible to use this function with
+ * #GOptionContext arguments of type %G_OPTION_ARG_FILENAME.
+ *
  * Returns: (transfer full): a new #GFile.
  *    Free the returned object with g_object_unref().
  */
@@ -7085,11 +7072,11 @@ g_file_load_contents_finish (GFile         *file,
  * @file: input #GFile
  * @contents: (element-type guint8) (array length=length): a string containing the new contents for @file
  * @length: the length of @contents in bytes
- * @etag: (allow-none): the old <link linkend="gfile-etag">entity tag</link>
- *     for the document, or %NULL
+ * @etag: (allow-none): the old [entity-tag][gfile-etag] for the document,
+ *     or %NULL
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
- * @new_etag: (allow-none) (out): a location to a new <link linkend="gfile-etag">entity tag</link>
+ * @new_etag: (allow-none) (out): a location to a new [entity tag][gfile-etag]
  *      for the document. This should be freed with g_free() when no longer
  *      needed, or %NULL
  * @cancellable: optional #GCancellable object, %NULL to ignore
@@ -7290,7 +7277,7 @@ replace_contents_open_callback (GObject      *obj,
  * @file: input #GFile
  * @contents: (element-type guint8) (array length=length): string of contents to replace the file with
  * @length: the length of @contents in bytes
- * @etag: (allow-none): a new <link linkend="gfile-etag">entity tag</link> for the @file, or %NULL
+ * @etag: (allow-none): a new [entity tag][gfile-etag] for the @file, or %NULL
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
  * @cancellable: optional #GCancellable object, %NULL to ignore
@@ -7312,10 +7299,10 @@ replace_contents_open_callback (GObject      *obj,
  * If @make_backup is %TRUE, this function will attempt to
  * make a backup of @file.
  *
- * <warning><para>No copy of @content will be made, so it must stay valid until
- * @callback is called. See g_file_replace_contents_bytes_async() for a #GBytes
- * version that will automatically hold a reference to the contents (without
- * copying) for the duration of the call.</para></warning>
+ * Note that no copy of @content will be made, so it must stay valid
+ * until @callback is called. See g_file_replace_contents_bytes_async()
+ * for a #GBytes version that will automatically hold a reference to the
+ * contents (without copying) for the duration of the call.
  */
 void
 g_file_replace_contents_async  (GFile               *file,
@@ -7340,7 +7327,7 @@ g_file_replace_contents_async  (GFile               *file,
  * g_file_replace_contents_bytes_async:
  * @file: input #GFile
  * @contents: a #GBytes
- * @etag: (allow-none): a new <link linkend="gfile-etag">entity tag</link> for the @file, or %NULL
+ * @etag: (allow-none): a new [entity tag][gfile-etag] for the @file, or %NULL
  * @make_backup: %TRUE if a backup should be created
  * @flags: a set of #GFileCreateFlags
  * @cancellable: optional #GCancellable object, %NULL to ignore
@@ -7394,7 +7381,7 @@ g_file_replace_contents_bytes_async  (GFile               *file,
  * g_file_replace_contents_finish:
  * @file: input #GFile
  * @res: a #GAsyncResult
- * @new_etag: (out) (allow-none): a location of a new <link linkend="gfile-etag">entity tag</link>
+ * @new_etag: (out) (allow-none): a location of a new [entity tag][gfile-etag]
  *     for the document. This should be freed with g_free() when it is no
  *     longer needed, or %NULL
  * @error: a #GError, or %NULL
@@ -7601,9 +7588,9 @@ g_file_real_measure_disk_usage_finish (GFile         *file,
  *
  * Recursively measures the disk usage of @file.
  *
- * This is essentially an analog of the '<literal>du</literal>' command,
- * but it also reports the number of directories and non-directory files
- * encountered (including things like symbolic links).
+ * This is essentially an analog of the 'du' command, but it also
+ * reports the number of directories and non-directory files encountered
+ * (including things like symbolic links).
  *
  * By default, errors are only reported against the toplevel file
  * itself.  Errors found while recursing are silently ignored, unless
@@ -7648,8 +7635,7 @@ g_file_measure_disk_usage (GFile                         *file,
  * g_file_measure_disk_usage_async:
  * @file: a #GFile
  * @flags: #GFileMeasureFlags
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *     of the request
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable
  * @progress_callback: (allow-none): a #GFileMeasureProgressCallback
  * @progress_data: user_data for @progress_callback
@@ -7978,11 +7964,10 @@ g_file_poll_mountable_finish (GFile         *file,
  * g_file_supports_thread_contexts:
  * @file: a #GFile
  *
- * Checks if @file supports <link
- * linkend="g-main-context-push-thread-default-context">thread-default
- * contexts</link>. If this returns %FALSE, you cannot perform
- * asynchronous operations on @file in a thread that has a
- * thread-default context.
+ * Checks if @file supports
+ * [thread-default contexts][g-main-context-push-thread-default-context].
+ * If this returns %FALSE, you cannot perform asynchronous operations on
+ * @file in a thread that has a thread-default context.
  *
  * Returns: Whether or not @file supports thread-default contexts.
  *

@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -220,9 +218,9 @@ typedef enum {
  * @G_FILE_MEASURE_APPARENT_SIZE: Tally usage based on apparent file
  *   sizes.  Normally, the block-size is used, if available, as this is a
  *   more accurate representation of disk space used.
- *   Compare with '<literal>du --apparent-size</literal>'.
+ *   Compare with `du --apparent-size`.
  * @G_FILE_MEASURE_NO_XDEV: Do not cross mount point boundaries.
- *   Compare with '<literal>du -x</literal>'.
+ *   Compare with `du -x`.
  *
  * Flags that can be used with g_file_measure_disk_usage().
  *
@@ -869,12 +867,11 @@ typedef enum {
  * or a socket created with socketpair()).
  *
  * For abstract sockets, there are two incompatible ways of naming
- * them; the man pages suggest using the entire <literal>struct
- * sockaddr_un</literal> as the name, padding the unused parts of the
- * %sun_path field with zeroes; this corresponds to
- * %G_UNIX_SOCKET_ADDRESS_ABSTRACT_PADDED. However, many programs
- * instead just use a portion of %sun_path, and pass an appropriate
- * smaller length to bind() or connect(). This is
+ * them; the man pages suggest using the entire `struct sockaddr_un`
+ * as the name, padding the unused parts of the %sun_path field with
+ * zeroes; this corresponds to %G_UNIX_SOCKET_ADDRESS_ABSTRACT_PADDED.
+ * However, many programs instead just use a portion of %sun_path, and
+ * pass an appropriate smaller length to bind() or connect(). This is
  * %G_UNIX_SOCKET_ADDRESS_ABSTRACT.
  *
  * Since: 2.26
@@ -1746,7 +1743,7 @@ typedef enum /*< flags >*/ {
  * example, you may not request both %G_SUBPROCESS_FLAGS_STDOUT_PIPE and
  * %G_SUBPROCESS_FLAGS_STDOUT_SILENCE.
  *
- * Since: 2.36
+ * Since: 2.40
  **/
 typedef enum {
   G_SUBPROCESS_FLAGS_NONE                  = 0,

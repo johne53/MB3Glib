@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  * Author: Tor Lillqvist <tml@iki.fi>
@@ -46,9 +44,9 @@
  * #GWin32InputStream implements #GInputStream for reading from a
  * Windows file handle.
  *
- * Note that <filename>&lt;gio/gwin32inputstream.h&gt;</filename> belongs
- * to the Windows-specific GIO interfaces, thus you have to use the
- * <filename>gio-windows-2.0.pc</filename> pkg-config file when using it.
+ * Note that `<gio/gwin32inputstream.h>` belongs to the Windows-specific GIO
+ * interfaces, thus you have to use the `gio-windows-2.0.pc` pkg-config file
+ * when using it.
  */
 
 enum {
@@ -242,7 +240,7 @@ g_win32_input_stream_set_close_handle (GWin32InputStream *stream,
  * Returns whether the handle of @stream will be
  * closed when the stream is closed.
  *
- * Return value: %TRUE if the handle is closed when done
+ * Returns: %TRUE if the handle is closed when done
  *
  * Since: 2.26
  */
@@ -260,7 +258,7 @@ g_win32_input_stream_get_close_handle (GWin32InputStream *stream)
  *
  * Return the Windows file handle that the stream reads from.
  *
- * Return value: The file handle of @stream
+ * Returns: The file handle of @stream
  *
  * Since: 2.26
  */

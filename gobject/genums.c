@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -49,9 +47,8 @@
  * GLib type system, it can be used as value type for object
  * properties, using g_param_spec_enum() or g_param_spec_flags().
  *
- * GObject ships with a utility called <link
- * linkend="glib-mkenums">glib-mkenums</link> that can construct
- * suitable type registration functions from C enumeration
+ * GObject ships with a utility called [glib-mkenums][glib-mkenums],
+ * that can construct suitable type registration functions from C enumeration
  * definitions.
  */
 
@@ -173,10 +170,9 @@ value_flags_enum_lcopy_value (const GValue *value,
  *
  * Registers a new static enumeration type with the name @name.
  *
- * It is normally more convenient to let <link
- * linkend="glib-mkenums">glib-mkenums</link> generate a
- * my_enum_get_type() function from a usual C enumeration definition
- * than to write one yourself using g_enum_register_static().
+ * It is normally more convenient to let [glib-mkenums][glib-mkenums],
+ * generate a my_enum_get_type() function from a usual C enumeration
+ * definition  than to write one yourself using g_enum_register_static().
  *
  * Returns: The new type identifier.
  */
@@ -217,10 +213,9 @@ g_enum_register_static (const gchar	 *name,
  *
  * Registers a new static flags type with the name @name.
  *
- * It is normally more convenient to let <link
- * linkend="glib-mkenums">glib-mkenums</link> generate a
- * my_flags_get_type() function from a usual C enumeration definition
- * than to write one yourself using g_flags_register_static().
+ * It is normally more convenient to let [glib-mkenums][glib-mkenums]
+ * generate a my_flags_get_type() function from a usual C enumeration
+ * definition than to write one yourself using g_flags_register_static().
  *
  * Returns: The new type identifier.
  */
@@ -260,11 +255,11 @@ g_flags_register_static (const gchar	   *name,
  *  enumeration values. The array is terminated by a struct with all
  *  members being 0.
  *
- * This function is meant to be called from the <literal>complete_type_info</literal>
+ * This function is meant to be called from the `complete_type_info`
  * function of a #GTypePlugin implementation, as in the following
  * example:
  *
- * |[
+ * |[<!-- language="C" --> 
  * static void
  * my_enum_complete_type_info (GTypePlugin     *plugin,
  *                             GType            g_type,

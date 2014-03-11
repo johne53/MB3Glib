@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: David Zeuthen <davidz@redhat.com>
  */
@@ -74,21 +72,20 @@
  * %G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START is set).
  *
  * The generic #GDBusProxy::g-properties-changed and
- * #GDBusProxy::g-signal signals are not very convenient to work
- * with. Therefore, the recommended way of working with proxies is to
- * subclass #GDBusProxy, and have more natural properties and signals
- * in your derived class. See <xref linkend="gdbus-example-gdbus-codegen"/>
- * for how this can easily be done using the
- * <command><link linkend="gdbus-codegen">gdbus-codegen</link></command>
- * tool.
+ * #GDBusProxy::g-signal signals are not very convenient to work with.
+ * Therefore, the recommended way of working with proxies is to subclass
+ * #GDBusProxy, and have more natural properties and signals in your derived
+ * class. This [example][gdbus-example-gdbus-codegen] shows how this can
+ * easily be done using the [gdbus-codegen][gdbus-codegen] tool.
  *
  * A #GDBusProxy instance can be used from multiple threads but note
  * that all signals (e.g. #GDBusProxy::g-signal, #GDBusProxy::g-properties-changed
  * and #GObject::notify) are emitted in the
- * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+ * [thread-default main context][g-main-context-push-thread-default]
  * of the thread where the instance was constructed.
  *
- * <example id="gdbus-wellknown-proxy"><title>GDBusProxy for a well-known-name</title><programlisting><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" parse="text" href="../../../../gio/tests/gdbus-example-watch-proxy.c"><xi:fallback>FIXME: MISSING XINCLUDE CONTENT</xi:fallback></xi:include></programlisting></example>
+ * An example using a proxy for a well-known name can be found in
+ * [gdbus-example-watch-proxy.c](https://git.gnome.org/browse/glib/tree/gio/tests/gdbus-example-watch-proxy.c)
  */
 
 /* lock protecting the mutable properties: name_owner, timeout_msec,
@@ -363,27 +360,23 @@ g_dbus_proxy_class_init (GDBusProxyClass *klass)
    * Ensure that interactions with this proxy conform to the given
    * interface. This is mainly to ensure that malformed data received
    * from the other peer is ignored. The given #GDBusInterfaceInfo is
-   * said to be the <emphasis>expected interface</emphasis>.
+   * said to be the "expected interface".
    *
    * The checks performed are:
-   * <itemizedlist>
-   *   <listitem><para>
-   *     When completing a method call, if the type signature of
-   *     the reply message isn't what's expected, the reply is
-   *     discarded and the #GError is set to %G_IO_ERROR_INVALID_ARGUMENT.
-   *   </para></listitem>
-   *   <listitem><para>
-   *     Received signals that have a type signature mismatch are dropped and
-   *     a warning is logged via g_warning().
-   *   </para></listitem>
-   *   <listitem><para>
-   *     Properties received via the initial <literal>GetAll()</literal> call
-   *     or via the <literal>::PropertiesChanged</literal> signal (on the
-   *     <ulink url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties">org.freedesktop.DBus.Properties</ulink> interface) or
-   *     set using g_dbus_proxy_set_cached_property() with a type signature
-   *     mismatch are ignored and a warning is logged via g_warning().
-   *   </para></listitem>
-   * </itemizedlist>
+   * - When completing a method call, if the type signature of
+   *   the reply message isn't what's expected, the reply is
+   *   discarded and the #GError is set to %G_IO_ERROR_INVALID_ARGUMENT.
+   *
+   * - Received signals that have a type signature mismatch are dropped and
+   *   a warning is logged via g_warning().
+   *
+   * - Properties received via the initial `GetAll()` call or via the 
+   *   `::PropertiesChanged` signal (on the
+   *   [org.freedesktop.DBus.Properties](http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-properties)
+   *   interface) or set using g_dbus_proxy_set_cached_property()
+   *   with a type signature mismatch are ignored and a warning is
+   *   logged via g_warning().
+   *
    * Note that these checks are never done on methods, signals and
    * properties that are not referenced in the given
    * #GDBusInterfaceInfo, since extending a D-Bus interface on the
@@ -592,8 +585,8 @@ g_dbus_proxy_class_init (GDBusProxyClass *klass)
    * @invalidated_properties will always be empty.
    *
    * This signal corresponds to the
-   * <literal>PropertiesChanged</literal> D-Bus signal on the
-   * <literal>org.freedesktop.DBus.Properties</literal> interface.
+   * `PropertiesChanged` D-Bus signal on the
+   * `org.freedesktop.DBus.Properties` interface.
    *
    * Since: 2.26
    */
@@ -793,7 +786,7 @@ g_dbus_proxy_get_cached_property (GDBusProxy   *proxy,
  *
  * If the @value #GVariant is floating, it is consumed. This allows
  * convenient 'inline' use of g_variant_new(), e.g.
- * |[
+ * |[<!-- language="C" -->
  *  g_dbus_proxy_set_cached_property (proxy,
  *                                    "SomeProperty",
  *                                    g_variant_new ("(si)",
@@ -801,20 +794,19 @@ g_dbus_proxy_get_cached_property (GDBusProxy   *proxy,
  *                                                  42));
  * ]|
  *
- * Normally you will not need to use this method since @proxy is
- * tracking changes using the
- * <literal>org.freedesktop.DBus.Properties.PropertiesChanged</literal>
- * D-Bus signal. However, for performance reasons an object may decide
- * to not use this signal for some properties and instead use a
- * proprietary out-of-band mechanism to transmit changes.
+ * Normally you will not need to use this method since @proxy
+ * is tracking changes using the
+ * `org.freedesktop.DBus.Properties.PropertiesChanged`
+ * D-Bus signal. However, for performance reasons an object may
+ * decide to not use this signal for some properties and instead
+ * use a proprietary out-of-band mechanism to transmit changes.
  *
  * As a concrete example, consider an object with a property
- * <literal>ChatroomParticipants</literal> which is an array of
- * strings. Instead of transmitting the same (long) array every time
- * the property changes, it is more efficient to only transmit the
- * delta using e.g. signals <literal>ChatroomParticipantJoined(String
- * name)</literal> and <literal>ChatroomParticipantParted(String
- * name)</literal>.
+ * `ChatroomParticipants` which is an array of strings. Instead of
+ * transmitting the same (long) array every time the property changes,
+ * it is more efficient to only transmit the delta using e.g. signals
+ * `ChatroomParticipantJoined(String name)` and
+ * `ChatroomParticipantParted(String name)`.
  *
  * Since: 2.26
  */
@@ -2050,7 +2042,7 @@ initable_iface_init (GInitableIface *initable_iface)
  *
  * See g_dbus_proxy_new_sync() and for a synchronous version of this constructor.
  *
- * See <xref linkend="gdbus-wellknown-proxy"/> for an example of how #GDBusProxy can be used.
+ * #GDBusProxy is used in this [example][gdbus-wellknown-proxy].
  *
  * Since: 2.26
  */
@@ -2144,7 +2136,7 @@ g_dbus_proxy_new_finish (GAsyncResult  *res,
  * This is a synchronous failable constructor. See g_dbus_proxy_new()
  * and g_dbus_proxy_new_finish() for the asynchronous version.
  *
- * See <xref linkend="gdbus-wellknown-proxy"/> for an example of how #GDBusProxy can be used.
+ * #GDBusProxy is used in this [example][gdbus-wellknown-proxy].
  *
  * Returns: A #GDBusProxy or %NULL if error is set. Free with g_object_unref().
  *
@@ -2200,7 +2192,7 @@ g_dbus_proxy_new_sync (GDBusConnection     *connection,
  *
  * Like g_dbus_proxy_new() but takes a #GBusType instead of a #GDBusConnection.
  *
- * See <xref linkend="gdbus-wellknown-proxy"/> for an example of how #GDBusProxy can be used.
+ * #GDBusProxy is used in this [example][gdbus-wellknown-proxy].
  *
  * Since: 2.26
  */
@@ -2265,7 +2257,7 @@ g_dbus_proxy_new_for_bus_finish (GAsyncResult  *res,
  *
  * Like g_dbus_proxy_new_sync() but takes a #GBusType instead of a #GDBusConnection.
  *
- * See <xref linkend="gdbus-wellknown-proxy"/> for an example of how #GDBusProxy can be used.
+ * #GDBusProxy is used in this [example][gdbus-wellknown-proxy].
  *
  * Returns: A #GDBusProxy or %NULL if error is set. Free with g_object_unref().
  *
@@ -2973,7 +2965,7 @@ g_dbus_proxy_call_sync_internal (GDBusProxy      *proxy,
  *
  * If the @parameters #GVariant is floating, it is consumed. This allows
  * convenient 'inline' use of g_variant_new(), e.g.:
- * |[
+ * |[<!-- language="C" -->
  *  g_dbus_proxy_call (proxy,
  *                     "TwoStrings",
  *                     g_variant_new ("(ss)",
@@ -2983,7 +2975,7 @@ g_dbus_proxy_call_sync_internal (GDBusProxy      *proxy,
  *                     -1,
  *                     NULL,
  *                     (GAsyncReadyCallback) two_strings_done,
- *                     &amp;data);
+ *                     &data);
  * ]|
  *
  * If @proxy has an expected interface (see
@@ -2992,7 +2984,7 @@ g_dbus_proxy_call_sync_internal (GDBusProxy      *proxy,
  *
  * This is an asynchronous method. When the operation is finished,
  * @callback will be invoked in the
- * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+ * [thread-default main context][g-main-context-push-thread-default]
  * of the thread you are calling this method from.
  * You can then call g_dbus_proxy_call_finish() to get the result of
  * the operation. See g_dbus_proxy_call_sync() for the synchronous
@@ -3064,7 +3056,7 @@ g_dbus_proxy_call_finish (GDBusProxy    *proxy,
  *
  * If the @parameters #GVariant is floating, it is consumed. This allows
  * convenient 'inline' use of g_variant_new(), e.g.:
- * |[
+ * |[<!-- language="C" -->
  *  g_dbus_proxy_call_sync (proxy,
  *                          "TwoStrings",
  *                          g_variant_new ("(ss)",
@@ -3073,7 +3065,7 @@ g_dbus_proxy_call_finish (GDBusProxy    *proxy,
  *                          G_DBUS_CALL_FLAGS_NONE,
  *                          -1,
  *                          NULL,
- *                          &amp;error);
+ *                          &error);
  * ]|
  *
  * The calling thread is blocked until a reply is received. See

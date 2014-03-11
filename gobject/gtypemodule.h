@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef __G_TYPE_MODULE_H__
 #define __G_TYPE_MODULE_H__
@@ -42,7 +40,7 @@ typedef struct _GTypeModuleClass GTypeModuleClass;
  * GTypeModule:
  * @name: the name of the module
  * 
- * The members of the <structname>GTypeModule</structname> structure should not 
+ * The members of the GTypeModule structure should not 
  * be accessed directly, except for the @name field.
  */
 struct _GTypeModule 

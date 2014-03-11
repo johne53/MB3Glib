@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Christian Kellner <gicmo@gnome.org>
  *          Samuel Cormier-Iijima <sciyoshi@gmail.com>
@@ -57,6 +55,10 @@
  * connection factory, and it is possible for 3rd parties to register
  * custom socket connection types for specific combination of socket
  * family/type/protocol using g_socket_connection_factory_register_type().
+ *
+ * To close a #GSocketConnection, use g_io_stream_close(). Closing both
+ * substreams of the #GIOStream separately will not close the underlying
+ * #GSocket.
  *
  * Since: 2.22
  */

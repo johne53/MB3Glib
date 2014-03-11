@@ -42,9 +42,9 @@
  * SECTION:gregex
  * @title: Perl-compatible regular expressions
  * @short_description: matches strings against regular expressions
- * @see_also: <xref linkend="glib-regex-syntax"/>
+ * @see_also: [Regular expression syntax][glib-regex-syntax]
  *
- * The <function>g_regex_*()</function> functions implement regular
+ * The g_regex_*() functions implement regular
  * expression pattern matching using syntax and semantics similar to
  * Perl regular expression.
  *
@@ -98,7 +98,7 @@
  * '\U' always matches 'U' instead of being an error in the pattern. Finally,
  * pattern matching is modified so that back references to an unset subpattern
  * group produces a match with the empty string instead of an error. See
- * <ulink>man:pcreapi(3)</ulink> for more information.
+ * pcreapi(3) for more information.
  *
  * Creating and manipulating the same #GRegex structure from different
  * threads is not a problem as #GRegex does not modify its internal
@@ -106,8 +106,9 @@
  * is not threadsafe.
  *
  * The regular expressions low-level functionalities are obtained through
- * the excellent <ulink url="http://www.pcre.org/">PCRE</ulink> library
- * written by Philip Hazel.
+ * the excellent
+ * [PCRE](http://www.pcre.org/)
+ * library written by Philip Hazel.
  */
 
 /* Mask of all the possible values for GRegexCompileFlags. */
@@ -878,7 +879,7 @@ g_match_info_get_match_count (const GMatchInfo *match_info)
  * There were formerly some restrictions on the pattern for partial matching.
  * The restrictions no longer apply.
  *
- * See <ulink>man:pcrepartial</ulink> for more information on partial matching.
+ * See pcrepartial(3) for more information on partial matching.
  *
  * Returns: %TRUE if the match was partial, %FALSE otherwise
  *
@@ -960,7 +961,7 @@ g_match_info_expand_references (const GMatchInfo  *match_info,
  * @match_info: #GMatchInfo structure
  * @match_num: number of the sub expression
  *
- * Retrieves the text matching the @match_num<!-- -->'th capturing
+ * Retrieves the text matching the @match_num'th capturing
  * parentheses. 0 is the full text of the match, 1 is the first paren
  * set, 2 the second, and so on.
  *
@@ -1015,7 +1016,7 @@ g_match_info_fetch (const GMatchInfo *match_info,
  * @end_pos: (out) (allow-none): pointer to location where to store
  *     the end position, or %NULL
  *
- * Retrieves the position in bytes of the @match_num<!-- -->'th capturing
+ * Retrieves the position in bytes of the @match_num'th capturing
  * parentheses. 0 is the full text of the match, 1 is the first
  * paren set, 2 the second, and so on.
  *
@@ -1102,7 +1103,7 @@ get_matched_substring_number (const GMatchInfo *match_info,
  * Retrieves the text matching the capturing parentheses named @name.
  *
  * If @name is a valid sub pattern name but it didn't match anything
- * (e.g. sub pattern "X", matching "b" against "(?P&lt;X&gt;a)?b")
+ * (e.g. sub pattern "X", matching "b" against "(?P<X>a)?b")
  * then an empty string is returned.
  *
  * The string is fetched from the string passed to the match function,
@@ -1143,7 +1144,7 @@ g_match_info_fetch_named (const GMatchInfo *match_info,
  * Retrieves the position in bytes of the capturing parentheses named @name.
  *
  * If @name is a valid sub pattern name but it didn't match anything
- * (e.g. sub pattern "X", matching "b" against "(?P&lt;X&gt;a)?b")
+ * (e.g. sub pattern "X", matching "b" against "(?P<X>a)?b")
  * then @start_pos and @end_pos are set to -1 and %TRUE is returned.
  *
  * Returns: %TRUE if the position was fetched, %FALSE otherwise.
@@ -1638,16 +1639,16 @@ g_regex_match_simple (const gchar        *pattern,
  * To retrieve all the non-overlapping matches of the pattern in
  * string you can use g_match_info_next().
  *
- * |[
+ * |[<!-- language="C" --> 
  * static void
  * print_uppercase_words (const gchar *string)
  * {
- *   /&ast; Print all uppercase-only words. &ast;/
+ *   // Print all uppercase-only words.
  *   GRegex *regex;
  *   GMatchInfo *match_info;
- *   &nbsp;
+ *  
  *   regex = g_regex_new ("[A-Z]+", 0, 0, NULL);
- *   g_regex_match (regex, string, 0, &amp;match_info);
+ *   g_regex_match (regex, string, 0, &match_info);
  *   while (g_match_info_matches (match_info))
  *     {
  *       gchar *word = g_match_info_fetch (match_info, 0);
@@ -1711,23 +1712,23 @@ g_regex_match (const GRegex      *regex,
  * To retrieve all the non-overlapping matches of the pattern in
  * string you can use g_match_info_next().
  *
- * |[
+ * |[<!-- language="C" --> 
  * static void
  * print_uppercase_words (const gchar *string)
  * {
- *   /&ast; Print all uppercase-only words. &ast;/
+ *   // Print all uppercase-only words.
  *   GRegex *regex;
  *   GMatchInfo *match_info;
  *   GError *error = NULL;
- *   &nbsp;
+ *   
  *   regex = g_regex_new ("[A-Z]+", 0, 0, NULL);
- *   g_regex_match_full (regex, string, -1, 0, 0, &amp;match_info, &amp;error);
+ *   g_regex_match_full (regex, string, -1, 0, 0, &match_info, &error);
  *   while (g_match_info_matches (match_info))
  *     {
  *       gchar *word = g_match_info_fetch (match_info, 0);
  *       g_print ("Found: %s\n", word);
  *       g_free (word);
- *       g_match_info_next (match_info, &amp;error);
+ *       g_match_info_next (match_info, &error);
  *     }
  *   g_match_info_free (match_info);
  *   g_regex_unref (regex);
@@ -1823,15 +1824,15 @@ g_regex_match_all (const GRegex      *regex,
  * Using the standard algorithm for regular expression matching only
  * the longest match in the string is retrieved, it is not possible
  * to obtain all the available matches. For instance matching
- * "&lt;a&gt; &lt;b&gt; &lt;c&gt;" against the pattern "&lt;.*&gt;"
- * you get "&lt;a&gt; &lt;b&gt; &lt;c&gt;".
+ * "<a> <b> <c>" against the pattern "<.*>"
+ * you get "<a> <b> <c>".
  *
  * This function uses a different algorithm (called DFA, i.e. deterministic
  * finite automaton), so it can retrieve all the possible matches, all
  * starting at the same point in the string. For instance matching
- * "&lt;a&gt; &lt;b&gt; &lt;c&gt;" against the pattern "&lt;.*&gt;"
- * you would obtain three matches: "&lt;a&gt; &lt;b&gt; &lt;c&gt;",
- * "&lt;a&gt; &lt;b&gt;" and "&lt;a&gt;".
+ * "<a> <b> <c>" against the pattern "<.*>;"
+ * you would obtain three matches: "<a> <b> <c>",
+ * "<a> <b>" and "<a>".
  *
  * The number of matched strings is retrieved using
  * g_match_info_get_match_count(). To obtain the matched strings and
@@ -2693,40 +2694,20 @@ interpolation_list_needs_match (GList *list)
  *
  * Replaces all occurrences of the pattern in @regex with the
  * replacement text. Backreferences of the form '\number' or
- * '\g&lt;number&gt;' in the replacement text are interpolated by the
- * number-th captured subexpression of the match, '\g&lt;name&gt;' refers
- * to the captured subexpression with the given name. '\0' refers to the
- * complete match, but '\0' followed by a number is the octal representation
- * of a character. To include a literal '\' in the replacement, write '\\'.
+ * '\g<number>' in the replacement text are interpolated by the
+ * number-th captured subexpression of the match, '\g<name>' refers
+ * to the captured subexpression with the given name. '\0' refers
+ * to the complete match, but '\0' followed by a number is the octal
+ * representation of a character. To include a literal '\' in the
+ * replacement, write '\\'.
+ *
  * There are also escapes that changes the case of the following text:
  *
- * <variablelist>
- * <varlistentry><term>\l</term>
- * <listitem>
- * <para>Convert to lower case the next character</para>
- * </listitem>
- * </varlistentry>
- * <varlistentry><term>\u</term>
- * <listitem>
- * <para>Convert to upper case the next character</para>
- * </listitem>
- * </varlistentry>
- * <varlistentry><term>\L</term>
- * <listitem>
- * <para>Convert to lower case till \E</para>
- * </listitem>
- * </varlistentry>
- * <varlistentry><term>\U</term>
- * <listitem>
- * <para>Convert to upper case till \E</para>
- * </listitem>
- * </varlistentry>
- * <varlistentry><term>\E</term>
- * <listitem>
- * <para>End case modification</para>
- * </listitem>
- * </varlistentry>
- * </variablelist>
+ * - \l: Convert to lower case the next character
+ * - \u: Convert to upper case the next character
+ * - \L: Convert to lower case till \E
+ * - \U: Convert to upper case till \E
+ * - \E: End case modification
  *
  * If you do not need to use backreferences use g_regex_replace_literal().
  *
@@ -2855,7 +2836,7 @@ g_regex_replace_literal (const GRegex      *regex,
  *
  * The following example uses g_regex_replace_eval() to replace multiple
  * strings at once:
- * |[
+ * |[<!-- language="C" --> 
  * static gboolean
  * eval_cb (const GMatchInfo *info,
  *          GString          *res,
@@ -2872,7 +2853,7 @@ g_regex_replace_literal (const GRegex      *regex,
  *    return FALSE;
  * }
  *
- * /&ast; ... &ast;/
+ * ...
  *
  * GRegex *reg;
  * GHashTable *h;
@@ -2889,7 +2870,7 @@ g_regex_replace_literal (const GRegex      *regex,
  * res = g_regex_replace_eval (reg, text, -1, 0, 0, eval_cb, h, NULL);
  * g_hash_table_destroy (h);
  *
- * /&ast; ... &ast;/
+ * ...
  * ]|
  *
  * Returns: a newly allocated string containing the replacements

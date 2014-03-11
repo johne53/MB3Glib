@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef __G_OBJECT_H__
 #define __G_OBJECT_H__
@@ -237,7 +235,7 @@ typedef void (*GWeakNotify)		(gpointer      data,
 /**
  * GObject:
  * 
- * All the fields in the <structname>GObject</structname> structure are private 
+ * All the fields in the GObject structure are private 
  * to the #GObject implementation and should never be accessed directly.
  */
 struct  _GObject
@@ -283,7 +281,7 @@ struct  _GObject
  *  should chain up to the @constructed call of their parent class to allow it
  *  to complete its initialisation.
  * 
- * The class structure for the <structname>GObject</structname> type.
+ * The class structure for the GObject type.
  * 
  * <example>
  * <title>Implementing singletons using a constructor</title>
@@ -356,7 +354,7 @@ struct  _GObjectClass
  * @pspec: the #GParamSpec of the construct parameter
  * @value: the value to set the parameter to
  * 
- * The <structname>GObjectConstructParam</structname> struct is an auxiliary 
+ * The GObjectConstructParam struct is an auxiliary 
  * structure used to hand #GParamSpec/#GValue pairs to the @constructor of
  * a #GObjectClass.
  */
@@ -369,14 +367,14 @@ struct _GObjectConstructParam
 /**
  * GInitiallyUnowned:
  * 
- * All the fields in the <structname>GInitiallyUnowned</structname> structure 
+ * All the fields in the GInitiallyUnowned structure 
  * are private to the #GInitiallyUnowned implementation and should never be 
  * accessed directly.
  */
 /**
  * GInitiallyUnownedClass:
  * 
- * The class structure for the <structname>GInitiallyUnowned</structname> type.
+ * The class structure for the GInitiallyUnowned type.
  */
 
 

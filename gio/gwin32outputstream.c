@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  * Author: Tor Lillqvist <tml@iki.fi>
@@ -47,9 +45,9 @@
  * #GWin32OutputStream implements #GOutputStream for writing to a
  * Windows file handle.
  *
- * Note that <filename>&lt;gio/gwin32outputstream.h&gt;</filename> belongs
- * to the Windows-specific GIO interfaces, thus you have to use the
- * <filename>gio-windows-2.0.pc</filename> pkg-config file when using it.
+ * Note that `<gio/gwin32outputstream.h>` belongs to the Windows-specific GIO
+ * interfaces, thus you have to use the `gio-windows-2.0.pc` pkg-config file
+ * when using it.
  */
 
 enum {
@@ -243,7 +241,7 @@ g_win32_output_stream_set_close_handle (GWin32OutputStream *stream,
  * Returns whether the handle of @stream will be closed when the
  * stream is closed.
  *
- * Return value: %TRUE if the handle is closed when done
+ * Returns: %TRUE if the handle is closed when done
  *
  * Since: 2.26
  */
@@ -261,7 +259,7 @@ g_win32_output_stream_get_close_handle (GWin32OutputStream *stream)
  *
  * Return the Windows handle that the stream writes to.
  *
- * Return value: The handle descriptor of @stream
+ * Returns: The handle descriptor of @stream
  *
  * Since: 2.26
  */

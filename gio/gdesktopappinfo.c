@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  *         Ryan Lortie <desrt@desrt.ca>
@@ -61,9 +59,9 @@
  * #GDesktopAppInfo is an implementation of #GAppInfo based on
  * desktop files.
  *
- * Note that <filename>&lt;gio/gdesktopappinfo.h&gt;</filename> belongs to
- * the UNIX-specific GIO interfaces, thus you have to use the
- * <filename>gio-unix-2.0.pc</filename> pkg-config file when using it.
+ * Note that `<gio/gdesktopappinfo.h>` belongs to the UNIX-specific
+ * GIO interfaces, thus you have to use the `gio-unix-2.0.pc` pkg-config
+ * file when using it.
  */
 
 #define DEFAULT_APPLICATIONS_GROUP  "Default Applications"
@@ -250,6 +248,7 @@ add_to_table_if_appropriate (GHashTable      *apps,
 enum
 {
   DESKTOP_KEY_Comment,
+  DESKTOP_KEY_Exec,
   DESKTOP_KEY_GenericName,
   DESKTOP_KEY_Keywords,
   DESKTOP_KEY_Name,
@@ -265,10 +264,11 @@ const gchar desktop_key_match_category[N_DESKTOP_KEYS] = {
    * use the same number for the two different keys.
    */
   [DESKTOP_KEY_Name]             = 1,
-  [DESKTOP_KEY_Keywords]         = 2,
-  [DESKTOP_KEY_GenericName]      = 3,
-  [DESKTOP_KEY_X_GNOME_FullName] = 4,
-  [DESKTOP_KEY_Comment]          = 5
+  [DESKTOP_KEY_Exec]             = 2,
+  [DESKTOP_KEY_Keywords]         = 3,
+  [DESKTOP_KEY_GenericName]      = 4,
+  [DESKTOP_KEY_X_GNOME_FullName] = 5,
+  [DESKTOP_KEY_Comment]          = 6
 };
 
 static gchar *
@@ -278,6 +278,8 @@ desktop_key_get_name (guint key_id)
     {
     case DESKTOP_KEY_Comment:
       return "Comment";
+    case DESKTOP_KEY_Exec:
+      return "Exec";
     case DESKTOP_KEY_GenericName:
       return "GenericName";
     case DESKTOP_KEY_Keywords:
@@ -711,17 +713,34 @@ desktop_file_dir_unindexed_setup_search (DesktopFileDir *dir)
 
           for (i = 0; i < G_N_ELEMENTS (desktop_key_match_category); i++)
             {
-              gchar *value;
+              const gchar *value;
+              gchar *raw;
 
               if (!desktop_key_match_category[i])
                 continue;
 
-              value = g_key_file_get_locale_string (key_file, "Desktop Entry", desktop_key_get_name (i), NULL, NULL);
+              raw = g_key_file_get_locale_string (key_file, "Desktop Entry", desktop_key_get_name (i), NULL, NULL);
+              value = raw;
+
+              if (i == DESKTOP_KEY_Exec && raw != NULL)
+                {
+                  /* Special handling: only match basename of first field */
+                  gchar *space;
+                  gchar *slash;
+
+                  /* Remove extra arguments, if any */
+                  space = raw + strcspn (raw, " \t\n"); /* IFS */
+                  *space = '\0';
+
+                  /* Skip the pathname, if any */
+                  if ((slash = strrchr (raw, '/')))
+                    value = slash + 1;
+                }
 
               if (value)
                 memory_index_add_string (dir->memory_index, value, desktop_key_match_category[i], app);
 
-              g_free (value);
+              g_free (raw);
             }
         }
 
@@ -1309,13 +1328,13 @@ g_desktop_app_info_new_from_filename (const char *filename)
  *
  * A desktop file id is the basename of the desktop file, including the
  * .desktop extension. GIO is looking for a desktop file with this name
- * in the <filename>applications</filename> subdirectories of the XDG data
- * directories (i.e. the directories specified in the
- * <envar>XDG_DATA_HOME</envar> and <envar>XDG_DATA_DIRS</envar> environment
- * variables). GIO also supports the prefix-to-subdirectory mapping that is
- * described in the <ulink url="http://standards.freedesktop.org/menu-spec/latest/">Menu Spec</ulink>
+ * in the `applications` subdirectories of the XDG
+ * data directories (i.e. the directories specified in the `XDG_DATA_HOME`
+ * and `XDG_DATA_DIRS` environment variables). GIO also supports the
+ * prefix-to-subdirectory mapping that is described in the
+ * [Menu Spec](http://standards.freedesktop.org/menu-spec/latest/)
  * (i.e. a desktop id of kde-foo.desktop will match
- * <filename>/usr/share/applications/kde/foo.desktop</filename>).
+ * `/usr/share/applications/kde/foo.desktop`).
  *
  * Returns: a new #GDesktopAppInfo, or %NULL if no desktop file with that id
  */
@@ -1567,7 +1586,7 @@ g_desktop_app_info_get_nodisplay (GDesktopAppInfo *info)
  *
  * Checks if the application info should be shown in menus that list available
  * applications for a specific name of the desktop, based on the
- * <literal>OnlyShowIn</literal> and <literal>NotShowIn</literal> keys.
+ * `OnlyShowIn` and `NotShowIn` keys.
  *
  * If @desktop_env is %NULL, then the name of the desktop set with
  * g_desktop_app_info_set_desktop_env() is used.
@@ -1576,7 +1595,7 @@ g_desktop_app_info_get_nodisplay (GDesktopAppInfo *info)
  * %NULL for @desktop_env) as well as additional checks.
  *
  * Returns: %TRUE if the @info should be shown in @desktop_env according to the
- * <literal>OnlyShowIn</literal> and <literal>NotShowIn</literal> keys, %FALSE
+ * `OnlyShowIn` and `NotShowIn` keys, %FALSE
  * otherwise.
  *
  * Since: 2.30
@@ -2476,20 +2495,19 @@ g_desktop_app_info_launch_uris_as_manager (GDesktopAppInfo            *appinfo,
  * Sets the name of the desktop that the application is running in.
  * This is used by g_app_info_should_show() and
  * g_desktop_app_info_get_show_in() to evaluate the
- * <literal>OnlyShowIn</literal> and <literal>NotShowIn</literal>
+ * `OnlyShowIn` and `NotShowIn`
  * desktop entry fields.
  *
- * The <ulink url="http://standards.freedesktop.org/menu-spec/latest/">Desktop
- * Menu specification</ulink> recognizes the following:
- * <simplelist>
- *   <member>GNOME</member>
- *   <member>KDE</member>
- *   <member>ROX</member>
- *   <member>XFCE</member>
- *   <member>LXDE</member>
- *   <member>Unity</member>
- *   <member>Old</member>
- * </simplelist>
+ * The 
+ * [Desktop Menu specification](http://standards.freedesktop.org/menu-spec/latest/)
+ * recognizes the following:
+ * - GNOME
+ * - KDE
+ * - ROX
+ * - XFCE
+ * - LXDE
+ * - Unity
+ * - Old
  *
  * Should be called only once; subsequent calls are ignored.
  */
@@ -3129,8 +3147,8 @@ g_desktop_app_info_delete (GAppInfo *appinfo)
  * Creates a new #GAppInfo from the given information.
  *
  * Note that for @commandline, the quoting rules of the Exec key of the
- * <ulink url="http://freedesktop.org/Standards/desktop-entry-spec">freedesktop.org Desktop
- * Entry Specification</ulink> are applied. For example, if the @commandline contains
+ * [freedesktop.org Desktop Entry Specification](http://freedesktop.org/Standards/desktop-entry-spec)
+ * are applied. For example, if the @commandline contains
  * percent-encoded URIs, the percent-character must be doubled in order to prevent it from
  * being swallowed by Exec key unquoting. See the specification for exact quoting rules.
  *
@@ -3589,13 +3607,12 @@ g_desktop_app_info_search (const gchar *search_string)
  * on this system.
  *
  * For desktop files, this includes applications that have
- * <literal>NoDisplay=true</literal> set or are excluded from
- * display by means of <literal>OnlyShowIn</literal> or
- * <literal>NotShowIn</literal>. See g_app_info_should_show().
+ * `NoDisplay=true` set or are excluded from display by means
+ * of `OnlyShowIn` or `NotShowIn`. See g_app_info_should_show().
  * The returned list does not include applications which have
- * the <literal>Hidden</literal> key set.
+ * the `Hidden` key set.
  *
- * Returns: (element-type GAppInfo) (transfer full): a newly allocated #GList of references to #GAppInfo<!---->s.
+ * Returns: (element-type GAppInfo) (transfer full): a newly allocated #GList of references to #GAppInfos.
  **/
 GList *
 g_app_info_get_all (void)
@@ -4193,7 +4210,7 @@ append_desktop_entry (GList      *list,
  *
  * Optionally doesn't list the desktop ids given in the @except
  *
- * Return value: a #GList containing the desktop ids which claim
+ * Returns: a #GList containing the desktop ids which claim
  *    to handle @mime_type.
  */
 static GList *

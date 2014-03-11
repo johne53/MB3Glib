@@ -1,62 +1,58 @@
 /* GLIB - Library of useful routines for C programming
- * Copyright (C) 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- */
+	 * Copyright (C) 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald
+	 *
+	 * This library is free software; you can redistribute it and/or
+	 * modify it under the terms of the GNU Lesser General Public
+	 * License as published by the Free Software Foundation; either
+	 * version 2 of the License, or (at your option) any later version.
+	 *
+	 * This library is distributed in the hope that it will be useful,
+	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	 * Lesser General Public License for more details.
+	 *
+	 * You should have received a copy of the GNU Lesser General Public
+	 * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+	 */
 
-/*
- * Modified by the GLib Team and others 1997-2000.  See the AUTHORS
- * file for a list of people on the GLib Team.  See the ChangeLog
- * files for a list of changes.  These files are distributed with
- * GLib at ftp://ftp.gtk.org/pub/gtk/.
- */
+	/*
+	 * Modified by the GLib Team and others 1997-2000.  See the AUTHORS
+	 * file for a list of people on the GLib Team.  See the ChangeLog
+	 * files for a list of changes.  These files are distributed with
+	 * GLib at ftp://ftp.gtk.org/pub/gtk/.
+	 */
 
-/*
- * MT safe
- */
+	/*
+	 * MT safe
+	 */
 
-#include "config.h"
+	#include "config.h"
 
-#include "gslist.h"
+	#include "gslist.h"
 
-#include "gtestutils.h"
-#include "gslice.h"
+	#include "gtestutils.h"
+	#include "gslice.h"
 
-/**
- * SECTION:linked_lists_single
- * @title: Singly-Linked Lists
- * @short_description: linked lists that can be iterated in one direction
+	/**
+	 * SECTION:linked_lists_single
+	 * @title: Singly-Linked Lists
+	 * @short_description: linked lists that can be iterated in one direction
+	 *
+	 * The #GSList structure and its associated functions provide a
+	 * standard singly-linked list data structure.
+	 *
+	 * Each element in the list contains a piece of data, together with a
+	 * pointer which links to the next element in the list. Using this
+	 * pointer it is possible to move through the list in one direction
+	 * only (unlike the [double-linked lists][glib-Doubly-Linked-Lists],
+	 * which allow movement in both directions).
+	 *
+	 * The data contained in each element can be either integer values, by
+	 * using one of the [Type Conversion Macros][glib-Type-Conversion-Macros],
+	 * or simply pointers to any type of data.
  *
- * The #GSList structure and its associated functions provide a
- * standard singly-linked list data structure.
- *
- * Each element in the list contains a piece of data, together with a
- * pointer which links to the next element in the list. Using this
- * pointer it is possible to move through the list in one direction
- * only (unlike the <link
- * linkend="glib-Doubly-Linked-Lists">Doubly-Linked Lists</link> which
- * allow movement in both directions).
- *
- * The data contained in each element can be either integer values, by
- * using one of the <link linkend="glib-Type-Conversion-Macros">Type
- * Conversion Macros</link>, or simply pointers to any type of data.
- *
- * List elements are allocated from the <link
- * linkend="glib-Memory-Slices">slice allocator</link>, which is more
- * efficient than allocating elements individually.
+ * List elements are allocated from the [slice allocator][glib-Memory-Slices],
+ * which is more efficient than allocating elements individually.
  *
  * Note that most of the #GSList functions expect to be passed a
  * pointer to the first element in the list. The functions which insert
@@ -86,9 +82,8 @@
 /**
  * GSList:
  * @data: holds the element's data, which can be a pointer to any kind
- *        of data, or any integer value using the <link
- *        linkend="glib-Type-Conversion-Macros">Type Conversion
- *        Macros</link>.
+ *        of data, or any integer value using the
+ *        [Type Conversion Macros][glib-Type-Conversion-Macros]
  * @next: contains the link to the next element in the list.
  *
  * The #GSList struct is used for each element in the singly-linked
@@ -130,11 +125,9 @@ g_slist_alloc (void)
  * Frees all of the memory used by a #GSList.
  * The freed elements are returned to the slice allocator.
  *
- * <note><para>
  * If list elements contain dynamically-allocated memory,
  * you should either use g_slist_free_full() or free them manually
  * first.
- * </para></note>
  */
 void
 g_slist_free (GSList *list)
@@ -187,27 +180,23 @@ g_slist_free_full (GSList         *list,
  *
  * Adds a new element on to the end of the list.
  *
- * <note><para>
  * The return value is the new start of the list, which may
  * have changed, so make sure you store the new value.
- * </para></note>
  *
- * <note><para>
  * Note that g_slist_append() has to traverse the entire list
  * to find the end, which is inefficient when adding multiple
  * elements. A common idiom to avoid the inefficiency is to prepend
  * the elements and reverse the list when all elements have been added.
- * </para></note>
  *
- * |[
- * /&ast; Notice that these are initialized to the empty list. &ast;/
+ * |[<!-- language="C" --> 
+ * // Notice that these are initialized to the empty list.
  * GSList *list = NULL, *number_list = NULL;
  *
- * /&ast; This is a list of strings. &ast;/
+ * // This is a list of strings.
  * list = g_slist_append (list, "first");
  * list = g_slist_append (list, "second");
  *
- * /&ast; This is a list of integers. &ast;/
+ * // This is a list of integers.
  * number_list = g_slist_append (number_list, GINT_TO_POINTER (27));
  * number_list = g_slist_append (number_list, GINT_TO_POINTER (14));
  * ]|
@@ -244,13 +233,11 @@ g_slist_append (GSList   *list,
  *
  * Adds a new element on to the start of the list.
  *
- * <note><para>
  * The return value is the new start of the list, which
  * may have changed, so make sure you store the new value.
- * </para></note>
  *
- * |[
- * /&ast; Notice that it is initialized to the empty list. &ast;/
+ * |[<!-- language="C" --> 
+ * // Notice that it is initialized to the empty list.
  * GSList *list = NULL;
  * list = g_slist_prepend (list, "last");
  * list = g_slist_prepend (list, "first");
@@ -517,11 +504,11 @@ _g_slist_remove_link (GSList *list,
  * link is set to %NULL, so that it becomes a
  * self-contained list with one element.
  *
- * <note>Removing arbitrary nodes from a singly-linked list
+ * Removing arbitrary nodes from a singly-linked list
  * requires time that is proportional to the length of the list
  * (ie. O(n)). If you find yourself using g_slist_remove_link()
- * frequently, you should consider a different data structure, such
- * as the doubly-linked #GList.</note>
+ * frequently, you should consider a different data structure,
+ * such as the doubly-linked #GList.
  *
  * Returns: the new start of the #GSList, without the element
  */
@@ -541,11 +528,11 @@ g_slist_remove_link (GSList *list,
  * Compare this to g_slist_remove_link() which removes the node
  * without freeing it.
  *
- * <note>Removing arbitrary nodes from a singly-linked list
- * requires time that is proportional to the length of the list
- * (ie. O(n)). If you find yourself using g_slist_delete_link()
- * frequently, you should consider a different data structure, such
- * as the doubly-linked #GList.</note>
+ * Removing arbitrary nodes from a singly-linked list requires time
+ * that is proportional to the length of the list (ie. O(n)). If you
+ * find yourself using g_slist_delete_link() frequently, you should
+ * consider a different data structure, such as the doubly-linked
+ * #GList.
  *
  * Returns: the new head of @list
  */
@@ -565,12 +552,10 @@ g_slist_delete_link (GSList *list,
  *
  * Copies a #GSList.
  *
- * <note><para>
  * Note that this is a "shallow" copy. If the list elements
  * consist of pointers to data, the pointers are copied but
  * the actual data isn't. See g_slist_copy_deep() if you need
  * to copy the data as well.
- * </para></note>
  *
  * Returns: a copy of @list
  */
@@ -596,12 +581,12 @@ g_slist_copy (GSList *list)
  * one argument.
  *
  * For instance, if @list holds a list of GObjects, you can do:
- * |[
+ * |[<!-- language="C" --> 
  * another_list = g_slist_copy_deep (list, (GCopyFunc) g_object_ref, NULL);
  * ]|
  *
  * And, to entirely free the new list, you could do:
- * |[
+ * |[<!-- language="C" --> 
  * g_slist_free_full (another_list, g_object_unref);
  * ]|
  *
@@ -830,9 +815,7 @@ g_slist_index (GSList        *list,
  *
  * Gets the last element in a #GSList.
  *
- * <note><para>
  * This function iterates over the whole list.
- * </para></note>
  *
  * Returns: the last element in the #GSList,
  *     or %NULL if the #GSList has no elements
@@ -855,10 +838,8 @@ g_slist_last (GSList *list)
  *
  * Gets the number of elements in a #GSList.
  *
- * <note><para>
  * This function iterates over the whole list to
  * count its elements.
- * </para></note>
  *
  * Returns: the number of elements in the #GSList
  */

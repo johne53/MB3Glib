@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: David Zeuthen <davidz@redhat.com>
  */
@@ -47,8 +45,8 @@
  *
  * #GDBusObjectManagerClient is used to create, monitor and delete object
  * proxies for remote objects exported by a #GDBusObjectManagerServer (or any
- * code implementing the <ulink
- * url="http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-objectmanager">org.freedesktop.DBus.ObjectManager</ulink>
+ * code implementing the
+ * [org.freedesktop.DBus.ObjectManager](http://dbus.freedesktop.org/doc/dbus-specification.html#standard-interfaces-objectmanager)
  * interface).
  *
  * Once an instance of this type has been created, you can connect to
@@ -88,18 +86,17 @@
  * is set to the new name owner (this includes emission of the
  * #GObject::notify signal).  Furthermore, you are guaranteed that
  * #GDBusObjectManagerClient:name-owner will alternate between a name owner
- * (e.g. <literal>:1.42</literal>) and %NULL even in the case where
+ * (e.g. `:1.42`) and %NULL even in the case where
  * the name of interest is atomically replaced
  *
  * Ultimately, #GDBusObjectManagerClient is used to obtain #GDBusProxy
  * instances. All signals (including the
- * <literal>org.freedesktop.DBus.Properties::PropertiesChanged</literal>
- * signal) delivered to #GDBusProxy instances are guaranteed to
- * originate from the name owner. This guarantee along with the
- * behavior described above, means that certain race conditions
- * including the <emphasis><quote>half the proxy is from the old owner
- * and the other half is from the new owner</quote></emphasis> problem
- * cannot happen.
+ * org.freedesktop.DBus.Properties::PropertiesChanged signal)
+ * delivered to #GDBusProxy instances are guaranteed to originate
+ * from the name owner. This guarantee along with the behavior
+ * described above, means that certain race conditions including the
+ * "half the proxy is from the old owner and the other half is from
+ * the new owner" problem cannot happen.
  *
  * To avoid having the application connect to signals on the returned
  * #GDBusObjectProxy and #GDBusProxy objects, the
@@ -115,7 +112,7 @@
  * #GDBusObjectManagerClient::interface-proxy-signal.
  *
  * Note that all callbacks and signals are emitted in the
- * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+ * [thread-default main context][g-main-context-push-thread-default]
  * that the #GDBusObjectManagerClient object was constructed
  * in. Additionally, the #GDBusObjectProxy and #GDBusProxy objects
  * originating from the #GDBusObjectManagerClient object will be created in
@@ -508,7 +505,7 @@ g_dbus_object_manager_client_class_init (GDBusObjectManagerClientClass *klass)
    * connect signals to all interface proxies managed by @manager.
    *
    * This signal is emitted in the
-   * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+   * [thread-default main context][g-main-context-push-thread-default]
    * that @manager was constructed in.
    *
    * Since: 2.30
@@ -546,7 +543,7 @@ g_dbus_object_manager_client_class_init (GDBusObjectManagerClientClass *klass)
    * connect signals to all interface proxies managed by @manager.
    *
    * This signal is emitted in the
-   * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+   * [thread-default main context][g-main-context-push-thread-default]
    * that @manager was constructed in.
    *
    * Since: 2.30
@@ -657,7 +654,7 @@ g_dbus_object_manager_client_new_sync (GDBusConnection               *connection
  *
  * This is an asynchronous failable constructor. When the result is
  * ready, @callback will be invoked in the
- * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+ * [thread-default main context][g-main-context-push-thread-default]
  * of the thread you are calling this method from. You can
  * then call g_dbus_object_manager_client_new_finish() to get the result. See
  * g_dbus_object_manager_client_new_sync() for the synchronous version.
@@ -810,7 +807,7 @@ g_dbus_object_manager_client_new_for_bus_sync (GBusType                       bu
  *
  * This is an asynchronous failable constructor. When the result is
  * ready, @callback will be invoked in the
- * <link linkend="g-main-context-push-thread-default">thread-default main loop</link>
+ * [thread-default main loop][g-main-context-push-thread-default]
  * of the thread you are calling this method from. You can
  * then call g_dbus_object_manager_client_new_for_bus_finish() to get the result. See
  * g_dbus_object_manager_client_new_for_bus_sync() for the synchronous version.

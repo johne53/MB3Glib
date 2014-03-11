@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Ryan Lortie <desrt@desrt.ca>
  */
@@ -63,10 +61,9 @@
  * the property.
  *
  * The general idea here is to reduce the number of locations where a
- * particular piece of state is kept (and therefore has to be
- * synchronised between).  #GPropertyAction does not have a separate
- * state that is kept in sync with the property value -- its state
- * <em>is</em> the property value.
+ * particular piece of state is kept (and therefore has to be synchronised
+ * between). #GPropertyAction does not have a separate state that is kept
+ * in sync with the property value -- its state is the property value.
  *
  * For example, it might be useful to create a #GAction corresponding to
  * the "visible-child-name" property of a #GtkStack so that the current

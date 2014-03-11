@@ -37,7 +37,6 @@
 #include "ghash.h"
 #include "glibintl.h"
 #include "glist.h"
-#include "gslist.h"
 #include "gmain.h"
 #include "gmarkup.h"
 #include "gmem.h"
@@ -61,26 +60,27 @@
  * like its MIME type, the application that is registering the bookmark and
  * the icon that should be used to represent the bookmark. The data is stored
  * using the
- * <ulink url="http://www.gnome.org/~ebassi/bookmark-spec">Desktop Bookmark
- * Specification</ulink>.
+ * [Desktop Bookmark Specification](http://www.gnome.org/~ebassi/bookmark-spec).
  *
- * The syntax of the bookmark files is described in detail inside the Desktop
- * Bookmark Specification, here is a quick summary: bookmark files use a
- * sub-class of the <ulink url="">XML Bookmark Exchange Language</ulink>
+ * The syntax of the bookmark files is described in detail inside the
+ * Desktop Bookmark Specification, here is a quick summary: bookmark
+ * files use a sub-class of the XML Bookmark Exchange Language
  * specification, consisting of valid UTF-8 encoded XML, under the
- * <literal>xbel</literal> root element; each bookmark is stored inside a
- * <literal>bookmark</literal> element, using its URI: no relative paths can
- * be used inside a bookmark file. The bookmark may have a user defined title
- * and description, to be used instead of the URI. Under the
- * <literal>metadata</literal> element, with its <literal>owner</literal>
- * attribute set to <literal>http://freedesktop.org</literal>, is stored the
- * meta-data about a resource pointed by its URI. The meta-data consists of
- * the resource's MIME type; the applications that have registered a bookmark;
- * the groups to which a bookmark belongs to; a visibility flag, used to set
- * the bookmark as "private" to the applications and groups that has it
- * registered; the URI and MIME type of an icon, to be used when displaying
- * the bookmark inside a GUI.
- * |[<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" parse="text" href="../../../../glib/tests/bookmarks.xbel"><xi:fallback>FIXME: MISSING XINCLUDE CONTENT</xi:fallback></xi:include>]|
+ * <xbel> root element; each bookmark is stored inside a
+ * <bookmark> element, using its URI: no relative paths can
+ * be used inside a bookmark file. The bookmark may have a user defined
+ * title and description, to be used instead of the URI. Under the
+ * <metadata> element, with its owner attribute set to
+ * `http://freedesktop.org`, is stored the meta-data about a resource
+ * pointed by its URI. The meta-data consists of the resource's MIME
+ * type; the applications that have registered a bookmark; the groups
+ * to which a bookmark belongs to; a visibility flag, used to set the
+ * bookmark as "private" to the applications and groups that has it
+ * registered; the URI and MIME type of an icon, to be used when
+ * displaying the bookmark inside a GUI.
+ *
+ * Here is an example of a bookmark file:
+ * [bookmarks.xbel](https://git.gnome.org/browse/glib/tree/glib/tests/bookmarks.xbel)
  *
  * A bookmark file might contain more than one bookmark; each bookmark
  * is accessed through its URI.
@@ -1575,7 +1575,7 @@ G_DEFINE_QUARK (g-bookmark-file-error-quark, g_bookmark_file_error)
  * or g_bookmark_file_load_from_data_dirs() to read an existing bookmark
  * file.
  *
- * Return value: an empty #GBookmarkFile
+ * Returns: an empty #GBookmarkFile
  *
  * Since: 2.12
  */
@@ -1621,7 +1621,7 @@ g_bookmark_file_free (GBookmarkFile *bookmark)
  * structure.  If the object cannot be created then @error is set to a
  * #GBookmarkFileError.
  *
- * Return value: %TRUE if a desktop bookmark could be loaded.
+ * Returns: %TRUE if a desktop bookmark could be loaded.
  *
  * Since: 2.12
  */
@@ -1664,7 +1664,7 @@ g_bookmark_file_load_from_data (GBookmarkFile  *bookmark,
  * If the file could not be loaded then @error is set to either a #GFileError
  * or #GBookmarkFileError.
  *
- * Return value: %TRUE if a desktop bookmark file could be loaded
+ * Returns: %TRUE if a desktop bookmark file could be loaded
  *
  * Since: 2.12
  */
@@ -1793,7 +1793,7 @@ find_file_in_data_dirs (const gchar   *file,
  * @full_path.  If the file could not be loaded then an %error is
  * set to either a #GFileError or #GBookmarkFileError.
  *
- * Return value: %TRUE if a key file could be loaded, %FALSE otherwise
+ * Returns: %TRUE if a key file could be loaded, %FALSE otherwise
  *
  * Since: 2.12
  */
@@ -1869,7 +1869,7 @@ g_bookmark_file_load_from_data_dirs (GBookmarkFile  *bookmark,
  *
  * This function outputs @bookmark as a string.
  *
- * Return value: a newly allocated string holding
+ * Returns: a newly allocated string holding
  *   the contents of the #GBookmarkFile
  *
  * Since: 2.12
@@ -1904,7 +1904,7 @@ g_bookmark_file_to_data (GBookmarkFile  *bookmark,
  * This function outputs @bookmark into a file.  The write process is
  * guaranteed to be atomic by using g_file_set_contents() internally.
  *
- * Return value: %TRUE if the file was successfully written.
+ * Returns: %TRUE if the file was successfully written.
  *
  * Since: 2.12
  */
@@ -1997,7 +1997,7 @@ g_bookmark_file_add_item (GBookmarkFile  *bookmark,
  *
  * Removes the bookmark for @uri from the bookmark file @bookmark.
  *
- * Return value: %TRUE if the bookmark was removed successfully.
+ * Returns: %TRUE if the bookmark was removed successfully.
  * 
  * Since: 2.12
  */
@@ -2037,7 +2037,7 @@ g_bookmark_file_remove_item (GBookmarkFile  *bookmark,
  *
  * Looks whether the desktop bookmark has an item with its URI set to @uri.
  *
- * Return value: %TRUE if @uri is inside @bookmark, %FALSE otherwise
+ * Returns: %TRUE if @uri is inside @bookmark, %FALSE otherwise
  *
  * Since: 2.12
  */
@@ -2060,7 +2060,7 @@ g_bookmark_file_has_item (GBookmarkFile *bookmark,
  * The array of returned URIs will be %NULL-terminated, so @length may
  * optionally be %NULL.
  *
- * Return value: (array length=length) (transfer full): a newly allocated %NULL-terminated array of strings.
+ * Returns: (array length=length) (transfer full): a newly allocated %NULL-terminated array of strings.
  *   Use g_strfreev() to free it.
  *
  * Since: 2.12
@@ -2153,7 +2153,7 @@ g_bookmark_file_set_title (GBookmarkFile *bookmark,
  * In the event the URI cannot be found, %NULL is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: a newly allocated string or %NULL if the specified
+ * Returns: a newly allocated string or %NULL if the specified
  *   URI cannot be found.
  *
  * Since: 2.12
@@ -2238,7 +2238,7 @@ g_bookmark_file_set_description (GBookmarkFile *bookmark,
  * In the event the URI cannot be found, %NULL is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: a newly allocated string or %NULL if the specified
+ * Returns: a newly allocated string or %NULL if the specified
  *   URI cannot be found.
  *
  * Since: 2.12
@@ -2320,7 +2320,7 @@ g_bookmark_file_set_mime_type (GBookmarkFile *bookmark,
  * event that the MIME type cannot be found, %NULL is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_INVALID_VALUE.
  *
- * Return value: a newly allocated string or %NULL if the specified
+ * Returns: a newly allocated string or %NULL if the specified
  *   URI cannot be found.
  *
  * Since: 2.12
@@ -2406,7 +2406,7 @@ g_bookmark_file_set_is_private (GBookmarkFile *bookmark,
  * event that the private flag cannot be found, %FALSE is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_INVALID_VALUE.
  *
- * Return value: %TRUE if the private flag is set, %FALSE otherwise.
+ * Returns: %TRUE if the private flag is set, %FALSE otherwise.
  *
  * Since: 2.12
  */
@@ -2489,7 +2489,7 @@ g_bookmark_file_set_added (GBookmarkFile *bookmark,
  * In the event the URI cannot be found, -1 is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: a timestamp
+ * Returns: a timestamp
  *
  * Since: 2.12
  */
@@ -2567,7 +2567,7 @@ g_bookmark_file_set_modified (GBookmarkFile *bookmark,
  * In the event the URI cannot be found, -1 is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: a timestamp
+ * Returns: a timestamp
  *
  * Since: 2.12
  */
@@ -2646,7 +2646,7 @@ g_bookmark_file_set_visited (GBookmarkFile *bookmark,
  * In the event the URI cannot be found, -1 is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: a timestamp.
+ * Returns: a timestamp.
  *
  * Since: 2.12
  */
@@ -2686,7 +2686,7 @@ g_bookmark_file_get_visited (GBookmarkFile  *bookmark,
  * In the event the URI cannot be found, %FALSE is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: %TRUE if @group was found.
+ * Returns: %TRUE if @group was found.
  *
  * Since: 2.12
  */
@@ -2783,7 +2783,7 @@ g_bookmark_file_add_group (GBookmarkFile *bookmark,
  * In the event no group was defined, %FALSE is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_INVALID_VALUE.
  *
- * Return value: %TRUE if @group was successfully removed.
+ * Returns: %TRUE if @group was successfully removed.
  *
  * Since: 2.12
  */
@@ -2900,7 +2900,7 @@ g_bookmark_file_set_groups (GBookmarkFile  *bookmark,
  * The returned array is %NULL terminated, so @length may optionally
  * be %NULL.
  *
- * Return value: (array length=length) (transfer full): a newly allocated %NULL-terminated array of group names.
+ * Returns: (array length=length) (transfer full): a newly allocated %NULL-terminated array of group names.
  *   Use g_strfreev() to free it.
  *
  * Since: 2.12
@@ -3046,7 +3046,7 @@ g_bookmark_file_add_application (GBookmarkFile *bookmark,
  * a bookmark for @uri,  %FALSE is returned and error is set to
  * #G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED.
  *
- * Return value: %TRUE if the application was successfully removed.
+ * Returns: %TRUE if the application was successfully removed.
  *
  * Since: 2.12
  */
@@ -3093,7 +3093,7 @@ g_bookmark_file_remove_application (GBookmarkFile  *bookmark,
  * In the event the URI cannot be found, %FALSE is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: %TRUE if the application @name was found
+ * Returns: %TRUE if the application @name was found
  *
  * Since: 2.12
  */
@@ -3161,7 +3161,7 @@ g_bookmark_file_has_application (GBookmarkFile  *bookmark,
  * #G_BOOKMARK_FILE_ERROR_APP_NOT_REGISTERED.  Otherwise, if no bookmark
  * for @uri is found, one is created.
  *
- * Return value: %TRUE if the application's meta-data was successfully
+ * Returns: %TRUE if the application's meta-data was successfully
  *   changed.
  *
  * Since: 2.12
@@ -3333,7 +3333,7 @@ expand_exec_line (const gchar *exec_fmt,
  * the command line fails, an error of the #G_SHELL_ERROR domain is
  * set and %FALSE is returned.
  *
- * Return value: %TRUE on success.
+ * Returns: %TRUE on success.
  *
  * Since: 2.12
  */
@@ -3423,7 +3423,7 @@ g_bookmark_file_get_app_info (GBookmarkFile  *bookmark,
  * In the event the URI cannot be found, %NULL is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: (array length=length) (transfer full): a newly allocated %NULL-terminated array of strings.
+ * Returns: (array length=length) (transfer full): a newly allocated %NULL-terminated array of strings.
  *   Use g_strfreev() to free it.
  *
  * Since: 2.12
@@ -3490,7 +3490,7 @@ g_bookmark_file_get_applications (GBookmarkFile  *bookmark,
  * 
  * Gets the number of bookmarks inside @bookmark.
  * 
- * Return value: the number of bookmarks
+ * Returns: the number of bookmarks
  *
  * Since: 2.12
  */
@@ -3516,7 +3516,7 @@ g_bookmark_file_get_size (GBookmarkFile *bookmark)
  * In the event the URI cannot be found, %FALSE is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: %TRUE if the URI was successfully changed
+ * Returns: %TRUE if the URI was successfully changed
  *
  * Since: 2.12
  */
@@ -3630,7 +3630,7 @@ g_bookmark_file_set_icon (GBookmarkFile *bookmark,
  * In the event the URI cannot be found, %FALSE is returned and
  * @error is set to #G_BOOKMARK_FILE_ERROR_URI_NOT_FOUND.
  *
- * Return value: %TRUE if the icon for the bookmark for the URI was found.
+ * Returns: %TRUE if the icon for the bookmark for the URI was found.
  *   You should free the returned strings.
  *
  * Since: 2.12

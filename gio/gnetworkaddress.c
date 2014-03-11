@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -249,29 +247,17 @@ g_network_address_set_addresses (GNetworkAddress *addr,
 static gboolean
 g_network_address_parse_sockaddr (GNetworkAddress *addr)
 {
-  struct addrinfo hints, *res = NULL;
   GSocketAddress *sockaddr;
-  gchar port[32];
 
-  memset (&hints, 0, sizeof (hints));
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_flags = AI_NUMERICHOST
-#ifdef AI_NUMERICSERV
-    | AI_NUMERICSERV
-#endif
-    ;
-  g_snprintf (port, sizeof (port), "%u", addr->priv->port);
-
-  if (getaddrinfo (addr->priv->hostname, port, &hints, &res) != 0)
+  sockaddr = g_inet_socket_address_new_from_string (addr->priv->hostname,
+                                                    addr->priv->port);
+  if (sockaddr)
+    {
+      addr->priv->sockaddrs = g_list_prepend (addr->priv->sockaddrs, sockaddr);
+      return TRUE;
+    }
+  else
     return FALSE;
-
-  sockaddr = g_socket_address_new_from_native (res->ai_addr, res->ai_addrlen);
-  freeaddrinfo (res);
-  if (!sockaddr || !G_IS_INET_SOCKET_ADDRESS (sockaddr))
-    return FALSE;
-
-  addr->priv->sockaddrs = g_list_prepend (addr->priv->sockaddrs, sockaddr);
-  return TRUE;
 }
 
 /**
@@ -282,7 +268,7 @@ g_network_address_parse_sockaddr (GNetworkAddress *addr)
  * Creates a new #GSocketConnectable for connecting to the given
  * @hostname and @port.
  *
- * Return value: (transfer full) (type GNetworkAddress): the new #GNetworkAddress
+ * Returns: (transfer full) (type GNetworkAddress): the new #GNetworkAddress
  *
  * Since: 2.22
  */
@@ -324,7 +310,7 @@ g_network_address_new (const gchar *hostname,
  * is deprecated, because it depends on the contents of /etc/services,
  * which is generally quite sparse on platforms other than Linux.)
  *
- * Return value: (transfer full): the new #GNetworkAddress, or %NULL on error
+ * Returns: (transfer full): the new #GNetworkAddress, or %NULL on error
  *
  * Since: 2.22
  */
@@ -735,7 +721,7 @@ _g_uri_from_authority (const gchar *protocol,
  * g_network_address_parse() allows #GSocketClient to determine
  * when to use application-specific proxy protocols.
  *
- * Return value: (transfer full): the new #GNetworkAddress, or %NULL on error
+ * Returns: (transfer full): the new #GNetworkAddress, or %NULL on error
  *
  * Since: 2.26
  */
@@ -781,7 +767,7 @@ g_network_address_parse_uri (const gchar  *uri,
  * Gets @addr's hostname. This might be either UTF-8 or ASCII-encoded,
  * depending on what @addr was created with.
  *
- * Return value: @addr's hostname
+ * Returns: @addr's hostname
  *
  * Since: 2.22
  */
@@ -799,7 +785,7 @@ g_network_address_get_hostname (GNetworkAddress *addr)
  *
  * Gets @addr's port number
  *
- * Return value: @addr's port (which may be 0)
+ * Returns: @addr's port (which may be 0)
  *
  * Since: 2.22
  */
@@ -817,7 +803,7 @@ g_network_address_get_port (GNetworkAddress *addr)
  *
  * Gets @addr's scheme
  *
- * Return value: @addr's scheme (%NULL if not built from URI)
+ * Returns: @addr's scheme (%NULL if not built from URI)
  *
  * Since: 2.26
  */

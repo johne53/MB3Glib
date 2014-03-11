@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Ryan Lortie <desrt@desrt.ca>
  */
@@ -66,7 +64,7 @@
  * with actions.  'Internal' APIs (ie: ones meant only to be accessed by
  * the action group implementation) are found on subclasses.  This is
  * why you will find - for example - g_action_group_get_action_enabled()
- * but not an equivalent <function>set()</function> call.
+ * but not an equivalent set() call.
  *
  * Signals are emitted on the action group in response to state changes
  * on individual actions.
@@ -391,7 +389,7 @@ g_action_group_has_action (GActionGroup *action_group,
  * possible for an action to be removed and for a new action to be added
  * with the same name but a different parameter type.
  *
- * Return value: the parameter type
+ * Returns: the parameter type
  *
  * Since: 2.28
  **/
@@ -465,7 +463,7 @@ g_action_group_get_action_state_type (GActionGroup *action_group,
  * The return value (if non-%NULL) should be freed with
  * g_variant_unref() when it is no longer required.
  *
- * Return value: (transfer full): the state range hint
+ * Returns: (transfer full): the state range hint
  *
  * Since: 2.28
  **/
@@ -489,7 +487,7 @@ g_action_group_get_action_state_hint (GActionGroup *action_group,
  * An action must be enabled in order to be activated or in order to
  * have its state changed from outside callers.
  *
- * Return value: whether or not the action is currently enabled
+ * Returns: whether or not the action is currently enabled
  *
  * Since: 2.28
  **/
@@ -517,7 +515,7 @@ g_action_group_get_action_enabled (GActionGroup *action_group,
  * The return value (if non-%NULL) should be freed with
  * g_variant_unref() when it is no longer required.
  *
- * Return value: (allow-none): the current state of the action
+ * Returns: (allow-none): the current state of the action
  *
  * Since: 2.28
  **/

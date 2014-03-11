@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -61,38 +59,29 @@
  * SECTION:testing
  * @title: Testing
  * @short_description: a test framework
- * @see_also: <link linkend="gtester">gtester</link>,
- *            <link linkend="gtester-report">gtester-report</link>
+ * @see_also: [gtester][gtester], [gtester-report][gtester-report]
  *
  * GLib provides a framework for writing and maintaining unit tests
  * in parallel to the code they are testing. The API is designed according
  * to established concepts found in the other test frameworks (JUnit, NUnit,
  * RUnit), which in turn is based on smalltalk unit testing concepts.
  *
- * <variablelist>
- *   <varlistentry>
- *     <term>Test case</term>
- *     <listitem>Tests (test methods) are grouped together with their
- *       fixture into test cases.</listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term>Fixture</term>
- *     <listitem>A test fixture consists of fixture data and setup and
- *       teardown methods to establish the environment for the test
- *       functions. We use fresh fixtures, i.e. fixtures are newly set
- *       up and torn down around each test invocation to avoid dependencies
- *       between tests.</listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term>Test suite</term>
- *     <listitem>Test cases can be grouped into test suites, to allow
- *       subsets of the available tests to be run. Test suites can be
- *       grouped into other test suites as well.</listitem>
- *   </varlistentry>
- * </variablelist>
+ * - Test case: Tests (test methods) are grouped together with their
+ *   fixture into test cases.
+ *
+ * - Fixture: A test fixture consists of fixture data and setup and
+ *   teardown methods to establish the environment for the test
+ *   functions. We use fresh fixtures, i.e. fixtures are newly set
+ *   up and torn down around each test invocation to avoid dependencies
+ *   between tests.
+ *
+ * - Test suite: Test cases can be grouped into test suites, to allow
+ *   subsets of the available tests to be run. Test suites can be
+ *   grouped into other test suites as well.
+ *
  * The API is designed to handle creation and registration of test suites
  * and test cases implicitly. A simple call like
- * |[
+ * |[<!-- language="C" --> 
  *   g_test_add_func ("/misc/assertions", test_assertions);
  * ]|
  * creates a test suite called "misc" with a single test case named
@@ -198,16 +187,16 @@
 /**
  * GTestTrapFlags:
  * @G_TEST_TRAP_SILENCE_STDOUT: Redirect stdout of the test child to
- *     <filename>/dev/null</filename> so it cannot be observed on the
- *     console during test runs. The actual output is still captured
- *     though to allow later tests with g_test_trap_assert_stdout().
+ *     `/dev/null` so it cannot be observed on the console during test
+ *     runs. The actual output is still captured though to allow later
+ *     tests with g_test_trap_assert_stdout().
  * @G_TEST_TRAP_SILENCE_STDERR: Redirect stderr of the test child to
- *     <filename>/dev/null</filename> so it cannot be observed on the
- *     console during test runs. The actual output is still captured
- *     though to allow later tests with g_test_trap_assert_stderr().
+ *     `/dev/null` so it cannot be observed on the console during test
+ *     runs. The actual output is still captured though to allow later
+ *     tests with g_test_trap_assert_stderr().
  * @G_TEST_TRAP_INHERIT_STDIN: If this flag is given, stdin of the
  *     child process is shared with stdin of its parent process.
- *     It is redirected to <filename>/dev/null</filename> otherwise.
+ *     It is redirected to `/dev/null` otherwise.
  *
  * Test traps are guards around forked tests.
  * These flags determine what traps to set.
@@ -221,7 +210,7 @@
  * GTestSubprocessFlags:
  * @G_TEST_SUBPROCESS_INHERIT_STDIN: If this flag is given, the child
  *     process will inherit the parent's stdin. Otherwise, the child's
- *     stdin is redirected to <filename>/dev/null</filename>.
+ *     stdin is redirected to `/dev/null`.
  * @G_TEST_SUBPROCESS_INHERIT_STDOUT: If this flag is given, the child
  *     process will inherit the parent's stdout. Otherwise, the child's
  *     stdout will not be visible, but it will be captured to allow
@@ -263,8 +252,7 @@
 
 /**
  * g_test_trap_assert_stdout:
- * @soutpattern: a glob-style
- *     <link linkend="glib-Glob-style-pattern-matching">pattern</link>
+ * @soutpattern: a glob-style [pattern][glib-Glob-style-pattern-matching]
  *
  * Assert that the stdout output of the last test subprocess matches
  * @soutpattern. See g_test_trap_subprocess().
@@ -274,8 +262,7 @@
 
 /**
  * g_test_trap_assert_stdout_unmatched:
- * @soutpattern: a glob-style
- *     <link linkend="glib-Glob-style-pattern-matching">pattern</link>
+ * @soutpattern: a glob-style [pattern][glib-Glob-style-pattern-matching]
  *
  * Assert that the stdout output of the last test subprocess
  * does not match @soutpattern. See g_test_trap_subprocess().
@@ -285,8 +272,7 @@
 
 /**
  * g_test_trap_assert_stderr:
- * @serrpattern: a glob-style
- *     <link linkend="glib-Glob-style-pattern-matching">pattern</link>
+ * @serrpattern: a glob-style [pattern][glib-Glob-style-pattern-matching]
  *
  * Assert that the stderr output of the last test subprocess
  * matches @serrpattern. See  g_test_trap_subprocess().
@@ -303,8 +289,7 @@
 
 /**
  * g_test_trap_assert_stderr_unmatched:
- * @serrpattern: a glob-style
- *     <link linkend="glib-Glob-style-pattern-matching">pattern</link>
+ * @serrpattern: a glob-style [pattern][glib-Glob-style-pattern-matching]
  *
  * Assert that the stderr output of the last test subprocess
  * does not match @serrpattern. See g_test_trap_subprocess().
@@ -330,7 +315,7 @@
  * an error message is logged and the application is terminated.
  *
  * The macro can be turned off in final releases of code by defining
- * <envar>G_DISABLE_ASSERT</envar> when compiling the application.
+ * `G_DISABLE_ASSERT` when compiling the application.
  */
 
 /**
@@ -341,7 +326,7 @@
  * application is terminated.
  *
  * The macro can be turned off in final releases of code by defining
- * <envar>G_DISABLE_ASSERT</envar> when compiling the application.
+ * `G_DISABLE_ASSERT` when compiling the application.
  */
 
 /**
@@ -408,7 +393,7 @@
  * g_assert_cmpstr:
  * @s1: a string (may be %NULL)
  * @cmp: The comparison operator to use.
- *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
+ *     One of ==, !=, <, >, <=, >=.
  * @s2: another string (may be %NULL)
  *
  * Debugging macro to compare two strings. If the comparison fails,
@@ -416,12 +401,12 @@
  * or the testcase marked as failed.
  * The strings are compared using g_strcmp0().
  *
- * The effect of <literal>g_assert_cmpstr (s1, op, s2)</literal> is
- * the same as <literal>g_assert_true (g_strcmp0 (s1, s2) op 0)</literal>.
+ * The effect of `g_assert_cmpstr (s1, op, s2)` is
+ * the same as `g_assert_true (g_strcmp0 (s1, s2) op 0)`.
  * The advantage of this macro is that it can produce a message that
  * includes the actual values of @s1 and @s2.
  *
- * |[
+ * |[<!-- language="C" --> 
  *   g_assert_cmpstr (mystring, ==, "fubar");
  * ]|
  *
@@ -432,13 +417,13 @@
  * g_assert_cmpint:
  * @n1: an integer
  * @cmp: The comparison operator to use.
- *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
+ *     One of ==, !=, <, >, <=, >=.
  * @n2: another integer
  *
  * Debugging macro to compare two integers.
  *
- * The effect of <literal>g_assert_cmpint (n1, op, n2)</literal> is
- * the same as <literal>g_assert_true (n1 op n2)</literal>. The advantage
+ * The effect of `g_assert_cmpint (n1, op, n2)` is
+ * the same as `g_assert_true (n1 op n2)`. The advantage
  * of this macro is that it can produce a message that includes the
  * actual values of @n1 and @n2.
  *
@@ -449,13 +434,13 @@
  * g_assert_cmpuint:
  * @n1: an unsigned integer
  * @cmp: The comparison operator to use.
- *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
+ *     One of ==, !=, <, >, <=, >=.
  * @n2: another unsigned integer
  *
  * Debugging macro to compare two unsigned integers.
  *
- * The effect of <literal>g_assert_cmpuint (n1, op, n2)</literal> is
- * the same as <literal>g_assert_true (n1 op n2)</literal>. The advantage
+ * The effect of `g_assert_cmpuint (n1, op, n2)` is
+ * the same as `g_assert_true (n1 op n2)`. The advantage
  * of this macro is that it can produce a message that includes the
  * actual values of @n1 and @n2.
  *
@@ -466,7 +451,7 @@
  * g_assert_cmphex:
  * @n1: an unsigned integer
  * @cmp: The comparison operator to use.
- *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
+ *     One of ==, !=, <, >, <=, >=.
  * @n2: another unsigned integer
  *
  * Debugging macro to compare to unsigned integers.
@@ -481,13 +466,13 @@
  * g_assert_cmpfloat:
  * @n1: an floating point number
  * @cmp: The comparison operator to use.
- *     One of ==, !=, &lt;, &gt;, &lt;=, &gt;=.
+ *     One of ==, !=, <, >, <=, >=.
  * @n2: another floating point number
  *
  * Debugging macro to compare two floating point numbers.
  *
- * The effect of <literal>g_assert_cmpfloat (n1, op, n2)</literal> is
- * the same as <literal>g_assert_true (n1 op n2)</literal>. The advantage
+ * The effect of `g_assert_cmpfloat (n1, op, n2)` is
+ * the same as `g_assert_true (n1 op n2)`. The advantage
  * of this macro is that it can produce a message that includes the
  * actual values of @n1 and @n2.
  *
@@ -500,8 +485,8 @@
  *
  * Debugging macro to check that a #GError is not set.
  *
- * The effect of <literal>g_assert_no_error (err)</literal> is
- * the same as <literal>g_assert_true (err == NULL)</literal>. The advantage
+ * The effect of `g_assert_no_error (err)` is
+ * the same as `g_assert_true (err == NULL)`. The advantage
  * of this macro is that it can produce a message that includes
  * the error message and code.
  *
@@ -517,15 +502,15 @@
  * Debugging macro to check that a method has returned
  * the correct #GError.
  *
- * The effect of <literal>g_assert_error (err, dom, c)</literal> is
- * the same as <literal>g_assert_true (err != NULL &amp;&amp; err->domain
- * == dom &amp;&amp; err->code == c)</literal>. The advantage of this
+ * The effect of `g_assert_error (err, dom, c)` is
+ * the same as `g_assert_true (err != NULL && err->domain
+ * == dom && err->code == c)`. The advantage of this
  * macro is that it can produce a message that includes the incorrect
  * error message and code.
  *
  * This can only be used to test for a specific error. If you want to
  * test that @err is set, but don't care what it's set to, just use
- * <literal>g_assert (err != NULL)</literal>
+ * `g_assert (err != NULL)`
  *
  * Since: 2.20
  */
@@ -1020,88 +1005,38 @@ parse_args (gint    *argc_p,
  * @argv: Address of the @argv parameter of main().
  *        Any parameters understood by g_test_init() stripped before return.
  * @...: %NULL-terminated list of special options. Currently the only
- *       defined option is <literal>"no_g_set_prgname"</literal>, which
+ *       defined option is `"no_g_set_prgname"`, which
  *       will cause g_test_init() to not call g_set_prgname().
  *
  * Initialize the GLib testing framework, e.g. by seeding the
  * test random number generator, the name for g_get_prgname()
  * and parsing test related command line args.
+ *
  * So far, the following arguments are understood:
- * <variablelist>
- *   <varlistentry>
- *     <term><option>-l</option></term>
- *     <listitem><para>
- *       List test cases available in a test executable.
- *     </para></listitem>
- *   </varlistentry>
- *   <varlistentry>
- *     <term><option>--seed=<replaceable>RANDOMSEED</replaceable></option></term>
- *     <listitem><para>
- *       Provide a random seed to reproduce test runs using random numbers.
- *     </para></listitem>
- *     </varlistentry>
- *     <varlistentry>
- *       <term><option>--verbose</option></term>
- *       <listitem><para>Run tests verbosely.</para></listitem>
- *     </varlistentry>
- *     <varlistentry>
- *       <term><option>-q</option>, <option>--quiet</option></term>
- *       <listitem><para>Run tests quietly.</para></listitem>
- *     </varlistentry>
- *     <varlistentry>
- *       <term><option>-p <replaceable>TESTPATH</replaceable></option></term>
- *       <listitem><para>
- *         Execute all tests matching <replaceable>TESTPATH</replaceable>.
- *         This can also be used to force a test to run that would otherwise
- *         be skipped (ie, a test whose name contains "/subprocess").
- *       </para></listitem>
- *     </varlistentry>
- *     <varlistentry>
- *       <term><option>-m {perf|slow|thorough|quick|undefined|no-undefined}</option></term>
- *       <listitem><para>
- *         Execute tests according to these test modes:
- *         <variablelist>
- *           <varlistentry>
- *             <term>perf</term>
- *             <listitem><para>
- *               Performance tests, may take long and report results.
- *             </para></listitem>
- *           </varlistentry>
- *           <varlistentry>
- *             <term>slow, thorough</term>
- *             <listitem><para>
- *               Slow and thorough tests, may take quite long and
- *               maximize coverage.
- *             </para></listitem>
- *           </varlistentry>
- *           <varlistentry>
- *             <term>quick</term>
- *             <listitem><para>
- *               Quick tests, should run really quickly and give good coverage.
- *             </para></listitem>
- *           </varlistentry>
- *           <varlistentry>
- *             <term>undefined</term>
- *             <listitem><para>
- *               Tests for undefined behaviour, may provoke programming errors
- *               under g_test_trap_subprocess() or g_test_expect_messages() to check
- *               that appropriate assertions or warnings are given
- *             </para></listitem>
- *           </varlistentry>
- *           <varlistentry>
- *             <term>no-undefined</term>
- *             <listitem><para>
- *               Avoid tests for undefined behaviour
- *             </para></listitem>
- *           </varlistentry>
- *         </variablelist>
- *       </para></listitem>
- *     </varlistentry>
- *     <varlistentry>
- *       <term><option>--debug-log</option></term>
- *       <listitem><para>Debug test logging output.</para></listitem>
- *     </varlistentry>
- *  </variablelist>
+ *
+ * - `-l`: List test cases available in a test executable.
+ * - `--seed=SEED`: Provide a random seed to reproduce test
+ *   runs using random numbers.
+ * - `--verbose`: Run tests verbosely.
+ * - `-q`, `--quiet`: Run tests quietly.
+ * - `-p PATH`: Execute all tests matching the given path.
+ *   This can also be used to force a test to run that would otherwise
+ *   be skipped (ie, a test whose name contains "/subprocess").
+ * - `-m {perf|slow|thorough|quick|undefined|no-undefined}`: Execute tests according to these test modes:
+ *
+ *   `perf`: Performance tests, may take long and report results.
+ *
+ *   `slow`, `thorough`: Slow and thorough tests, may take quite long and maximize coverage.
+ *
+ *   `quick`: Quick tests, should run really quickly and give good coverage.
+ *
+ *   `undefined`: Tests for undefined behaviour, may provoke programming errors
+ *   under g_test_trap_subprocess() or g_test_expect_messages() to check
+ *   that appropriate assertions or warnings are given
+ *
+ *   `no-undefined`: Avoid tests for undefined behaviour
+ *
+ * - `--debug-log`: Debug test logging output.
  *
  * Since: 2.16
  */
@@ -1513,15 +1448,13 @@ g_test_get_root (void)
  *
  * Runs all tests under the toplevel suite which can be retrieved
  * with g_test_get_root(). Similar to g_test_run_suite(), the test
- * cases to be run are filtered according to
- * test path arguments (-p <replaceable>testpath</replaceable>) as 
- * parsed by g_test_init().
- * g_test_run_suite() or g_test_run() may only be called once
- * in a program.
+ * cases to be run are filtered according to test path arguments
+ * (`-p testpath`) as parsed by g_test_init(). g_test_run_suite()
+ * or g_test_run() may only be called once in a program.
  *
  * In general, the tests and sub-suites within each suite are run in
  * the order in which they are defined. However, note that prior to
- * GLib 2.36, there was a bug in the <literal>g_test_add_*</literal>
+ * GLib 2.36, there was a bug in the `g_test_add_*`
  * functions which caused them to create multiple suites with the same
  * name, meaning that if you created tests "/foo/simple",
  * "/bar/simple", and "/foo/using-bar" in that order, they would get
@@ -1541,8 +1474,11 @@ g_test_get_root (void)
  * particular code runs before or after a given test case, use
  * g_test_add(), which lets you specify setup and teardown functions.
  *
+ * If all tests are skipped, this function will return 0 if
+ * producing TAP output, or 77 (treated as "skip test" by Automake) otherwise.
+ *
  * Returns: 0 on success, 1 on failure (assuming it returns at all),
- *   77 if all tests were skipped with g_test_skip().
+ *   0 or 77 if all tests were skipped with g_test_skip()
  *
  * Since: 2.16
  */
@@ -1551,6 +1487,11 @@ g_test_run (void)
 {
   if (g_test_run_suite (g_test_get_root()) != 0)
     return 1;
+
+  /* 77 is special to Automake's default driver, but not Automake's TAP driver
+   * or Perl's prove(1) TAP driver. */
+  if (test_tap_log)
+    return 0;
 
   if (test_run_count > 0 && test_run_count == test_skipped_count)
     return 77;
@@ -1838,8 +1779,7 @@ g_test_set_nonfatal_assertions (void)
  *
  * If @testpath includes the component "subprocess" anywhere in it,
  * the test will be skipped by default, and only run if explicitly
- * required via the <option>-p</option> command-line option or
- * g_test_trap_subprocess().
+ * required via the `-p` command-line option or g_test_trap_subprocess().
  *
  * Since: 2.16
  */
@@ -1877,8 +1817,7 @@ g_test_add_func (const char *testpath,
  *
  * If @testpath includes the component "subprocess" anywhere in it,
  * the test will be skipped by default, and only run if explicitly
- * required via the <option>-p</option> command-line option or
- * g_test_trap_subprocess().
+ * required via the `-p` command-line option or g_test_trap_subprocess().
  *
  * Since: 2.16
  */
@@ -2206,9 +2145,9 @@ g_test_run_suite_internal (GTestSuite *suite,
  *
  * Execute the tests within @suite and all nested #GTestSuites.
  * The test suites to be executed are filtered according to
- * test path arguments (-p <replaceable>testpath</replaceable>) 
- * as parsed by g_test_init(). See the g_test_run() documentation
- * for more information on the order that tests are run in.
+ * test path arguments (`-p testpath`) as parsed by g_test_init().
+ * See the g_test_run() documentation for more information on the
+ * order that tests are run in.
  *
  * g_test_run_suite() or g_test_run() may only be called once
  * in a program.
@@ -2697,7 +2636,7 @@ wait_for_child (GPid pid,
  * The forking parent process then asserts successful child program
  * termination and validates child program outputs.
  *
- * |[
+ * |[<!-- language="C" --> 
  *   static void
  *   test_fork_patterns (void)
  *   {
@@ -2705,7 +2644,7 @@ wait_for_child (GPid pid,
  *       {
  *         g_print ("some stdout text: somagic17\n");
  *         g_printerr ("some stderr text: semagic43\n");
- *         exit (0); /&ast; successful test run &ast;/
+ *         exit (0); // successful test run
  *       }
  *     g_test_trap_assert_passed ();
  *     g_test_trap_assert_stdout ("*somagic17*");
@@ -2794,12 +2733,11 @@ g_test_trap_fork (guint64        usec_timeout,
  * You can use g_test_subprocess() to determine whether the test is in
  * a subprocess or not.
  *
- * @test_path can also be the name of the parent
- * test, followed by "<literal>/subprocess/</literal>" and then a name
- * for the specific subtest (or just ending with
- * "<literal>/subprocess</literal>" if the test only has one child
- * test); tests with names of this form will automatically be skipped
- * in the parent process.
+ * @test_path can also be the name of the parent test, followed by
+ * "`/subprocess/`" and then a name for the specific subtest (or just
+ * ending with "`/subprocess`" if the test only has one child test);
+ * tests with names of this form will automatically be skipped in the
+ * parent process.
  *
  * If @usec_timeout is non-0, the test subprocess is aborted and
  * considered failing if its run time exceeds it.
@@ -2814,15 +2752,15 @@ g_test_trap_fork (guint64        usec_timeout,
  * cannot be used if @test_flags specifies that the child should
  * inherit the parent stdout/stderr.) 
  *
- * If your <literal>main ()</literal> needs to behave differently in
+ * If your `main ()` needs to behave differently in
  * the subprocess, you can call g_test_subprocess() (after calling
  * g_test_init()) to see whether you are in a subprocess.
  *
  * The following example tests that calling
- * <literal>my_object_new(1000000)</literal> will abort with an error
+ * `my_object_new(1000000)` will abort with an error
  * message.
  *
- * |[
+ * |[<!-- language="C" --> 
  *   static void
  *   test_create_large_object_subprocess (void)
  *   {
@@ -2832,7 +2770,7 @@ g_test_trap_fork (guint64        usec_timeout,
  *         return;
  *       }
  *
- *     /&ast; Reruns this same test in a subprocess &ast;/
+ *     // Reruns this same test in a subprocess
  *     g_test_trap_subprocess (NULL, 0, 0);
  *     g_test_trap_assert_failed ();
  *     g_test_trap_assert_stderr ("*ERROR*too large*");
@@ -3265,7 +3203,7 @@ g_test_build_filename_va (GTestFileType  file_type,
  *
  * In order for this function to work in srcdir != builddir situations,
  * the G_TEST_SRCDIR and G_TEST_BUILDDIR environment variables need to
- * have been defined.  As of 2.38, this is done by the Makefile.decl
+ * have been defined.  As of 2.38, this is done by the glib.mk
  * included in GLib.  Please ensure that your copy is up to date before
  * using this function.
  *
@@ -3292,9 +3230,9 @@ g_test_build_filename_va (GTestFileType  file_type,
  * 'built' terminology that automake uses and are explicitly used to
  * distinguish between the 'srcdir' and 'builddir' being separate.  All
  * files in your project should either be dist (in the
- * <literal>DIST_EXTRA</literal> or <literal>dist_schema_DATA</literal>
+ * `DIST_EXTRA` or `dist_schema_DATA`
  * sense, in which case they will always be in the srcdir) or built (in
- * the <literal>BUILT_SOURCES</literal> sense, in which case they will
+ * the `BUILT_SOURCES` sense, in which case they will
  * always be in the builddir).
  *
  * Note: as a general rule of automake, files that are generated only as

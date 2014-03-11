@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -87,7 +85,7 @@ g_network_monitor_get_default (void)
  * IPv6. It does not necessarily imply that the public Internet is
  * reachable. See #GNetworkMonitor:network-available for more details.
  *
- * Return value: whether the network is available
+ * Returns: whether the network is available
  *
  * Since: 2.32
  */
@@ -125,7 +123,7 @@ g_network_monitor_get_network_available (GNetworkMonitor *monitor)
  * trying to do multicast DNS on the local network), so if you do not
  * want to block, you should use g_network_monitor_can_reach_async().
  *
- * Return value: %TRUE if @connectable is reachable, %FALSE if not.
+ * Returns: %TRUE if @connectable is reachable, %FALSE if not.
  *
  * Since: 2.32
  */
@@ -210,7 +208,7 @@ g_network_monitor_real_can_reach_finish (GNetworkMonitor  *monitor,
  * Finishes an async network connectivity test.
  * See g_network_monitor_can_reach_async().
  *
- * Return value: %TRUE if network is reachable, %FALSE if not.
+ * Returns: %TRUE if network is reachable, %FALSE if not.
  */
 gboolean
 g_network_monitor_can_reach_finish (GNetworkMonitor     *monitor,
@@ -264,10 +262,9 @@ g_network_monitor_default_init (GNetworkMonitorInterface *iface)
    * connected to a functioning router that has lost its own upstream
    * connectivity. Some hosts might only be accessible when a VPN is
    * active. Other hosts might only be accessible when the VPN is
-   * <emphasis>not</emphasis> active. Thus, it is best to use
-   * g_network_monitor_can_reach() or
-   * g_network_monitor_can_reach_async() to test for reachability on a
-   * host-by-host basis. (On the other hand, when the property is
+   * not active. Thus, it is best to use g_network_monitor_can_reach()
+   * or g_network_monitor_can_reach_async() to test for reachability
+   * on a host-by-host basis. (On the other hand, when the property is
    * %FALSE, the application can reasonably expect that no remote
    * hosts at all are reachable, and should indicate this to the user
    * in its UI.)

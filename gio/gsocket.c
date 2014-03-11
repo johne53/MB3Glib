@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Christian Kellner <gicmo@gnome.org>
  *          Samuel Cormier-Iijima <sciyoshi@gmail.com>
@@ -70,7 +68,7 @@
  * SECTION:gsocket
  * @short_description: Low-level socket object
  * @include: gio/gio.h
- * @see_also: #GInitable, <link linkend="gio-gnetworking.h">gnetworking.h</link>
+ * @see_also: #GInitable, [<gnetworking.h>][gio-gnetworking.h]
  *
  * A #GSocket is a low-level networking primitive. It is a more or less
  * direct mapping of the BSD socket API in a portable GObject based API.
@@ -105,7 +103,7 @@
  * reasons. For instance, on Windows a socket is always seen as writable
  * until a write returns %G_IO_ERROR_WOULD_BLOCK.
  *
- * #GSocket<!-- -->s can be either connection oriented or datagram based.
+ * #GSockets can be either connection oriented or datagram based.
  * For connection oriented types you must first establish a connection by
  * either connecting to an address or accepting a connection from another
  * address. For connectionless socket types the target/source address is
@@ -1858,12 +1856,12 @@ g_socket_listen (GSocket  *socket,
  * used to initiate connections, though this is not normally required.
  *
  * If @socket is a TCP socket, then @allow_reuse controls the setting
- * of the <literal>SO_REUSEADDR</literal> socket option; normally it
- * should be %TRUE for server sockets (sockets that you will
- * eventually call g_socket_accept() on), and %FALSE for client
- * sockets. (Failing to set this flag on a server socket may cause
- * g_socket_bind() to return %G_IO_ERROR_ADDRESS_IN_USE if the server
- * program is stopped and then immediately restarted.)
+ * of the `SO_REUSEADDR` socket option; normally it should be %TRUE for
+ * server sockets (sockets that you will eventually call
+ * g_socket_accept() on), and %FALSE for client sockets. (Failing to
+ * set this flag on a server socket may cause g_socket_bind() to return
+ * %G_IO_ERROR_ADDRESS_IN_USE if the server program is stopped and then
+ * immediately restarted.)
  *
  * If @socket is a UDP socket, then @allow_reuse determines whether or
  * not other UDP sockets can be bound to the same address at the same
@@ -2480,8 +2478,10 @@ g_socket_get_available_bytes (GSocket *socket)
 #ifdef G_OS_WIN32
   const gint bufsize = 64 * 1024;
   static guchar *buf = NULL;
-#endif
+  u_long avail;
+#else
   gint avail;
+#endif
 
   g_return_val_if_fail (G_IS_SOCKET (socket), -1);
 
@@ -2492,10 +2492,20 @@ g_socket_get_available_bytes (GSocket *socket)
   if (ioctl (socket->priv->fd, FIONREAD, &avail) < 0)
     avail = -1;
 #else
-  if (G_UNLIKELY (g_once_init_enter (&buf)))
-    g_once_init_leave (&buf, g_malloc (bufsize));
+  if (socket->priv->type == G_SOCKET_TYPE_DATAGRAM)
+    {
+      if (G_UNLIKELY (g_once_init_enter (&buf)))
+        g_once_init_leave (&buf, g_malloc (bufsize));
 
-  avail = recv (socket->priv->fd, buf, bufsize, MSG_PEEK);
+      avail = recv (socket->priv->fd, buf, bufsize, MSG_PEEK);
+      if (avail == -1 && get_socket_errno () == WSAEWOULDBLOCK)
+        avail = 0;
+    }
+  else
+    {
+      if (ioctlsocket (socket->priv->fd, FIONREAD, &avail) < 0)
+        avail = -1;
+    }
 #endif
 
   return avail;
@@ -3194,57 +3204,35 @@ update_condition (GSocket *socket)
 
 typedef struct {
   GSource       source;
+#ifdef G_OS_WIN32
   GPollFD       pollfd;
+#else
+  gpointer      fd_tag;
+#endif
   GSocket      *socket;
   GIOCondition  condition;
-  GCancellable *cancellable;
-  GPollFD       cancel_pollfd;
-  gint64        timeout_time;
 } GSocketSource;
 
+#ifdef G_OS_WIN32
 static gboolean
-socket_source_prepare (GSource *source,
-		       gint    *timeout)
+socket_source_prepare_win32 (GSource *source,
+                             gint    *timeout)
 {
   GSocketSource *socket_source = (GSocketSource *)source;
 
-  if (g_cancellable_is_cancelled (socket_source->cancellable))
-    return TRUE;
+  *timeout = -1;
 
-  if (socket_source->timeout_time)
-    {
-      gint64 now;
-
-      now = g_source_get_time (source);
-      /* Round up to ensure that we don't try again too early */
-      *timeout = (socket_source->timeout_time - now + 999) / 1000;
-      if (*timeout < 0)
-        {
-          socket_source->socket->priv->timed_out = TRUE;
-          *timeout = 0;
-          return TRUE;
-        }
-    }
-  else
-    *timeout = -1;
-
-#ifdef G_OS_WIN32
-  socket_source->pollfd.revents = update_condition (socket_source->socket);
-#endif
-
-  if ((socket_source->condition & socket_source->pollfd.revents) != 0)
-    return TRUE;
-
-  return FALSE;
+  return (update_condition (socket_source->socket) & socket_source->condition) != 0;
 }
 
 static gboolean
-socket_source_check (GSource *source)
+socket_source_check_win32 (GSource *source)
 {
   int timeout;
 
-  return socket_source_prepare (source, &timeout);
+  return socket_source_prepare_win32 (source, &timeout);
 }
+#endif
 
 static gboolean
 socket_source_dispatch (GSource     *source,
@@ -3254,24 +3242,29 @@ socket_source_dispatch (GSource     *source,
   GSocketSourceFunc func = (GSocketSourceFunc)callback;
   GSocketSource *socket_source = (GSocketSource *)source;
   GSocket *socket = socket_source->socket;
+  gint64 timeout;
+  guint events;
   gboolean ret;
 
 #ifdef G_OS_WIN32
-  socket_source->pollfd.revents = update_condition (socket_source->socket);
+  events = update_condition (socket_source->socket);
+#else
+  events = g_source_query_unix_fd (source, socket_source->fd_tag);
 #endif
-  if (socket_source->socket->priv->timed_out)
-    socket_source->pollfd.revents |= socket_source->condition & (G_IO_IN | G_IO_OUT);
 
-  ret = (*func) (socket,
-		 socket_source->pollfd.revents & socket_source->condition,
-		 user_data);
+  timeout = g_source_get_ready_time (source);
+  if (timeout >= 0 && timeout < g_source_get_time (source))
+    {
+      socket->priv->timed_out = TRUE;
+      events |= (G_IO_IN | G_IO_OUT);
+    }
+
+  ret = (*func) (socket, events & socket_source->condition, user_data);
 
   if (socket->priv->timeout)
-    socket_source->timeout_time = g_get_monotonic_time () +
-                                  socket->priv->timeout * 1000000;
-
+    g_source_set_ready_time (source, g_get_monotonic_time () + socket->priv->timeout * 1000000);
   else
-    socket_source->timeout_time = 0;
+    g_source_set_ready_time (source, -1);
 
   return ret;
 }
@@ -3289,12 +3282,6 @@ socket_source_finalize (GSource *source)
 #endif
 
   g_object_unref (socket);
-
-  if (socket_source->cancellable)
-    {
-      g_cancellable_release_fd (socket_source->cancellable);
-      g_object_unref (socket_source->cancellable);
-    }
 }
 
 static gboolean
@@ -3327,8 +3314,12 @@ socket_source_closure_callback (GSocket      *socket,
 
 static GSourceFuncs socket_source_funcs =
 {
-  socket_source_prepare,
-  socket_source_check,
+#ifdef G_OS_WIN32
+  socket_source_prepare_win32,
+  socket_source_check_win32,
+#else
+  NULL, NULL, /* check, prepare */
+#endif
   socket_source_dispatch,
   socket_source_finalize,
   (GSourceFunc)socket_source_closure_callback,
@@ -3361,30 +3352,30 @@ socket_source_new (GSocket      *socket,
   socket_source->socket = g_object_ref (socket);
   socket_source->condition = condition;
 
-  if (g_cancellable_make_pollfd (cancellable,
-                                 &socket_source->cancel_pollfd))
+  if (cancellable)
     {
-      socket_source->cancellable = g_object_ref (cancellable);
-      g_source_add_poll (source, &socket_source->cancel_pollfd);
+      GSource *cancellable_source;
+
+      cancellable_source = g_cancellable_source_new (cancellable);
+      g_source_add_child_source (source, cancellable_source);
+      g_source_set_dummy_callback (cancellable_source);
+      g_source_unref (cancellable_source);
     }
 
 #ifdef G_OS_WIN32
   add_condition_watch (socket, &socket_source->condition);
   socket_source->pollfd.fd = (gintptr) socket->priv->event;
-#else
-  socket_source->pollfd.fd = socket->priv->fd;
-#endif
-
   socket_source->pollfd.events = condition;
   socket_source->pollfd.revents = 0;
   g_source_add_poll (source, &socket_source->pollfd);
+#else
+  socket_source->fd_tag = g_source_add_unix_fd (source, socket->priv->fd, condition);
+#endif
 
   if (socket->priv->timeout)
-    socket_source->timeout_time = g_get_monotonic_time () +
-                                  socket->priv->timeout * 1000000;
-
+    g_source_set_ready_time (source, g_get_monotonic_time () + socket->priv->timeout * 1000000);
   else
-    socket_source->timeout_time = 0;
+    g_source_set_ready_time (source, -1);
 
   return source;
 }
@@ -3396,7 +3387,7 @@ socket_source_new (GSocket      *socket,
  * @cancellable: (allow-none): a %GCancellable or %NULL
  *
  * Creates a %GSource that can be attached to a %GMainContext to monitor
- * for the availibility of the specified @condition on the socket.
+ * for the availability of the specified @condition on the socket.
  *
  * The callback on the source is of the #GSocketSourceFunc type.
  *
@@ -3664,7 +3655,7 @@ g_socket_condition_timed_wait (GSocket       *socket,
 
 	if (timeout != -1)
 	  {
-	    timeout -= (g_get_monotonic_time () - start_time) * 1000;
+	    timeout -= (g_get_monotonic_time () - start_time) / 1000;
 	    if (timeout < 0)
 	      timeout = 0;
 	  }
@@ -3710,7 +3701,7 @@ g_socket_condition_timed_wait (GSocket       *socket,
  * then @vectors is assumed to be terminated by a #GOutputVector with a
  * %NULL buffer pointer.) The #GOutputVector structs describe the buffers
  * that the sent data will be gathered from. Using multiple
- * #GOutputVector<!-- -->s is more memory-efficient than manually copying
+ * #GOutputVectors is more memory-efficient than manually copying
  * data from multiple sources into a single buffer, and more
  * network-efficient than making multiple calls to g_socket_send().
  *
@@ -4509,17 +4500,16 @@ g_socket_get_credentials (GSocket   *socket,
 /**
  * g_socket_get_option:
  * @socket: a #GSocket
- * @level: the "API level" of the option (eg, <literal>SOL_SOCKET</literal>)
- * @optname: the "name" of the option (eg, <literal>SO_BROADCAST</literal>)
+ * @level: the "API level" of the option (eg, `SOL_SOCKET`)
+ * @optname: the "name" of the option (eg, `SO_BROADCAST`)
  * @value: (out): return location for the option value
  * @error: #GError for error reporting, or %NULL to ignore.
  *
  * Gets the value of an integer-valued option on @socket, as with
- * <literal>getsockopt ()</literal>. (If you need to fetch a
- * non-integer-valued option, you will need to call
- * <literal>getsockopt ()</literal> directly.)
+ * getsockopt(). (If you need to fetch a  non-integer-valued option,
+ * you will need to call getsockopt() directly.)
  *
- * The <link linkend="gio-gnetworking.h"><literal>&lt;gio/gnetworking.h&gt;</literal></link>
+ * The [<gio/gnetworking.h>][gio-gnetworking.h]
  * header pulls in system headers that will define most of the
  * standard/portable socket options. For unusual socket protocols or
  * platform-dependent options, you may need to include additional
@@ -4530,9 +4520,8 @@ g_socket_get_credentials (GSocket   *socket,
  * g_socket_get_option() will handle the conversion internally.
  *
  * Returns: success or failure. On failure, @error will be set, and
- *   the system error value (<literal>errno</literal> or
- *   <literal>WSAGetLastError ()</literal>) will still be set to the
- *   result of the <literal>getsockopt ()</literal> call.
+ *   the system error value (`errno` or WSAGetLastError()) will still
+ *   be set to the result of the getsockopt() call.
  *
  * Since: 2.36
  */
@@ -4578,26 +4567,24 @@ g_socket_get_option (GSocket  *socket,
 /**
  * g_socket_set_option:
  * @socket: a #GSocket
- * @level: the "API level" of the option (eg, <literal>SOL_SOCKET</literal>)
- * @optname: the "name" of the option (eg, <literal>SO_BROADCAST</literal>)
+ * @level: the "API level" of the option (eg, `SOL_SOCKET`)
+ * @optname: the "name" of the option (eg, `SO_BROADCAST`)
  * @value: the value to set the option to
  * @error: #GError for error reporting, or %NULL to ignore.
  *
  * Sets the value of an integer-valued option on @socket, as with
- * <literal>setsockopt ()</literal>. (If you need to set a
- * non-integer-valued option, you will need to call
- * <literal>setsockopt ()</literal> directly.)
+ * setsockopt(). (If you need to set a non-integer-valued option,
+ * you will need to call setsockopt() directly.)
  *
- * The <link linkend="gio-gnetworking.h"><literal>&lt;gio/gnetworking.h&gt;</literal></link>
+ * The [<gio/gnetworking.h>][gio-gnetworking.h]
  * header pulls in system headers that will define most of the
  * standard/portable socket options. For unusual socket protocols or
  * platform-dependent options, you may need to include additional
  * headers.
  *
  * Returns: success or failure. On failure, @error will be set, and
- *   the system error value (<literal>errno</literal> or
- *   <literal>WSAGetLastError ()</literal>) will still be set to the
- *   result of the <literal>setsockopt ()</literal> call.
+ *   the system error value (`errno` or WSAGetLastError()) will still
+ *   be set to the result of the setsockopt() call.
  *
  * Since: 2.36
  */

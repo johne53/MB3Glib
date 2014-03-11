@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -42,15 +40,13 @@
  * As of GLib 2.20, URIs will always be converted to POSIX paths
  * (using g_file_get_path()) when using g_app_info_launch() even if
  * the application requested an URI and not a POSIX path. For example
- * for an desktop-file based application with Exec key <literal>totem
- * &percnt;U</literal> and a single URI,
- * <literal>sftp://foo/file.avi</literal>, then
- * <literal>/home/user/.gvfs/sftp on foo/file.avi</literal> will be
- * passed. This will only work if a set of suitable GIO extensions
- * (such as gvfs 2.26 compiled with FUSE support), is available and
- * operational; if this is not the case, the URI will be passed
- * unmodified to the application. Some URIs, such as
- * <literal>mailto:</literal>, of course cannot be mapped to a POSIX
+ * for an desktop-file based application with Exec key `totem
+ * \%U` and a single URI, `sftp://foo/file.avi`, then
+ * `/home/user/.gvfs/sftp on foo/file.avi` will be passed. This will
+ * only work if a set of suitable GIO extensions (such as gvfs 2.26
+ * compiled with FUSE support), is available and operational; if this
+ * is not the case, the URI will be passed unmodified to the application.
+ * Some URIs, such as `mailto:`, of course cannot be mapped to a POSIX
  * path (in gvfs there's no FUSE mount for it); such URIs will be
  * passed unmodified to the application.
  *
@@ -63,14 +59,14 @@
  * equal to the result of g_file_get_uri(). The following snippet
  * illustrates this:
  *
- * <programlisting>
+ * |[ 
  * GFile *f;
  * char *uri;
  *
  * file = g_file_new_for_commandline_arg (uri_from_commandline);
  *
  * uri = g_file_get_uri (file);
- * strcmp (uri, uri_from_commandline) == 0; // FALSE
+ * strcmp (uri, uri_from_commandline) == 0;
  * g_free (uri);
  *
  * if (g_file_has_uri_scheme (file, "cdda"))
@@ -78,16 +74,15 @@
  *     // do something special with uri
  *   }
  * g_object_unref (file);
- * </programlisting>
+ * ]|
  *
- * This code will work when both <literal>cdda://sr0/Track
- * 1.wav</literal> and <literal>/home/user/.gvfs/cdda on sr0/Track
- * 1.wav</literal> is passed to the application. It should be noted
- * that it's generally not safe for applications to rely on the format
- * of a particular URIs. Different launcher applications (e.g. file
- * managers) may have different ideas of what a given URI means.
- *
- **/
+ * This code will work when both `cdda://sr0/Track 1.wav` and
+ * `/home/user/.gvfs/cdda on sr0/Track 1.wav` is passed to the
+ * application. It should be noted that it's generally not safe
+ * for applications to rely on the format of a particular URIs.
+ * Different launcher applications (e.g. file managers) may have
+ * different ideas of what a given URI means.
+ */
 
 typedef GAppInfoIface GAppInfoInterface;
 G_DEFINE_INTERFACE (GAppInfo, g_app_info, G_TYPE_OBJECT)
@@ -123,7 +118,7 @@ g_app_info_dup (GAppInfo *appinfo)
  * @appinfo1: the first #GAppInfo.
  * @appinfo2: the second #GAppInfo.
  *
- * Checks if two #GAppInfo<!-- -->s are equal.
+ * Checks if two #GAppInfos are equal.
  *
  * Returns: %TRUE if @appinfo1 is equal to @appinfo2. %FALSE otherwise.
  **/
@@ -540,17 +535,16 @@ g_app_info_get_icon (GAppInfo *appinfo)
  * g_app_info_launch_uris() instead.
  *
  * The launched application inherits the environment of the launching
- * process, but it can be modified with g_app_launch_context_setenv() and
- * g_app_launch_context_unsetenv().
+ * process, but it can be modified with g_app_launch_context_setenv()
+ * and g_app_launch_context_unsetenv().
  *
- * On UNIX, this function sets the <envar>GIO_LAUNCHED_DESKTOP_FILE</envar>
+ * On UNIX, this function sets the `GIO_LAUNCHED_DESKTOP_FILE`
  * environment variable with the path of the launched desktop file and
- * <envar>GIO_LAUNCHED_DESKTOP_FILE_PID</envar> to the process
- * id of the launched process. This can be used to ignore
- * <envar>GIO_LAUNCHED_DESKTOP_FILE</envar>, should it be inherited
- * by further processes. The <envar>DISPLAY</envar> and
- * <envar>DESKTOP_STARTUP_ID</envar> environment variables are also
- * set, based on information provided in @launch_context.
+ * `GIO_LAUNCHED_DESKTOP_FILE_PID` to the process id of the launched
+ * process. This can be used to ignore `GIO_LAUNCHED_DESKTOP_FILE`,
+ * should it be inherited by further processes. The `DISPLAY` and
+ * `DESKTOP_STARTUP_ID` environment variables are also set, based
+ * on information provided in @launch_context.
  *
  * Returns: %TRUE on successful launch, %FALSE otherwise.
  **/
@@ -762,8 +756,8 @@ g_app_info_can_delete (GAppInfo *appinfo)
  * Tries to delete a #GAppInfo.
  *
  * On some platforms, there may be a difference between user-defined
- * #GAppInfo<!-- -->s which can be deleted, and system-wide ones which
- * cannot. See g_app_info_can_delete().
+ * #GAppInfos which can be deleted, and system-wide ones which cannot.
+ * See g_app_info_can_delete().
  *
  * Virtual: do_delete
  * Returns: %TRUE if @appinfo has been deleted
@@ -929,9 +923,9 @@ g_app_launch_context_unsetenv (GAppLaunchContext *context,
  * Gets the complete environment variable list to be passed to
  * the child process when @context is used to launch an application.
  * This is a %NULL-terminated array of strings, where each string has
- * the form <literal>KEY=VALUE</literal>.
+ * the form `KEY=VALUE`.
  *
- * Return value: (array zero-terminated=1) (transfer full): the
+ * Returns: (array zero-terminated=1) (transfer full): the
  *     child's environment
  *
  * Since: 2.32
@@ -953,7 +947,7 @@ g_app_launch_context_get_environment (GAppLaunchContext *context)
  *
  * Gets the display string for the @context. This is used to ensure new
  * applications are started on the same display as the launching
- * application, by setting the <envar>DISPLAY</envar> environment variable.
+ * application, by setting the `DISPLAY` environment variable.
  *
  * Returns: a display string for the display.
  */
@@ -982,12 +976,10 @@ g_app_launch_context_get_display (GAppLaunchContext *context,
  * @files: (element-type GFile): a #GList of of #GFile objects
  * 
  * Initiates startup notification for the application and returns the
- * <envar>DESKTOP_STARTUP_ID</envar> for the launched operation,
- * if supported.
+ * `DESKTOP_STARTUP_ID` for the launched operation, if supported.
  *
- * Startup notification IDs are defined in the <ulink
- * url="http://standards.freedesktop.org/startup-notification-spec/startup-notification-latest.txt">
- * FreeDesktop.Org Startup Notifications standard</ulink>.
+ * Startup notification IDs are defined in the 
+ * [FreeDesktop.Org Startup Notifications standard](http://standards.freedesktop.org/startup-notification-spec/startup-notification-latest.txt").
  *
  * Returns: a startup notification ID for the application, or %NULL if
  *     not supported.

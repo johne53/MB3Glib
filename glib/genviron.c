@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -78,7 +76,7 @@ g_environ_find (gchar       **envp,
  * Returns the value of the environment variable @variable in the
  * provided list @envp.
  *
- * Return value: the value of the environment variable, or %NULL if
+ * Returns: the value of the environment variable, or %NULL if
  *     the environment variable is not set in @envp. The returned
  *     string is owned by @envp, and will be freed if @variable is
  *     set or unset again.
@@ -113,7 +111,7 @@ g_environ_getenv (gchar       **envp,
  * Sets the environment variable @variable in the provided list
  * @envp to @value.
  *
- * Return value: (array zero-terminated=1) (transfer full): the
+ * Returns: (array zero-terminated=1) (transfer full): the
  *     updated environment list. Free it using g_strfreev().
  *
  * Since: 2.32
@@ -197,7 +195,7 @@ g_environ_unsetenv_internal (gchar        **envp,
  * Removes the environment variable @variable from the provided
  * environment @envp.
  *
- * Return value: (array zero-terminated=1) (transfer full): the
+ * Returns: (array zero-terminated=1) (transfer full): the
  *     updated environment list. Free it using g_strfreev().
  *
  * Since: 2.32
@@ -231,7 +229,7 @@ g_environ_unsetenv (gchar       **envp,
  * On Windows, in case the environment variable's value contains
  * references to other environment variables, they are expanded.
  *
- * Return value: the value of the environment variable, or %NULL if
+ * Returns: the value of the environment variable, or %NULL if
  *     the environment variable is not found. The returned string
  *     may be overwritten by the next call to g_getenv(), g_setenv()
  *     or g_unsetenv().
@@ -258,20 +256,18 @@ g_getenv (const gchar *variable)
  * Note that on some systems, when variables are overwritten, the memory
  * used for the previous variables and its value isn't reclaimed.
  *
- * <warning><para>
- * Environment variable handling in UNIX is not thread-safe, and your
- * program may crash if one thread calls g_setenv() while another
- * thread is calling getenv(). (And note that many functions, such as
- * gettext(), call getenv() internally.) This function is only safe to
- * use at the very start of your program, before creating any other
- * threads (or creating objects that create worker threads of their
- * own).
- * </para><para>
+ * You should be mindful fo the fact that environment variable handling
+ * in UNIX is not thread-safe, and your program may crash if one thread
+ * calls g_setenv() while another thread is calling getenv(). (And note
+ * that many functions, such as gettext(), call getenv() internally.)
+ * This function is only safe to use at the very start of your program,
+ * before creating any other threads (or creating objects that create
+ * worker threads of their own).
+ *
  * If you need to set up the environment for a child process, you can
  * use g_get_environ() to get an environment array, modify that with
  * g_environ_setenv() and g_environ_unsetenv(), and then pass that
  * array directly to execvpe(), g_spawn_async(), or the like.
- * </para></warning>
  *
  * Returns: %FALSE if the environment variable couldn't be set.
  *
@@ -325,20 +321,18 @@ extern char **environ;
  * Note that on some systems, when variables are overwritten, the
  * memory used for the previous variables and its value isn't reclaimed.
  *
- * <warning><para>
- * Environment variable handling in UNIX is not thread-safe, and your
- * program may crash if one thread calls g_unsetenv() while another
- * thread is calling getenv(). (And note that many functions, such as
- * gettext(), call getenv() internally.) This function is only safe
- * to use at the very start of your program, before creating any other
- * threads (or creating objects that create worker threads of their
- * own).
- * </para><para>
+ * You should be mindful of the fact that environment variable handling
+ * in UNIX is not thread-safe, and your program may crash if one thread
+ * calls g_unsetenv() while another thread is calling getenv(). (And note
+ * that many functions, such as gettext(), call getenv() internally.) This
+ * function is only safe to use at the very start of your program, before
+ * creating any other threads (or creating objects that create worker
+ * threads of their own).
+ * 
  * If you need to set up the environment for a child process, you can
  * use g_get_environ() to get an environment array, modify that with
  * g_environ_setenv() and g_environ_unsetenv(), and then pass that
  * array directly to execvpe(), g_spawn_async(), or the like.
- * </para></warning>
  *
  * Since: 2.4
  */

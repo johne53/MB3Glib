@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -67,27 +65,25 @@
  *
  * Note that the functions g_printf(), g_fprintf(), g_sprintf(),
  * g_snprintf(), g_vprintf(), g_vfprintf(), g_vsprintf() and g_vsnprintf()
- * are declared in the header <filename>gprintf.h</filename> which is
- * <emphasis>not</emphasis> included in <filename>glib.h</filename>
- * (otherwise using <filename>glib.h</filename> would drag in
- * <filename>stdio.h</filename>), so you'll have to explicitly include
- * <literal>&lt;glib/gprintf.h&gt;</literal> in order to use the GLib
+ * are declared in the header `gprintf.h` which is not included in `glib.h`
+ * (otherwise using `glib.h` would drag in `stdio.h`), so you'll have to
+ * explicitly include `<glib/gprintf.h>` in order to use the GLib
  * printf() functions.
  *
- * <para id="string-precision">While you may use the printf() functions
- * to format UTF-8 strings, notice that the precision of a
- * <literal>&percnt;Ns</literal> parameter is interpreted as the
- * number of <emphasis>bytes</emphasis>, not <emphasis>characters</emphasis>
- * to print. On top of that, the GNU libc implementation of the printf()
- * functions has the "feature" that it checks that the string given for
- * the <literal>&percnt;Ns</literal> parameter consists of a whole number
- * of characters in the current encoding. So, unless you are sure you are
- * always going to be in an UTF-8 locale or your know your text is restricted
- * to ASCII, avoid using <literal>&percnt;Ns</literal>. If your intention is
- * to format strings for a certain number of columns, then
- * <literal>&percnt;Ns</literal> is not a correct solution anyway, since it
- * fails to take wide characters (see g_unichar_iswide()) into account.
- * </para>
+ * ## String precision pitfalls # {#string-precision}
+ *
+ * While you may use the printf() functions to format UTF-8 strings,
+ * notice that the precision of a \%Ns parameter is interpreted
+ * as the number of bytes, not characters to print. On top of that,
+ * the GNU libc implementation of the printf() functions has the
+ * "feature" that it checks that the string given for the \%Ns
+ * parameter consists of a whole number of characters in the current
+ * encoding. So, unless you are sure you are always going to be in an
+ * UTF-8 locale or your know your text is restricted to ASCII, avoid
+ * using \%Ns. If your intention is to format strings for a
+ * certain number of columns, then \%Ns is not a correct solution
+ * anyway, since it fails to take wide characters (see g_unichar_iswide())
+ * into account.
  */
 
 /**
@@ -99,9 +95,9 @@
  * Unlike the standard C library isalnum() function, this only
  * recognizes standard ASCII letters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need to
- * cast to #guchar before passing a possibly non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to cast to #guchar before
+ * passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII alphanumeric character
  */
@@ -115,9 +111,9 @@
  * Unlike the standard C library isalpha() function, this only
  * recognizes standard ASCII letters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need to
- * cast to #guchar before passing a possibly non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to cast to #guchar before
+ * passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII alphabetic character
  */
@@ -131,9 +127,9 @@
  * Unlike the standard C library iscntrl() function, this only
  * recognizes standard ASCII control characters and ignores the
  * locale, returning %FALSE for all non-ASCII characters. Also,
- * unlike the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need to
- * cast to #guchar before passing a possibly non-ASCII character in.
+ * unlike the standard library function, this takes a char, not
+ * an int, so don't call it on %EOF, but no need to cast to #guchar
+ * before passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII control character.
  */
@@ -145,9 +141,8 @@
  * Determines whether a character is digit (0-9).
  *
  * Unlike the standard C library isdigit() function, this takes
- * a <type>char</type>, not an <type>int</type>, so don't call it
- * on <literal>EOF</literal>, but no need to cast to #guchar before passing a possibly
- * non-ASCII character in.
+ * a char, not an int, so don't call it  on %EOF, but no need to
+ * cast to #guchar before passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII digit.
  */
@@ -161,9 +156,9 @@
  * Unlike the standard C library isgraph() function, this only
  * recognizes standard ASCII characters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need
- * to cast to #guchar before passing a possibly non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to cast to #guchar before
+ * passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII printing character other than space.
  */
@@ -177,10 +172,9 @@
  * Unlike the standard C library islower() function, this only
  * recognizes standard ASCII letters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need
- * to worry about casting to #guchar before passing a possibly
- * non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to worry about casting
+ * to #guchar before passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII lower case letter
  */
@@ -194,9 +188,9 @@
  * Unlike the standard C library isprint() function, this only
  * recognizes standard ASCII characters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need
- * to cast to #guchar before passing a possibly non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to cast to #guchar before
+ * passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII printing character.
  */
@@ -210,9 +204,9 @@
  * Unlike the standard C library ispunct() function, this only
  * recognizes standard ASCII letters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need to
- * cast to #guchar before passing a possibly non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to cast to #guchar before
+ * passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII punctuation character.
  */
@@ -226,9 +220,9 @@
  * Unlike the standard C library isspace() function, this only
  * recognizes standard ASCII white-space and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need to
- * cast to #guchar before passing a possibly non-ASCII character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to cast to #guchar before
+ * passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII white-space character
  */
@@ -242,10 +236,9 @@
  * Unlike the standard C library isupper() function, this only
  * recognizes standard ASCII letters and ignores the locale,
  * returning %FALSE for all non-ASCII characters. Also, unlike
- * the standard library function, this takes a <type>char</type>,
- * not an <type>int</type>, so don't call it on <literal>EOF</literal>, but no need to
- * worry about casting to #guchar before passing a possibly non-ASCII
- * character in.
+ * the standard library function, this takes a char, not an int,
+ * so don't call it on %EOF, but no need to worry about casting
+ * to #guchar before passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII upper case letter
  */
@@ -257,9 +250,8 @@
  * Determines whether a character is a hexadecimal-digit character.
  *
  * Unlike the standard C library isxdigit() function, this takes
- * a <type>char</type>, not an <type>int</type>, so don't call it
- * on <literal>EOF</literal>, but no need to cast to #guchar before passing a
- * possibly non-ASCII character in.
+ * a char, not an int, so don't call it on %EOF, but no need to
+ * cast to #guchar before passing a possibly non-ASCII character in.
  *
  * Returns: %TRUE if @c is an ASCII hexadecimal-digit character.
  */
@@ -272,10 +264,10 @@
  * on systems with 64bit IEEE-compatible doubles.
  *
  * The typical usage would be something like:
- * |[
+ * |[<!-- language="C" --> 
  *   char buf[G_ASCII_DTOSTR_BUF_SIZE];
  *
- *   fprintf (out, "value=&percnt;s\n", g_ascii_dtostr (buf, sizeof (buf), value));
+ *   fprintf (out, "value=%s\n", g_ascii_dtostr (buf, sizeof (buf), value));
  * ]|
  */
 
@@ -404,18 +396,16 @@ g_memdup (gconstpointer mem,
  * @n: the maximum number of bytes to copy from @str
  *
  * Duplicates the first @n bytes of a string, returning a newly-allocated
- * buffer @n + 1 bytes long which will always be nul-terminated.
- * If @str is less than @n bytes long the buffer is padded with nuls.
- * If @str is %NULL it returns %NULL.
- * The returned value should be freed when no longer needed.
+ * buffer @n + 1 bytes long which will always be nul-terminated. If @str
+ * is less than @n bytes long the buffer is padded with nuls. If @str is
+ * %NULL it returns %NULL. The returned value should be freed when no longer
+ * needed.
  *
- * <note><para>
- * To copy a number of characters from a UTF-8 encoded string, use
- * g_utf8_strncpy() instead.
- * </para></note>
+ * To copy a number of characters from a UTF-8 encoded string,
+ * use g_utf8_strncpy() instead.
  *
  * Returns: a newly-allocated buffer containing the first @n bytes
- *          of @str, nul-terminated
+ *     of @str, nul-terminated
  */
 gchar*
 g_strndup (const gchar *str,
@@ -468,7 +458,7 @@ g_strnfill (gsize length,
  * This is useful for concatenating multiple strings together
  * without having to repeatedly scan for the end.
  *
- * Return value: a pointer to trailing nul byte.
+ * Returns: a pointer to trailing nul byte.
  **/
 gchar *
 g_stpcpy (gchar       *dest,
@@ -495,7 +485,7 @@ g_stpcpy (gchar       *dest,
 /**
  * g_strdup_vprintf:
  * @format: a standard printf() format string, but notice
- *     <link linkend="string-precision">string precision pitfalls</link>
+ *     [string precision pitfalls][string-precision]
  * @args: the list of parameters to insert into the format string
  *
  * Similar to the standard C vsprintf() function but safer, since it
@@ -522,7 +512,7 @@ g_strdup_vprintf (const gchar *format,
 /**
  * g_strdup_printf:
  * @format: a standard printf() format string, but notice
- *     <link linkend="string-precision">string precision pitfalls</link>
+ *     [string precision pitfalls][string-precision]
  * @...: the parameters to insert into the format string
  *
  * Similar to the standard C sprintf() function but safer, since it
@@ -551,16 +541,15 @@ g_strdup_printf (const gchar *format,
  * @string1: the first string to add, which must not be %NULL
  * @...: a %NULL-terminated list of strings to append to the string
  *
- * Concatenates all of the given strings into one long string.
- * The returned string should be freed with g_free() when no longer needed.
+ * Concatenates all of the given strings into one long string. The
+ * returned string should be freed with g_free() when no longer needed.
+ *
+ * The variable argument list must end with %NULL. If you forget the %NULL,
+ * g_strconcat() will start appending random memory junk to your string.
  *
  * Note that this function is usually not the right function to use to
  * assemble a translated message from pieces, since proper translation
  * often requires the pieces to be reordered.
- *
- * <warning><para>The variable argument list <emphasis>must</emphasis> end
- * with %NULL. If you forget the %NULL, g_strconcat() will start appending
- * random memory junk to your string.</para></warning>
  *
  * Returns: a newly-allocated string containing all the string arguments
  */
@@ -620,7 +609,7 @@ g_strconcat (const gchar *string1, ...)
  * separated lists of values, since the commas may be interpreted as a decimal
  * point in some locales, causing unexpected results.
  *
- * Return value: the #gdouble value.
+ * Returns: the #gdouble value.
  **/
 gdouble
 g_strtod (const gchar *nptr,
@@ -677,15 +666,15 @@ g_strtod (const gchar *nptr,
  * To convert from a #gdouble to a string in a locale-insensitive
  * way, use g_ascii_dtostr().
  *
- * If the correct value would cause overflow, plus or minus <literal>HUGE_VAL</literal>
- * is returned (according to the sign of the value), and <literal>ERANGE</literal> is
- * stored in <literal>errno</literal>. If the correct value would cause underflow,
- * zero is returned and <literal>ERANGE</literal> is stored in <literal>errno</literal>.
+ * If the correct value would cause overflow, plus or minus %HUGE_VAL
+ * is returned (according to the sign of the value), and %ERANGE is
+ * stored in %errno. If the correct value would cause underflow,
+ * zero is returned and %ERANGE is stored in %errno.
  *
- * This function resets <literal>errno</literal> before calling strtod() so that
+ * This function resets %errno before calling strtod() so that
  * you can reliably detect overflow and underflow.
  *
- * Return value: the #gdouble value.
+ * Returns: the #gdouble value.
  */
 gdouble
 g_ascii_strtod (const gchar *nptr,
@@ -871,7 +860,7 @@ g_ascii_strtod (const gchar *nptr,
  * guaranteed that the size of the resulting string will never
  * be larger than @G_ASCII_DTOSTR_BUF_SIZE bytes.
  *
- * Return value: The pointer to the buffer with the converted string.
+ * Returns: The pointer to the buffer with the converted string.
  **/
 gchar *
 g_ascii_dtostr (gchar       *buffer,
@@ -900,7 +889,7 @@ g_ascii_dtostr (gchar       *buffer,
  * If you just want to want to serialize the value into a
  * string, use g_ascii_dtostr().
  *
- * Return value: The pointer to the buffer with the converted string.
+ * Returns: The pointer to the buffer with the converted string.
  */
 gchar *
 g_ascii_formatd (gchar       *buffer,
@@ -1147,13 +1136,13 @@ g_parse_long_long (const gchar  *nptr,
  * locale-sensitive system strtoull() function.
  *
  * If the correct value would cause overflow, %G_MAXUINT64
- * is returned, and <literal>ERANGE</literal> is stored in <literal>errno</literal>.
+ * is returned, and `ERANGE` is stored in `errno`.
  * If the base is outside the valid range, zero is returned, and
- * <literal>EINVAL</literal> is stored in <literal>errno</literal>.
+ * `EINVAL` is stored in `errno`.
  * If the string conversion fails, zero is returned, and @endptr returns
  * @nptr (if @endptr is non-%NULL).
  *
- * Return value: the #guint64 value or zero on error.
+ * Returns: the #guint64 value or zero on error.
  *
  * Since: 2.2
  */
@@ -1194,13 +1183,13 @@ g_ascii_strtoull (const gchar *nptr,
  * locale-sensitive system strtoll() function.
  *
  * If the correct value would cause overflow, %G_MAXINT64 or %G_MININT64
- * is returned, and <literal>ERANGE</literal> is stored in <literal>errno</literal>.
+ * is returned, and `ERANGE` is stored in `errno`.
  * If the base is outside the valid range, zero is returned, and
- * <literal>EINVAL</literal> is stored in <literal>errno</literal>. If the
+ * `EINVAL` is stored in `errno`. If the
  * string conversion fails, zero is returned, and @endptr returns @nptr
  * (if @endptr is non-%NULL).
  *
- * Return value: the #gint64 value or zero on error.
+ * Returns: the #gint64 value or zero on error.
  *
  * Since: 2.12
  */
@@ -1245,7 +1234,7 @@ g_ascii_strtoll (const gchar *nptr,
  * not all platforms support the strerror() function.
  *
  * Returns: a UTF-8 string describing the error code. If the error code
- *     is unknown, it returns "unknown error (&lt;code&gt;)".
+ *     is unknown, it returns "unknown error (<code>)".
  */
 const gchar *
 g_strerror (gint errnum)
@@ -1267,8 +1256,7 @@ g_strerror (gint errnum)
 
 /**
  * g_strsignal:
- * @signum: the signal number. See the <literal>signal</literal>
- *     documentation
+ * @signum: the signal number. See the `signal` documentation
  *
  * Returns a string describing the given signal, e.g. "Segmentation fault".
  * You should use this function in preference to strsignal(), because it
@@ -1276,7 +1264,7 @@ g_strerror (gint errnum)
  * the strsignal() function.
  *
  * Returns: a UTF-8 string describing the signal. If the signal is unknown,
- *     it returns "unknown signal (&lt;signum&gt;)".
+ *     it returns "unknown signal (<signum>)".
  */
 const gchar *
 g_strsignal (gint signum)
@@ -1341,17 +1329,17 @@ g_strlcat (gchar       *dest,
  * Portability wrapper that calls strlcpy() on systems which have it,
  * and emulates strlcpy() otherwise. Copies @src to @dest; @dest is
  * guaranteed to be nul-terminated; @src must be nul-terminated;
- * @dest_size is the buffer size, not the number of chars to copy.
+ * @dest_size is the buffer size, not the number of bytes to copy.
  *
- * At most dest_size - 1 characters will be copied. Always nul-terminates
- * (unless dest_size == 0). This function does <emphasis>not</emphasis>
- * allocate memory. Unlike strncpy(), this function doesn't pad dest (so
- * it's often faster). It returns the size of the attempted result,
- * strlen (src), so if @retval >= @dest_size, truncation occurred.
+ * At most @dest_size - 1 characters will be copied. Always nul-terminates
+ * (unless @dest_size is 0). This function does not allocate memory. Unlike
+ * strncpy(), this function doesn't pad @dest (so it's often faster). It
+ * returns the size of the attempted result, strlen (src), so if
+ * @retval >= @dest_size, truncation occurred.
  *
- * <note><para>Caveat: strlcpy() is supposedly more secure than
- * strcpy() or strncpy(), but if you really want to avoid screwups,
- * g_strdup() is an even better idea.</para></note>
+ * Caveat: strlcpy() is supposedly more secure than strcpy() or strncpy(),
+ * but if you really want to avoid screwups, g_strdup() is an even better
+ * idea.
  *
  * Returns: length of @src
  */
@@ -1403,20 +1391,19 @@ g_strlcpy (gchar       *dest,
  * guaranteeing nul-termination for @dest. The total size of @dest won't
  * exceed @dest_size.
  *
- * At most dest_size - 1 characters will be copied.
- * Unlike strncat, dest_size is the full size of dest, not the space left over.
- * This function does NOT allocate memory.
- * This always NUL terminates (unless siz == 0 or there were no NUL characters
- * in the dest_size characters of dest to start with).
+ * At most @dest_size - 1 characters will be copied. Unlike strncat(),
+ * @dest_size is the full size of dest, not the space left over. This
+ * function does not allocate memory. It always nul-terminates (unless
+ * @dest_size == 0 or there were no nul characters in the @dest_size
+ * characters of dest to start with).
  *
- * <note><para>Caveat: this is supposedly a more secure alternative to
- * strcat() or strncat(), but for real security g_strconcat() is harder
- * to mess up.</para></note>
+ * Caveat: this is supposedly a more secure alternative to strcat() or
+ * strncat(), but for real security g_strconcat() is harder to mess up.
  *
  * Returns: size of attempted result, which is MIN (dest_size, strlen
- *          (original dest)) + strlen (src), so if retval >= dest_size,
- *          truncation occurred.
- **/
+ *     (original dest)) + strlen (src), so if retval >= dest_size,
+ *     truncation occurred.
+ */
 gsize
 g_strlcat (gchar       *dest,
            const gchar *src,
@@ -1456,17 +1443,16 @@ g_strlcat (gchar       *dest,
 
 /**
  * g_ascii_strdown:
- * @str: a string.
- * @len: length of @str in bytes, or -1 if @str is nul-terminated.
+ * @str: a string
+ * @len: length of @str in bytes, or -1 if @str is nul-terminated
  *
  * Converts all upper case ASCII letters to lower case ASCII letters.
  *
- * Return value: a newly-allocated string, with all the upper case
- *               characters in @str converted to lower case, with
- *               semantics that exactly match g_ascii_tolower(). (Note
- *               that this is unlike the old g_strdown(), which modified
- *               the string in place.)
- **/
+ * Returns: a newly-allocated string, with all the upper case
+ *     characters in @str converted to lower case, with semantics that
+ *     exactly match g_ascii_tolower(). (Note that this is unlike the
+ *     old g_strdown(), which modified the string in place.)
+ */
 gchar*
 g_ascii_strdown (const gchar *str,
                  gssize       len)
@@ -1487,17 +1473,16 @@ g_ascii_strdown (const gchar *str,
 
 /**
  * g_ascii_strup:
- * @str: a string.
- * @len: length of @str in bytes, or -1 if @str is nul-terminated.
+ * @str: a string
+ * @len: length of @str in bytes, or -1 if @str is nul-terminated
  *
  * Converts all lower case ASCII letters to upper case ASCII letters.
  *
- * Return value: a newly allocated string, with all the lower case
- *               characters in @str converted to upper case, with
- *               semantics that exactly match g_ascii_toupper(). (Note
- *               that this is unlike the old g_strup(), which modified
- *               the string in place.)
- **/
+ * Returns: a newly allocated string, with all the lower case
+ *     characters in @str converted to upper case, with semantics that
+ *     exactly match g_ascii_toupper(). (Note that this is unlike the
+ *     old g_strup(), which modified the string in place.)
+ */
 gchar*
 g_ascii_strup (const gchar *str,
                gssize       len)
@@ -1518,22 +1503,22 @@ g_ascii_strup (const gchar *str,
 
 /**
  * g_str_is_ascii:
- * @string: a string.
+ * @str: a string
  *
- * Determines if a string is pure ASCII.  A string is pure ASCII if it
+ * Determines if a string is pure ASCII. A string is pure ASCII if it
  * contains no bytes with the high bit set.
  *
- * Returns: %TRUE if @string is ascii
+ * Returns: %TRUE if @str is ASCII
  *
  * Since: 2.40
- **/
+ */
 gboolean
-g_str_is_ascii (const gchar *string)
+g_str_is_ascii (const gchar *str)
 {
   gint i;
 
-  for (i = 0; string[i]; i++)
-    if (string[i] & 0x80)
+  for (i = 0; str[i]; i++)
+    if (str[i] & 0x80)
       return FALSE;
 
   return TRUE;
@@ -1545,7 +1530,7 @@ g_str_is_ascii (const gchar *string)
  *
  * Converts a string to lower case.
  *
- * Return value: the string
+ * Returns: the string
  *
  * Deprecated:2.2: This function is totally broken for the reasons discussed
  * in the g_strncasecmp() docs - use g_ascii_strdown() or g_utf8_strdown()
@@ -1572,15 +1557,16 @@ g_strdown (gchar *string)
 
 /**
  * g_strup:
- * @string: the string to convert.
+ * @string: the string to convert
  *
  * Converts a string to upper case.
  *
- * Return value: the string
+ * Returns: the string
  *
- * Deprecated:2.2: This function is totally broken for the reasons discussed
- * in the g_strncasecmp() docs - use g_ascii_strup() or g_utf8_strup() instead.
- **/
+ * Deprecated:2.2: This function is totally broken for the reasons
+ *     discussed in the g_strncasecmp() docs - use g_ascii_strup()
+ *     or g_utf8_strup() instead.
+ */
 gchar*
 g_strup (gchar *string)
 {
@@ -1605,8 +1591,7 @@ g_strup (gchar *string)
  * @string: the string to reverse
  *
  * Reverses all of the bytes in a string. For example,
- * <literal>g_strreverse ("abcdef")</literal> will result
- * in "fedcba".
+ * `g_strreverse ("abcdef")` will result in "fedcba".
  *
  * Note that g_strreverse() doesn't work on UTF-8 strings
  * containing multibyte characters. For that purpose, use
@@ -1643,7 +1628,7 @@ g_strreverse (gchar *string)
 
 /**
  * g_ascii_tolower:
- * @c: any character.
+ * @c: any character
  *
  * Convert a character to ASCII lower case.
  *
@@ -1652,13 +1637,12 @@ g_strreverse (gchar *string)
  * all non-ASCII characters unchanged, even if they are lower case
  * letters in a particular character set. Also unlike the standard
  * library function, this takes and returns a char, not an int, so
- * don't call it on <literal>EOF</literal> but no need to worry about casting to #guchar
+ * don't call it on %EOF but no need to worry about casting to #guchar
  * before passing a possibly non-ASCII character in.
  *
- * Return value: the result of converting @c to lower case.
- *               If @c is not an ASCII upper case letter,
- *               @c is returned unchanged.
- **/
+ * Returns: the result of converting @c to lower case. If @c is
+ *     not an ASCII upper case letter, @c is returned unchanged.
+ */
 gchar
 g_ascii_tolower (gchar c)
 {
@@ -1667,7 +1651,7 @@ g_ascii_tolower (gchar c)
 
 /**
  * g_ascii_toupper:
- * @c: any character.
+ * @c: any character
  *
  * Convert a character to ASCII upper case.
  *
@@ -1676,13 +1660,12 @@ g_ascii_tolower (gchar c)
  * all non-ASCII characters unchanged, even if they are upper case
  * letters in a particular character set. Also unlike the standard
  * library function, this takes and returns a char, not an int, so
- * don't call it on <literal>EOF</literal> but no need to worry about casting to #guchar
+ * don't call it on %EOF but no need to worry about casting to #guchar
  * before passing a possibly non-ASCII character in.
  *
- * Return value: the result of converting @c to upper case.
- *               If @c is not an ASCII lower case letter,
- *               @c is returned unchanged.
- **/
+ * Returns: the result of converting @c to upper case. If @c is not
+ *    an ASCII lower case letter, @c is returned unchanged.
+ */
 gchar
 g_ascii_toupper (gchar c)
 {
@@ -1691,16 +1674,15 @@ g_ascii_toupper (gchar c)
 
 /**
  * g_ascii_digit_value:
- * @c: an ASCII character.
+ * @c: an ASCII character
  *
- * Determines the numeric value of a character as a decimal
- * digit. Differs from g_unichar_digit_value() because it takes
- * a char, so there's no worry about sign extension if characters
- * are signed.
+ * Determines the numeric value of a character as a decimal digit.
+ * Differs from g_unichar_digit_value() because it takes a char, so
+ * there's no worry about sign extension if characters are signed.
  *
- * Return value: If @c is a decimal digit (according to
- * g_ascii_isdigit()), its numeric value. Otherwise, -1.
- **/
+ * Returns: If @c is a decimal digit (according to g_ascii_isdigit()),
+ *    its numeric value. Otherwise, -1.
+ */
 int
 g_ascii_digit_value (gchar c)
 {
@@ -1718,9 +1700,9 @@ g_ascii_digit_value (gchar c)
  * a char, so there's no worry about sign extension if characters
  * are signed.
  *
- * Return value: If @c is a hex digit (according to
- * g_ascii_isxdigit()), its numeric value. Otherwise, -1.
- **/
+ * Returns: If @c is a hex digit (according to g_ascii_isxdigit()),
+ *     its numeric value. Otherwise, -1.
+ */
 int
 g_ascii_xdigit_value (gchar c)
 {
@@ -1733,8 +1715,8 @@ g_ascii_xdigit_value (gchar c)
 
 /**
  * g_ascii_strcasecmp:
- * @s1: string to compare with @s2.
- * @s2: string to compare with @s1.
+ * @s1: string to compare with @s2
+ * @s2: string to compare with @s1
  *
  * Compare two strings, ignoring the case of ASCII characters.
  *
@@ -1752,9 +1734,9 @@ g_ascii_xdigit_value (gchar c)
  *
  * Both @s1 and @s2 must be non-%NULL.
  *
- * Return value: 0 if the strings match, a negative value if @s1 &lt; @s2,
- *   or a positive value if @s1 &gt; @s2.
- **/
+ * Returns: 0 if the strings match, a negative value if @s1 < @s2,
+ *     or a positive value if @s1 > @s2.
+ */
 gint
 g_ascii_strcasecmp (const gchar *s1,
                     const gchar *s2)
@@ -1778,9 +1760,9 @@ g_ascii_strcasecmp (const gchar *s1,
 
 /**
  * g_ascii_strncasecmp:
- * @s1: string to compare with @s2.
- * @s2: string to compare with @s1.
- * @n:  number of characters to compare.
+ * @s1: string to compare with @s2
+ * @s2: string to compare with @s1
+ * @n: number of characters to compare
  *
  * Compare @s1 and @s2, ignoring the case of ASCII characters and any
  * characters after the first @n in each string.
@@ -1793,13 +1775,13 @@ g_ascii_strcasecmp (const gchar *s1,
  * function only on strings known to be in encodings where bytes
  * corresponding to ASCII letters always represent themselves.
  *
- * Return value: 0 if the strings match, a negative value if @s1 &lt; @s2,
- *   or a positive value if @s1 &gt; @s2.
- **/
+ * Returns: 0 if the strings match, a negative value if @s1 < @s2,
+ *     or a positive value if @s1 > @s2.
+ */
 gint
 g_ascii_strncasecmp (const gchar *s1,
                      const gchar *s2,
-                     gsize n)
+                     gsize        n)
 {
   gint c1, c2;
 
@@ -1824,18 +1806,18 @@ g_ascii_strncasecmp (const gchar *s1,
 
 /**
  * g_strcasecmp:
- * @s1: a string.
- * @s2: a string to compare with @s1.
+ * @s1: a string
+ * @s2: a string to compare with @s1
  *
  * A case-insensitive string comparison, corresponding to the standard
  * strcasecmp() function on platforms which support it.
  *
- * Return value: 0 if the strings match, a negative value if @s1 &lt; @s2,
- *   or a positive value if @s1 &gt; @s2.
+ * Returns: 0 if the strings match, a negative value if @s1 < @s2,
+ *     or a positive value if @s1 > @s2.
  *
- * Deprecated:2.2: See g_strncasecmp() for a discussion of why this function
- *   is deprecated and how to replace it.
- **/
+ * Deprecated:2.2: See g_strncasecmp() for a discussion of why this
+ *     function is deprecated and how to replace it.
+ */
 gint
 g_strcasecmp (const gchar *s1,
               const gchar *s2)
@@ -1869,33 +1851,33 @@ g_strcasecmp (const gchar *s1,
 
 /**
  * g_strncasecmp:
- * @s1: a string.
- * @s2: a string to compare with @s1.
- * @n: the maximum number of characters to compare.
+ * @s1: a string
+ * @s2: a string to compare with @s1
+ * @n: the maximum number of characters to compare
  *
  * A case-insensitive string comparison, corresponding to the standard
- * strncasecmp() function on platforms which support it.
- * It is similar to g_strcasecmp() except it only compares the first @n
- * characters of the strings.
+ * strncasecmp() function on platforms which support it. It is similar
+ * to g_strcasecmp() except it only compares the first @n characters of
+ * the strings.
  *
- * Return value: 0 if the strings match, a negative value if @s1 &lt; @s2,
- *   or a positive value if @s1 &gt; @s2.
+ * Returns: 0 if the strings match, a negative value if @s1 < @s2,
+ *     or a positive value if @s1 > @s2.
  *
- * Deprecated:2.2: The problem with g_strncasecmp() is that it does the
- * comparison by calling toupper()/tolower(). These functions are
- * locale-specific and operate on single bytes. However, it is impossible
- * to handle things correctly from an I18N standpoint by operating on
- * bytes, since characters may be multibyte. Thus g_strncasecmp() is
- * broken if your string is guaranteed to be ASCII, since it's
- * locale-sensitive, and it's broken if your string is localized, since
- * it doesn't work on many encodings at all, including UTF-8, EUC-JP,
- * etc.
+ * Deprecated:2.2: The problem with g_strncasecmp() is that it does
+ *     the comparison by calling toupper()/tolower(). These functions
+ *     are locale-specific and operate on single bytes. However, it is
+ *     impossible to handle things correctly from an internationalization
+ *     standpoint by operating on bytes, since characters may be multibyte.
+ *     Thus g_strncasecmp() is broken if your string is guaranteed to be
+ *     ASCII, since it is locale-sensitive, and it's broken if your string
+ *     is localized, since it doesn't work on many encodings at all,
+ *     including UTF-8, EUC-JP, etc.
  *
- * There are therefore two replacement techniques: g_ascii_strncasecmp(),
- * which only works on ASCII and is not locale-sensitive, and
- * g_utf8_casefold() followed by strcmp() on the resulting strings, which is
- * good for case-insensitive sorting of UTF-8.
- **/
+ *     There are therefore two replacement techniques: g_ascii_strncasecmp(),
+ *     which only works on ASCII and is not locale-sensitive, and
+ *     g_utf8_casefold() followed by strcmp() on the resulting strings,
+ *     which is good for case-insensitive sorting of UTF-8.
+ */
 gint
 g_strncasecmp (const gchar *s1,
                const gchar *s2,
@@ -1932,8 +1914,8 @@ g_strncasecmp (const gchar *s1,
 /**
  * g_strdelimit:
  * @string: the string to convert
- * @delimiters: (allow-none): a string containing the current delimiters, or %NULL
- *     to use the standard delimiters defined in #G_STR_DELIMITERS
+ * @delimiters: (allow-none): a string containing the current delimiters,
+ *     or %NULL to use the standard delimiters defined in #G_STR_DELIMITERS
  * @new_delimiter: the new delimiter character
  *
  * Converts any delimiter characters in @string to @new_delimiter.
@@ -1941,7 +1923,7 @@ g_strncasecmp (const gchar *s1,
  * changed to the @new_delimiter character. Modifies @string in place,
  * and returns @string itself, not a copy. The return value is to
  * allow nesting such as
- * |[
+ * |[<!-- language="C" --> 
  *   g_ascii_strup (g_strdelimit (str, "abc", '?'))
  * ]|
  *
@@ -1974,11 +1956,11 @@ g_strdelimit (gchar       *string,
  * @valid_chars: bytes permitted in @string
  * @substitutor: replacement character for disallowed bytes
  *
- * For each character in @string, if the character is not in
- * @valid_chars, replaces the character with @substitutor.
- * Modifies @string in place, and return @string itself, not
- * a copy. The return value is to allow nesting such as
- * |[
+ * For each character in @string, if the character is not in @valid_chars,
+ * replaces the character with @substitutor. Modifies @string in place,
+ * and return @string itself, not a copy. The return value is to allow
+ * nesting such as
+ * |[<!-- language="C" --> 
  *   g_ascii_strup (g_strcanon (str, "abc", '?'))
  * ]|
  *
@@ -2192,8 +2174,10 @@ g_strescape (const gchar *source,
  * of the characters forward.
  *
  * This function doesn't allocate or reallocate any memory;
- * it modifies @string in place. The pointer to @string is
- * returned to allow the nesting of functions.
+ * it modifies @string in place. Therefore, it cannot be used on
+ * statically allocated strings.
+ *
+ * The pointer to @string is returned to allow the nesting of functions.
  *
  * Also see g_strchomp() and g_strstrip().
  *
@@ -2221,12 +2205,14 @@ g_strchug (gchar *string)
  * Removes trailing whitespace from a string.
  *
  * This function doesn't allocate or reallocate any memory;
- * it modifies @string in place. The pointer to @string is
- * returned to allow the nesting of functions.
+ * it modifies @string in place. Therefore, it cannot be used
+ * on statically allocated strings.
+ *
+ * The pointer to @string is returned to allow the nesting of functions.
  *
  * Also see g_strchug() and g_strstrip().
  *
- * Returns: @string.
+ * Returns: @string
  */
 gchar *
 g_strchomp (gchar *string)
@@ -2267,7 +2253,7 @@ g_strchomp (gchar *string)
  * to represent empty elements, you'll need to check for the empty string
  * before calling g_strsplit().
  *
- * Return value: a newly-allocated %NULL-terminated array of strings. Use
+ * Returns: a newly-allocated %NULL-terminated array of strings. Use
  *    g_strfreev() to free it.
  */
 gchar**
@@ -2352,7 +2338,7 @@ g_strsplit (const gchar *string,
  * Note that this function works on bytes not characters, so it can't be used
  * to delimit UTF-8 strings for anything but ASCII characters.
  *
- * Return value: a newly-allocated %NULL-terminated array of strings. Use
+ * Returns: a newly-allocated %NULL-terminated array of strings. Use
  *    g_strfreev() to free it.
  *
  * Since: 2.4
@@ -2426,7 +2412,7 @@ g_strsplit_set (const gchar *string,
 
  * Frees a %NULL-terminated array of strings, and the array itself.
  * If called on a %NULL value, g_strfreev() simply returns.
- **/
+ */
 void
 g_strfreev (gchar **str_array)
 {
@@ -2450,7 +2436,7 @@ g_strfreev (gchar **str_array)
  * the array itself. g_strfreev() does this for you. If called
  * on a %NULL value, g_strdupv() simply returns %NULL.
  *
- * Return value: a new %NULL-terminated array of strings.
+ * Returns: a new %NULL-terminated array of strings.
  */
 gchar**
 g_strdupv (gchar **str_array)
@@ -2482,7 +2468,8 @@ g_strdupv (gchar **str_array)
 
 /**
  * g_strjoinv:
- * @separator: (allow-none): a string to insert between each of the strings, or %NULL
+ * @separator: (allow-none): a string to insert between each of the
+ *     strings, or %NULL
  * @str_array: a %NULL-terminated array of strings to join
  *
  * Joins a number of strings together to form one long string, with the
@@ -2534,7 +2521,8 @@ g_strjoinv (const gchar  *separator,
 
 /**
  * g_strjoin:
- * @separator: (allow-none): a string to insert between each of the strings, or %NULL
+ * @separator: (allow-none): a string to insert between each of the
+ *     strings, or %NULL
  * @...: a %NULL-terminated list of strings to join
  *
  * Joins a number of strings together to form one long string, with the
@@ -2613,7 +2601,7 @@ g_strjoin (const gchar *separator,
  * of the string @needle, limiting the length of the search
  * to @haystack_len.
  *
- * Return value: a pointer to the found occurrence, or
+ * Returns: a pointer to the found occurrence, or
  *    %NULL if not found.
  */
 gchar *
@@ -2665,7 +2653,7 @@ g_strstr_len (const gchar *haystack,
  * Searches the string @haystack for the last occurrence
  * of the string @needle.
  *
- * Return value: a pointer to the found occurrence, or
+ * Returns: a pointer to the found occurrence, or
  *    %NULL if not found.
  */
 gchar *
@@ -2716,7 +2704,7 @@ g_strrstr (const gchar *haystack,
  * of the string @needle, limiting the length of the search
  * to @haystack_len.
  *
- * Return value: a pointer to the found occurrence, or
+ * Returns: a pointer to the found occurrence, or
  *    %NULL if not found.
  */
 gchar *
@@ -2768,7 +2756,7 @@ g_strrstr_len (const gchar *haystack,
  *
  * Looks whether the string @str ends with @suffix.
  *
- * Return value: %TRUE if @str end with @suffix, %FALSE otherwise.
+ * Returns: %TRUE if @str end with @suffix, %FALSE otherwise.
  *
  * Since: 2.2
  */
@@ -2798,7 +2786,7 @@ g_str_has_suffix (const gchar *str,
  *
  * Looks whether the string @str begins with @prefix.
  *
- * Return value: %TRUE if @str begins with @prefix, %FALSE otherwise.
+ * Returns: %TRUE if @str begins with @prefix, %FALSE otherwise.
  *
  * Since: 2.2
  */
@@ -2828,7 +2816,7 @@ g_str_has_prefix (const gchar *str,
  * Returns the length of the given %NULL-terminated
  * string array @str_array.
  *
- * Return value: length of @str_array.
+ * Returns: length of @str_array.
  *
  * Since: 2.6
  */
@@ -2954,7 +2942,7 @@ split_words (const gchar *value)
  * improve the transliteration if the language of the source string is
  * known.
  *
- * Returns: the folded tokens
+ * Returns: (transfer full) (array zero-terminated=1): the folded tokens
  *
  * Since: 2.40
  **/
@@ -2973,7 +2961,6 @@ g_str_tokenize_and_fold (const gchar   *string,
 
   result = split_words (string);
 
-  /* TODO: proper iconv transliteration (locale-dependent) */
   if (ascii_alternates)
     {
       gint i, j, n;
@@ -2986,21 +2973,26 @@ g_str_tokenize_and_fold (const gchar   *string,
         {
           if (!g_str_is_ascii (result[i]))
             {
-              gchar *decomposed;
+              gchar *composed;
               gchar *ascii;
-              gint k = 0;
-              gint l = 0;
+              gint k;
 
-              decomposed = g_utf8_normalize (result[i], -1, G_NORMALIZE_ALL);
-              ascii = g_malloc (strlen (decomposed) + 1);
+              composed = g_utf8_normalize (result[i], -1, G_NORMALIZE_ALL_COMPOSE);
 
-              for (k = 0; decomposed[k]; k++)
-                if (~decomposed[k] & 0x80)
-                  ascii[l++] = decomposed[k];
-              ascii[l] = '\0';
+              ascii = g_str_to_ascii (composed, translit_locale);
 
-              (*ascii_alternates)[j++] = ascii;
-              g_free (decomposed);
+              /* Only accept strings that are now entirely alnums */
+              for (k = 0; ascii[k]; k++)
+                if (!g_ascii_isalnum (ascii[k]))
+                  break;
+
+              if (ascii[k] == '\0')
+                /* Made it to the end... */
+                (*ascii_alternates)[j++] = ascii;
+              else
+                g_free (ascii);
+
+              g_free (composed);
             }
         }
 

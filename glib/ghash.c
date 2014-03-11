@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -34,6 +32,7 @@
 
 #include "ghash.h"
 
+#include "glib-private.h"
 #include "gstrfuncs.h"
 #include "gatomic.h"
 #include "gtestutils.h"
@@ -96,8 +95,8 @@
  * GHashTable:
  *
  * The #GHashTable struct is an opaque data structure to represent a
- * <link linkend="glib-Hash-Tables">Hash Table</link>. It should only be
- * accessed via the following functions.
+ * [Hash Table][glib-Hash-Tables]. It should only be accessed via the
+ * following functions.
  */
 
 /**
@@ -113,7 +112,7 @@
  * and #gchar* respectively.
  *
  * g_direct_hash() is also the appropriate hash function for keys
- * of the form <literal>GINT_TO_POINTER (n)</literal> (or similar macros).
+ * of the form `GINT_TO_POINTER (n)` (or similar macros).
  *
  * <!-- FIXME: Need more here. --> A good hash functions should produce
  * hash values that are evenly distributed over a fairly large range.
@@ -127,7 +126,8 @@
  * a more secure hash function when using a GHashTable with keys
  * that originate in untrusted data (such as HTTP requests).
  * Using g_str_hash() in that situation might make your application
- * vulerable to <ulink url="https://lwn.net/Articles/474912/">Algorithmic Complexity Attacks</ulink>.
+ * vulerable to
+ * [Algorithmic Complexity Attacks](https://lwn.net/Articles/474912/).
  *
  * The key to choosing a good hash is unpredictability.  Even
  * cryptographic hashes are very easy to find collisions for when the
@@ -245,6 +245,9 @@ typedef struct
   gboolean     dummy3;
   int          version;
 } RealIter;
+
+G_STATIC_ASSERT (sizeof (GHashTableIter) == sizeof (RealIter));
+G_STATIC_ASSERT (_g_alignof (GHashTableIter) >= _g_alignof (RealIter));
 
 /* Each table size has an associated prime modulo (the first prime
  * lower than the table size) used to find the initial bucket. Probing
@@ -614,7 +617,7 @@ g_hash_table_maybe_resize (GHashTable *hash_table)
  * a similar fashion to g_direct_equal(), but without the overhead of
  * a function call.
  *
- * Return value: a new #GHashTable
+ * Returns: a new #GHashTable
  */
 GHashTable *
 g_hash_table_new (GHashFunc  hash_func,
@@ -640,7 +643,7 @@ g_hash_table_new (GHashFunc  hash_func,
  * allocated for the key and value that get called when removing the
  * entry from the #GHashTable.
  *
- * Return value: a new #GHashTable
+ * Returns: a new #GHashTable
  */
 GHashTable *
 g_hash_table_new_full (GHashFunc      hash_func,
@@ -677,14 +680,14 @@ g_hash_table_new_full (GHashFunc      hash_func,
  * Initializes a key/value pair iterator and associates it with
  * @hash_table. Modifying the hash table after calling this function
  * invalidates the returned iterator.
- * |[
+ * |[<!-- language="C" -->
  * GHashTableIter iter;
  * gpointer key, value;
  *
  * g_hash_table_iter_init (&iter, hash_table);
  * while (g_hash_table_iter_next (&iter, &key, &value))
  *   {
- *     /&ast; do something with key and value &ast;/
+ *     // do something with key and value
  *   }
  * ]|
  *
@@ -716,7 +719,7 @@ g_hash_table_iter_init (GHashTableIter *iter,
  * pointed to as a result of this advancement. If %FALSE is returned,
  * @key and @value are not set, and the iterator becomes invalid.
  *
- * Return value: %FALSE if the end of the #GHashTable has been reached.
+ * Returns: %FALSE if the end of the #GHashTable has been reached.
  *
  * Since: 2.16
  */
@@ -762,7 +765,7 @@ g_hash_table_iter_next (GHashTableIter *iter,
  *
  * Returns the #GHashTable associated with @iter.
  *
- * Return value: the #GHashTable associated with @iter.
+ * Returns: the #GHashTable associated with @iter.
  *
  * Since: 2.16
  */
@@ -805,6 +808,15 @@ iter_remove_or_steal (RealIter *ri, gboolean notify)
  * the key and value are freed using the supplied destroy functions,
  * otherwise you have to make sure that any dynamically allocated
  * values are freed yourself.
+ *
+ * It is safe to continue iterating the #GHashTable afterward:
+ * |[
+ * while (g_hash_table_iter_next (&iter, &key, &value))
+ *   {
+ *     if (condition)
+ *       g_hash_table_iter_remove (&iter);
+ *   }
+ * ]|
  *
  * Since: 2.16
  */
@@ -995,7 +1007,7 @@ g_hash_table_iter_steal (GHashTableIter *iter)
  * Atomically increments the reference count of @hash_table by one.
  * This function is MT-safe and may be called from any thread.
  *
- * Return value: the passed in #GHashTable
+ * Returns: the passed in #GHashTable
  *
  * Since: 2.10
  */
@@ -1066,7 +1078,7 @@ g_hash_table_destroy (GHashTable *hash_table)
  * and has the value %NULL. If you need this distinction, use
  * g_hash_table_lookup_extended().
  *
- * Return value: (allow-none): the associated value, or %NULL if the key is not found
+ * Returns: (allow-none): the associated value, or %NULL if the key is not found
  */
 gpointer
 g_hash_table_lookup (GHashTable    *hash_table,
@@ -1100,7 +1112,7 @@ g_hash_table_lookup (GHashTable    *hash_table,
  * whether the %NULL key exists, provided the hash and equal functions
  * of @hash_table are %NULL-safe.
  *
- * Return value: %TRUE if the key was found in the #GHashTable
+ * Returns: %TRUE if the key was found in the #GHashTable
  */
 gboolean
 g_hash_table_lookup_extended (GHashTable    *hash_table,
@@ -1262,7 +1274,7 @@ g_hash_table_contains (GHashTable    *hash_table,
  * @hash_table: our #GHashTable
  * @key: the key to remove
  * @notify: %TRUE if the destroy notify handlers are to be called
- * Return value: %TRUE if a node was found and removed, else %FALSE
+ * Returns: %TRUE if a node was found and removed, else %FALSE
  *
  * Implements the common logic for the g_hash_table_remove() and
  * g_hash_table_steal() functions.
@@ -1455,7 +1467,7 @@ g_hash_table_foreach_remove_or_steal (GHashTable *hash_table,
  * See #GHashTableIter for an alternative way to loop over the
  * key/value pairs in the hash table.
  *
- * Return value: the number of key/value pairs removed
+ * Returns: the number of key/value pairs removed
  */
 guint
 g_hash_table_foreach_remove (GHashTable *hash_table,
@@ -1482,7 +1494,7 @@ g_hash_table_foreach_remove (GHashTable *hash_table,
  * See #GHashTableIter for an alternative way to loop over the
  * key/value pairs in the hash table.
  *
- * Return value: the number of key/value pairs removed.
+ * Returns: the number of key/value pairs removed.
  */
 guint
 g_hash_table_foreach_steal (GHashTable *hash_table,
@@ -1563,7 +1575,7 @@ g_hash_table_foreach (GHashTable *hash_table,
  * (keep in mind that an O(n) find/foreach operation issued for all n
  * values in a hash table ends up needing O(n*n) operations).
  *
- * Return value: (allow-none): The value of the first key/value pair is returned,
+ * Returns: (allow-none): The value of the first key/value pair is returned,
  *     for which @predicate evaluates to %TRUE. If no pair with the
  *     requested property is found, %NULL is returned.
  *
@@ -1615,7 +1627,7 @@ g_hash_table_find (GHashTable *hash_table,
  *
  * Returns the number of elements contained in the #GHashTable.
  *
- * Return value: the number of key/value pairs in the #GHashTable.
+ * Returns: the number of key/value pairs in the #GHashTable.
  */
 guint
 g_hash_table_size (GHashTable *hash_table)
@@ -1632,7 +1644,7 @@ g_hash_table_size (GHashTable *hash_table)
  * Retrieves every key inside @hash_table. The returned data is valid
  * until changes to the hash release those keys.
  *
- * Return value: a #GList containing all the keys inside the hash
+ * Returns: a #GList containing all the keys inside the hash
  *     table. The content of the list is owned by the hash table and
  *     should not be modified or freed. Use g_list_free() when done
  *     using the list.
@@ -1710,7 +1722,7 @@ g_hash_table_get_keys_as_array (GHashTable *hash_table,
  * Retrieves every value inside @hash_table. The returned data
  * is valid until @hash_table is modified.
  *
- * Return value: a #GList containing all the values inside the hash
+ * Returns: a #GList containing all the values inside the hash
  *     table. The content of the list is owned by the hash table and
  *     should not be modified or freed. Use g_list_free() when done
  *     using the list.
@@ -1770,11 +1782,11 @@ g_str_equal (gconstpointer v1,
  *
  * Converts a string to a hash value.
  *
- * This function implements the widely used "djb" hash apparently posted
- * by Daniel Bernstein to comp.lang.c some time ago.  The 32 bit
- * unsigned hash value starts at 5381 and for each byte 'c' in the
- * string, is updated: <literal>hash = hash * 33 + c</literal>.  This
- * function uses the signed value of each byte.
+ * This function implements the widely used "djb" hash apparently
+ * posted by Daniel Bernstein to comp.lang.c some time ago.  The 32
+ * bit unsigned hash value starts at 5381 and for each byte 'c' in
+ * the string, is updated: `hash = hash * 33 + c`. This function
+ * uses the signed value of each byte.
  *
  * It can be passed to g_hash_table_new() as the @hash_func parameter,
  * when using non-%NULL strings as keys in a #GHashTable.
@@ -1802,8 +1814,8 @@ g_str_hash (gconstpointer v)
  * when using opaque pointers compared by pointer value as keys in a
  * #GHashTable.
  *
- * This hash function is also appropriate for keys that are integers stored
- * in pointers, such as <literal>GINT_TO_POINTER (n)</literal>.
+ * This hash function is also appropriate for keys that are integers
+ * stored in pointers, such as `GINT_TO_POINTER (n)`.
  *
  * Returns: a hash value corresponding to the key.
  */
@@ -1820,11 +1832,11 @@ g_direct_hash (gconstpointer v)
  *
  * Compares two #gpointer arguments and returns %TRUE if they are equal.
  * It can be passed to g_hash_table_new() as the @key_equal_func
- * parameter, when using opaque pointers compared by pointer value as keys
- * in a #GHashTable.
+ * parameter, when using opaque pointers compared by pointer value as
+ * keys in a #GHashTable.
  *
- * This equality function is also appropriate for keys that are integers stored
- * in pointers, such as <literal>GINT_TO_POINTER (n)</literal>.
+ * This equality function is also appropriate for keys that are integers
+ * stored in pointers, such as `GINT_TO_POINTER (n)`.
  *
  * Returns: %TRUE if the two keys match.
  */
@@ -1846,9 +1858,9 @@ g_direct_equal (gconstpointer v1,
  * parameter, when using non-%NULL pointers to integers as keys in a
  * #GHashTable.
  *
- * Note that this function acts on pointers to #gint, not on #gint directly:
- * if your hash table's keys are of the form
- * <literal>GINT_TO_POINTER (n)</literal>, use g_direct_equal() instead.
+ * Note that this function acts on pointers to #gint, not on #gint
+ * directly: if your hash table's keys are of the form
+ * `GINT_TO_POINTER (n)`, use g_direct_equal() instead.
  *
  * Returns: %TRUE if the two keys match.
  */
@@ -1867,9 +1879,9 @@ g_int_equal (gconstpointer v1,
  * It can be passed to g_hash_table_new() as the @hash_func parameter,
  * when using non-%NULL pointers to integer values as keys in a #GHashTable.
  *
- * Note that this function acts on pointers to #gint, not on #gint directly:
- * if your hash table's keys are of the form
- * <literal>GINT_TO_POINTER (n)</literal>, use g_direct_hash() instead.
+ * Note that this function acts on pointers to #gint, not on #gint
+ * directly: if your hash table's keys are of the form
+ * `GINT_TO_POINTER (n)`, use g_direct_hash() instead.
  *
  * Returns: a hash value corresponding to the key.
  */

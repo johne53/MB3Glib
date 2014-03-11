@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Ryan Lortie <desrt@desrt.ca>
  *          Alexander Larsson <alexl@redhat.com>
@@ -57,9 +55,9 @@
  * To close a stream use g_io_stream_close() which will close the common
  * stream object and also the individual substreams. You can also close
  * the substreams themselves. In most cases this only marks the
- * substream as closed, so further I/O on it fails. However, some streams
- * may support "half-closed" states where one direction of the stream
- * is actually shut down.
+ * substream as closed, so further I/O on it fails but common state in the
+ * #GIOStream may still be open. However, some streams may support
+ * "half-closed" states where one direction of the stream is actually shut down.
  *
  * Since: 2.22
  */
@@ -264,7 +262,7 @@ g_io_stream_has_pending (GIOStream *stream)
  * already set or @stream is closed, it will return %FALSE and set
  * @error.
  *
- * Return value: %TRUE if pending was previously unset and is now set.
+ * Returns: %TRUE if pending was previously unset and is now set.
  *
  * Since: 2.22
  */
@@ -372,7 +370,7 @@ g_io_stream_real_close (GIOStream     *stream,
  * The default implementation of this method just calls close on the
  * individual input/output streams.
  *
- * Return value: %TRUE on success, %FALSE on failure
+ * Returns: %TRUE on success, %FALSE on failure
  *
  * Since: 2.22
  */

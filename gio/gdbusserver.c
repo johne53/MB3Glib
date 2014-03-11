@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: David Zeuthen <davidz@redhat.com>
  */
@@ -72,7 +70,8 @@
  * To just export an object on a well-known name on a message bus, such as the
  * session or system bus, you should instead use g_bus_own_name().
  *
- * <example id="gdbus-peer-to-peer"><title>D-Bus peer-to-peer example</title><programlisting><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" parse="text" href="../../../../gio/tests/gdbus-example-peer.c"><xi:fallback>FIXME: MISSING XINCLUDE CONTENT</xi:fallback></xi:include></programlisting></example>
+ * An example of peer-to-peer communication with G-DBus can be found
+ * in [gdbus-example-peer.c](https://git.gnome.org/browse/glib/tree/gio/tests/gdbus-example-peer.c).
  */
 
 /**
@@ -406,9 +405,9 @@ g_dbus_server_class_init (GDBusServerClass *klass)
    *
    * If #GDBusServer:flags contains %G_DBUS_SERVER_FLAGS_RUN_IN_THREAD
    * then the signal is emitted in a new thread dedicated to the
-   * connection. Otherwise the signal is emitted in the <link
-   * linkend="g-main-context-push-thread-default">thread-default main
-   * loop</link> of the thread that @server was constructed in.
+   * connection. Otherwise the signal is emitted in the
+   * [thread-default main context][g-main-context-push-thread-default]
+   * of the thread that @server was constructed in.
    *
    * You are guaranteed that signal handlers for this signal runs
    * before incoming messages on @connection are processed. This means
@@ -465,8 +464,7 @@ on_run (GSocketService    *service,
  * The returned #GDBusServer isn't active - you have to start it with
  * g_dbus_server_start().
  *
- * See <xref linkend="gdbus-peer-to-peer"/> for how #GDBusServer can
- * be used.
+ * #GDBusServer is used in this [example][gdbus-peer-to-peer].
  *
  * This is a synchronous failable constructor. See
  * g_dbus_server_new() for the asynchronous version.

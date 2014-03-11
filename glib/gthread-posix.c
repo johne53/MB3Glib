@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -47,6 +45,7 @@
 #include "gslice.h"
 #include "gmessages.h"
 #include "gstrfuncs.h"
+#include "gmain.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -143,7 +142,7 @@ g_mutex_get_impl (GMutex *mutex)
  * It is not necessary to initialize a mutex that has been
  * statically allocated.
  *
- * |[
+ * |[<!-- language="C" --> 
  *   typedef struct {
  *     GMutex m;
  *     ...
@@ -197,10 +196,10 @@ g_mutex_clear (GMutex *mutex)
  * current thread will block until @mutex is unlocked by the other
  * thread.
  *
- * <note>#GMutex is neither guaranteed to be recursive nor to be
+ * #GMutex is neither guaranteed to be recursive nor to be
  * non-recursive.  As such, calling g_mutex_lock() on a #GMutex that has
  * already been locked by the same thread results in undefined behaviour
- * (including but not limited to deadlocks).</note>
+ * (including but not limited to deadlocks).
  */
 void
 g_mutex_lock (GMutex *mutex)
@@ -238,11 +237,10 @@ g_mutex_unlock (GMutex *mutex)
  * it immediately returns %FALSE. Otherwise it locks @mutex and returns
  * %TRUE.
  *
- * <note>#GMutex is neither guaranteed to be recursive nor to be
+ * #GMutex is neither guaranteed to be recursive nor to be
  * non-recursive.  As such, calling g_mutex_lock() on a #GMutex that has
  * already been locked by the same thread results in undefined behaviour
  * (including but not limited to deadlocks or arbitrary return values).
- * </note>
 
  * Returns: %TRUE if @mutex could be locked
  */
@@ -316,7 +314,7 @@ g_rec_mutex_get_impl (GRecMutex *rec_mutex)
  * It is not necessary to initialise a recursive mutex that has been
  * statically allocated.
  *
- * |[
+ * |[<!-- language="C" --> 
  *   typedef struct {
  *     GRecMutex m;
  *     ...
@@ -474,7 +472,7 @@ g_rw_lock_get_impl (GRWLock *lock)
  * necessary to initialise a reader-writer lock that has been statically
  * allocated.
  *
- * |[
+ * |[<!-- language="C" --> 
  *   typedef struct {
  *     GRWLock l;
  *     ...
@@ -641,8 +639,13 @@ g_cond_impl_new (void)
   gint status;
 
   pthread_condattr_init (&attr);
-#if defined (HAVE_PTHREAD_CONDATTR_SETCLOCK) && defined (CLOCK_MONOTONIC)
-  pthread_condattr_setclock (&attr, CLOCK_MONOTONIC);
+
+#ifdef HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE_NP
+#elif defined (HAVE_PTHREAD_CONDATTR_SETCLOCK) && defined (CLOCK_MONOTONIC)
+  if G_UNLIKELY ((status = pthread_condattr_setclock (&attr, CLOCK_MONOTONIC)) != 0)
+    g_thread_abort (status, "pthread_condattr_setclock");
+#else
+#error Cannot support GCond on your platform.
 #endif
 
   cond = malloc (sizeof (pthread_cond_t));
@@ -807,10 +810,10 @@ g_cond_broadcast (GCond *cond)
  * passed.
  *
  * The following code shows how to correctly perform a timed wait on a
- * condition variable (extended the example presented in the
+ * condition variable (extending the example presented in the
  * documentation for #GCond):
  *
- * |[
+ * |[<!-- language="C" --> 
  * gpointer
  * pop_data_timed (void)
  * {
@@ -856,19 +859,41 @@ g_cond_wait_until (GCond  *cond,
   struct timespec ts;
   gint status;
 
-  ts.tv_sec = end_time / 1000000;
-  ts.tv_nsec = (end_time % 1000000) * 1000;
+#ifdef HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE_NP
+  /* end_time is given relative to the monotonic clock as returned by
+   * g_get_monotonic_time().
+   *
+   * Since this pthreads wants the relative time, convert it back again.
+   */
+  {
+    gint64 now = g_get_monotonic_time ();
+    gint64 relative;
 
-#if defined(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC)
-  if ((status = pthread_cond_timedwait_monotonic (g_cond_get_impl (cond), g_mutex_get_impl (mutex), &ts)) == 0)
-    return TRUE;
-#elif defined(HAVE_PTHREAD_COND_TIMEDWAIT_MONOTONIC_NP)
-  if ((status = pthread_cond_timedwait_monotonic_np (g_cond_get_impl (cond), g_mutex_get_impl (mutex), &ts)) == 0)
-    return TRUE;
+    if (end_time <= now)
+      return FALSE;
+
+    relative = end_time - now;
+
+    ts.tv_sec = relative / 1000000;
+    ts.tv_nsec = (relative % 1000000) * 1000;
+
+    if ((status = pthread_cond_timedwait_relative_np (g_cond_get_impl (cond), g_mutex_get_impl (mutex), &ts)) == 0)
+      return TRUE;
+  }
+#elif defined (HAVE_PTHREAD_CONDATTR_SETCLOCK) && defined (CLOCK_MONOTONIC)
+  /* This is the exact check we used during init to set the clock to
+   * monotonic, so if we're in this branch, timedwait() will already be
+   * expecting a monotonic clock.
+   */
+  {
+    ts.tv_sec = end_time / 1000000;
+    ts.tv_nsec = (end_time % 1000000) * 1000;
+
+    if ((status = pthread_cond_timedwait (g_cond_get_impl (cond), g_mutex_get_impl (mutex), &ts)) == 0)
+      return TRUE;
+  }
 #else
-  /* Pray that the cond is actually using the monotonic clock */
-  if ((status = pthread_cond_timedwait (g_cond_get_impl (cond), g_mutex_get_impl (mutex), &ts)) == 0)
-    return TRUE;
+#error Cannot support GCond on your platform.
 #endif
 
   if G_UNLIKELY (status != ETIMEDOUT)
@@ -898,7 +923,7 @@ g_cond_wait_until (GCond  *cond,
  * See G_PRIVATE_INIT() for a couple of examples.
  *
  * The #GPrivate structure should be considered opaque.  It should only
- * be accessed via the <function>g_private_</function> functions.
+ * be accessed via the g_private_ functions.
  */
 
 /**
@@ -920,7 +945,7 @@ g_cond_wait_until (GCond  *cond,
  * be properly initialised by default (ie: to all zeros).  See the
  * examples below.
  *
- * |[
+ * |[<!-- language="C" --> 
  * static GPrivate name_key = G_PRIVATE_INIT (g_free);
  *
  * // return value should not be freed

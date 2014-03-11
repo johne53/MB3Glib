@@ -15,8 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -122,9 +121,9 @@
 /**
  * GData:
  *
- * The #GData struct is an opaque data structure to represent a <link
- * linkend="glib-Keyed-Data-Lists">Keyed Data List</link>. It should
- * only be accessed via the following functions.
+ * The #GData struct is an opaque data structure to represent a
+ * [Keyed Data List][glib-Keyed-Data-Lists]. It should only be
+ * accessed via the following functions.
  **/
 
 /**
@@ -1219,7 +1218,7 @@ g_datalist_unset_flags (GData **datalist,
  * Gets flags values packed in together with the datalist.
  * See g_datalist_set_flags().
  * 
- * Return value: the flags of the datalist
+ * Returns: the flags of the datalist
  *
  * Since: 2.8
  **/

@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -672,7 +670,7 @@ g_variant_ref (GVariant *value)
  * @value: a #GVariant
  *
  * #GVariant uses a floating reference count system.  All functions with
- * names starting with <literal>g_variant_new_</literal> return floating
+ * names starting with `g_variant_new_` return floating
  * references.
  *
  * Calling g_variant_ref_sink() on a #GVariant with a floating reference

@@ -36,16 +36,15 @@
  * comprehensive API for asynchronous I/O, such
  * g_output_stream_splice_async().  This makes GSubprocess
  * significantly more powerful and flexible than equivalent APIs in
- * some other languages such as the <literal>subprocess.py</literal>
+ * some other languages such as the `subprocess.py`
  * included with Python.  For example, using #GSubprocess one could
  * create two child processes, reading standard output from the first,
  * processing it, and writing to the input stream of the second, all
  * without blocking the main loop.
  *
  * A powerful g_subprocess_communicate() API is provided similar to the
- * <literal>communicate()</literal> method of
- * <literal>subprocess.py</literal>.  This enables very easy interaction
- * with a subprocess that has been opened with pipes.
+ * `communicate()` method of `subprocess.py`. This enables very easy
+ * interaction with a subprocess that has been opened with pipes.
  *
  * #GSubprocess defaults to tight control over the file descriptors open
  * in the child process, avoiding dangling-fd issues that are caused by
@@ -72,8 +71,8 @@
  * change of working directory, child setup functions, etc).
  *
  * A typical use of #GSubprocess will involve calling
- * g_subprocess_new(), followed by g_subprocess_wait() or
- * g_subprocess_wait_sync().  After the process exits, the status can be
+ * g_subprocess_new(), followed by g_subprocess_wait_async() or
+ * g_subprocess_wait().  After the process exits, the status can be
  * checked using functions such as g_subprocess_get_if_exited() (which
  * are similar to the familiar WIFEXITED-style POSIX macros).
  *
@@ -611,12 +610,15 @@ g_subprocess_finalize (GObject *object)
   g_clear_object (&self->stderr_pipe);
   g_strfreev (self->argv);
 
+  g_mutex_clear (&self->pending_waits_lock);
+
   G_OBJECT_CLASS (g_subprocess_parent_class)->finalize (object);
 }
 
 static void
 g_subprocess_init (GSubprocess  *self)
 {
+  g_mutex_init (&self->pending_waits_lock);
 }
 
 static void
@@ -725,8 +727,8 @@ g_subprocess_newv (const gchar * const  *argv,
  * g_subprocess_get_identifier:
  * @subprocess: a #GSubprocess
  *
- * On UNIX, returns the process ID as a decimal string.  On Windows,
- * returns the result of GetProcessId() also as a string.
+ * On UNIX, returns the process ID as a decimal string.
+ * On Windows, returns the result of GetProcessId() also as a string.
  */
 const gchar *
 g_subprocess_get_identifier (GSubprocess *subprocess)
@@ -749,7 +751,7 @@ g_subprocess_get_identifier (GSubprocess *subprocess)
  * The process must have been created with
  * %G_SUBPROCESS_FLAGS_STDIN_PIPE.
  *
- * Returns: the stdout pipe
+ * Returns: (transfer none): the stdout pipe
  *
  * Since: 2.40
  **/
@@ -772,7 +774,7 @@ g_subprocess_get_stdin_pipe (GSubprocess *subprocess)
  * The process must have been created with
  * %G_SUBPROCESS_FLAGS_STDOUT_PIPE.
  *
- * Returns: the stdout pipe
+ * Returns: (transfer none): the stdout pipe
  *
  * Since: 2.40
  **/
@@ -795,7 +797,7 @@ g_subprocess_get_stdout_pipe (GSubprocess *subprocess)
  * The process must have been created with
  * %G_SUBPROCESS_FLAGS_STDERR_PIPE.
  *
- * Returns: the stderr pipe
+ * Returns: (transfer none): the stderr pipe
  *
  * Since: 2.40
  **/
@@ -1418,7 +1420,7 @@ g_subprocess_communicate_made_progress (GObject      *source_object,
       source == state->stdout_buf ||
       source == state->stderr_buf)
     {
-      if (!g_output_stream_splice_finish ((GOutputStream*)source, result, &error))
+      if (g_output_stream_splice_finish ((GOutputStream*) source, result, &error) == -1)
         goto out;
 
       if (source == state->stdout_buf ||

@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef __G_TYPE_H__
 #define __G_TYPE_H__
@@ -59,7 +57,7 @@ G_BEGIN_DECLS
  * G_TYPE_NONE:
  * 
  * A fundamental type which is used as a replacement for the C
- * <literal>void</literal> return type.
+ * void return type.
  */
 #define G_TYPE_NONE			G_TYPE_MAKE_FUNDAMENTAL (1)
 /**
@@ -1478,8 +1476,8 @@ guint     g_type_get_type_registration_serial (void);
  * function.
  *
  * The macro expects the interface initialization function to have the
- * name <literal>t_n ## _default_init</literal>, and the interface
- * structure to have the name <literal>TN ## Interface</literal>.
+ * name `t_n ## _default_init`, and the interface structure to have the
+ * name `TN ## Interface`.
  *
  * Since: 2.24
  */
@@ -1674,6 +1672,7 @@ static gint     TypeName##_private_offset; \
 \
 _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
 \
+G_GNUC_UNUSED \
 static inline gpointer \
 type_name##_get_instance_private (TypeName *self) \
 { \

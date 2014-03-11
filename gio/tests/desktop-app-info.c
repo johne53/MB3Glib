@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  * 
  * Author: Matthias Clasen
  */
@@ -655,6 +653,15 @@ test_search (void)
   assert_search ("gnome", "eog.desktop\n"
                           "gnome-clocks.desktop\n"
                           "yelp.desktop gnome-contacts.desktop\n", TRUE, TRUE, NULL, NULL);
+
+  /* eog has exec name 'false' in usr only */
+  assert_search ("false", "eog.desktop\n", TRUE, FALSE, NULL, NULL);
+  assert_search ("false", "", FALSE, TRUE, NULL, NULL);
+  assert_search ("false", "", TRUE, TRUE, NULL, NULL);
+  assert_search ("false", "", FALSE, FALSE, NULL, NULL);
+
+  /* make sure we only search the first component */
+  assert_search ("nonsearchable", "", TRUE, FALSE, NULL, NULL);
 
   /* "gnome con" will match only gnome contacts; via the name for
    * "contacts" and the comment for "gnome"

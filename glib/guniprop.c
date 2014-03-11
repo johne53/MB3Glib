@@ -14,9 +14,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -104,7 +102,7 @@
  * Given some UTF-8 text, obtain a character value
  * with g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is an alphanumeric character
+ * Returns: %TRUE if @c is an alphanumeric character
  **/
 gboolean
 g_unichar_isalnum (gunichar c)
@@ -120,7 +118,7 @@ g_unichar_isalnum (gunichar c)
  * Given some UTF-8 text, obtain a character value with
  * g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is an alphabetic character
+ * Returns: %TRUE if @c is an alphabetic character
  **/
 gboolean
 g_unichar_isalpha (gunichar c)
@@ -137,7 +135,7 @@ g_unichar_isalpha (gunichar c)
  * Given some UTF-8 text, obtain a character value with
  * g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is a control character
+ * Returns: %TRUE if @c is a control character
  **/
 gboolean
 g_unichar_iscntrl (gunichar c)
@@ -153,7 +151,7 @@ g_unichar_iscntrl (gunichar c)
  * covers ASCII 0-9 and also digits in other languages/scripts.  Given
  * some UTF-8 text, obtain a character value with g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is a digit
+ * Returns: %TRUE if @c is a digit
  **/
 gboolean
 g_unichar_isdigit (gunichar c)
@@ -172,7 +170,7 @@ g_unichar_isdigit (gunichar c)
  * spaces. Given some UTF-8 text, obtain a character value with
  * g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is printable unless it's a space
+ * Returns: %TRUE if @c is printable unless it's a space
  **/
 gboolean
 g_unichar_isgraph (gunichar c)
@@ -194,7 +192,7 @@ g_unichar_isgraph (gunichar c)
  * Given some UTF-8 text, obtain a character value with
  * g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is a lowercase letter
+ * Returns: %TRUE if @c is a lowercase letter
  **/
 gboolean
 g_unichar_islower (gunichar c)
@@ -212,7 +210,7 @@ g_unichar_islower (gunichar c)
  * Given some UTF-8 text, obtain a character value with
  * g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is printable
+ * Returns: %TRUE if @c is printable
  **/
 gboolean
 g_unichar_isprint (gunichar c)
@@ -233,7 +231,7 @@ g_unichar_isprint (gunichar c)
  * Given some UTF-8 text, obtain a character value with
  * g_utf8_get_char().
  * 
- * Return value: %TRUE if @c is a punctuation or symbol character
+ * Returns: %TRUE if @c is a punctuation or symbol character
  **/
 gboolean
 g_unichar_ispunct (gunichar c)
@@ -265,7 +263,7 @@ g_unichar_ispunct (gunichar c)
  * Pango or equivalent to get word breaking right, the algorithm
  * is fairly complex.)
  *  
- * Return value: %TRUE if @c is a space character
+ * Returns: %TRUE if @c is a space character
  **/
 gboolean
 g_unichar_isspace (gunichar c)
@@ -306,7 +304,7 @@ g_unichar_isspace (gunichar c)
  * for writing most European languages as well as many non-Latin
  * scripts.
  *
- * Return value: %TRUE if @c is a mark character
+ * Returns: %TRUE if @c is a mark character
  *
  * Since: 2.14
  **/
@@ -322,7 +320,7 @@ g_unichar_ismark (gunichar c)
  * 
  * Determines if a character is uppercase.
  * 
- * Return value: %TRUE if @c is an uppercase character
+ * Returns: %TRUE if @c is an uppercase character
  **/
 gboolean
 g_unichar_isupper (gunichar c)
@@ -341,7 +339,7 @@ g_unichar_isupper (gunichar c)
  * first letter is capitalized. The titlecase form of the DZ
  * digraph is U+01F2 LATIN CAPITAL LETTTER D WITH SMALL LETTER Z.
  * 
- * Return value: %TRUE if the character is titlecase
+ * Returns: %TRUE if the character is titlecase
  **/
 gboolean
 g_unichar_istitle (gunichar c)
@@ -359,7 +357,7 @@ g_unichar_istitle (gunichar c)
  * 
  * Determines if a character is a hexidecimal digit.
  * 
- * Return value: %TRUE if the character is a hexadecimal digit
+ * Returns: %TRUE if the character is a hexadecimal digit
  **/
 gboolean
 g_unichar_isxdigit (gunichar c)
@@ -376,7 +374,7 @@ g_unichar_isxdigit (gunichar c)
  * Determines if a given character is assigned in the Unicode
  * standard.
  *
- * Return value: %TRUE if the character has an assigned value
+ * Returns: %TRUE if the character has an assigned value
  **/
 gboolean
 g_unichar_isdefined (gunichar c)
@@ -401,7 +399,7 @@ g_unichar_isdefined (gunichar c)
  * when displayed on a grid display (terminals).  However, note that not all
  * terminals support zero-width rendering of zero-width marks.
  *
- * Return value: %TRUE if the character has zero width
+ * Returns: %TRUE if the character has zero width
  *
  * Since: 2.14
  **/
@@ -461,7 +459,7 @@ interval_compare (const void *key, const void *elt)
  * Determines if a character is typically rendered in a double-width
  * cell.
  * 
- * Return value: %TRUE if the character is wide
+ * Returns: %TRUE if the character is wide
  **/
 gboolean
 g_unichar_iswide (gunichar c)
@@ -494,15 +492,15 @@ g_unichar_iswide (gunichar c)
  * Determines if a character is typically rendered in a double-width
  * cell under legacy East Asian locales.  If a character is wide according to
  * g_unichar_iswide(), then it is also reported wide with this function, but
- * the converse is not necessarily true.  See the
- * <ulink url="http://www.unicode.org/reports/tr11/">Unicode Standard
- * Annex #11</ulink> for details.
+ * the converse is not necessarily true. See the
+ * [Unicode Standard Annex #11](http://www.unicode.org/reports/tr11/)
+ * for details.
  *
  * If a character passes the g_unichar_iswide() test then it will also pass
  * this test, but not the other way around.  Note that some characters may
  * pas both this test and g_unichar_iszerowidth().
  * 
- * Return value: %TRUE if the character is wide in legacy East Asian locales
+ * Returns: %TRUE if the character is wide in legacy East Asian locales
  *
  * Since: 2.12
  */
@@ -574,7 +572,7 @@ g_unichar_iswide_cjk (gunichar c)
  * 
  * Converts a character to uppercase.
  * 
- * Return value: the result of converting @c to uppercase.
+ * Returns: the result of converting @c to uppercase.
  *               If @c is not an lowercase or titlecase character,
  *               or has no upper case equivalent @c is returned unchanged.
  **/
@@ -614,7 +612,7 @@ g_unichar_toupper (gunichar c)
  * 
  * Converts a character to lower case.
  * 
- * Return value: the result of converting @c to lower case.
+ * Returns: the result of converting @c to lower case.
  *               If @c is not an upperlower or titlecase character,
  *               or has no lowercase equivalent @c is returned unchanged.
  **/
@@ -655,7 +653,7 @@ g_unichar_tolower (gunichar c)
  * 
  * Converts a character to the titlecase.
  * 
- * Return value: the result of converting @c to titlecase.
+ * Returns: the result of converting @c to titlecase.
  *               If @c is not an uppercase or lowercase character,
  *               @c is returned unchanged.
  **/
@@ -683,7 +681,7 @@ g_unichar_totitle (gunichar c)
  * Determines the numeric value of a character as a decimal
  * digit.
  *
- * Return value: If @c is a decimal digit (according to
+ * Returns: If @c is a decimal digit (according to
  * g_unichar_isdigit()), its numeric value. Otherwise, -1.
  **/
 int
@@ -701,7 +699,7 @@ g_unichar_digit_value (gunichar c)
  * Determines the numeric value of a character as a hexidecimal
  * digit.
  *
- * Return value: If @c is a hex digit (according to
+ * Returns: If @c is a hex digit (according to
  * g_unichar_isxdigit()), its numeric value. Otherwise, -1.
  **/
 int
@@ -722,7 +720,7 @@ g_unichar_xdigit_value (gunichar c)
  * 
  * Classifies a Unicode character by type.
  * 
- * Return value: the type of the character.
+ * Returns: the type of the character.
  **/
 GUnicodeType
 g_unichar_type (gunichar c)
@@ -950,7 +948,7 @@ real_toupper (const gchar *str,
  * characters in the string increasing. (For instance, the
  * German ess-zet will be changed to SS.)
  * 
- * Return value: a newly allocated string, with all characters
+ * Returns: a newly allocated string, with all characters
  *    converted to uppercase.  
  **/
 gchar *
@@ -1138,7 +1136,7 @@ real_tolower (const gchar *str,
  * on the current locale, and may result in the number of
  * characters in the string changing.
  * 
- * Return value: a newly allocated string, with all characters
+ * Returns: a newly allocated string, with all characters
  *    converted to lowercase.  
  **/
 gchar *
@@ -1181,7 +1179,7 @@ g_utf8_strdown (const gchar *str,
  * takes case sensitivity into account. GLib does not currently
  * provide such a function.
  * 
- * Return value: a newly allocated string, that is a
+ * Returns: a newly allocated string, that is a
  *   case independent form of @str.
  **/
 gchar *
@@ -1236,17 +1234,17 @@ g_utf8_casefold (const gchar *str,
  * @ch: a Unicode character
  * @mirrored_ch: location to store the mirrored character
  * 
- * In Unicode, some characters are <firstterm>mirrored</firstterm>. This
- * means that their images are mirrored horizontally in text that is laid
- * out from right to left. For instance, "(" would become its mirror image,
- * ")", in right-to-left text.
+ * In Unicode, some characters are "mirrored". This means that their
+ * images are mirrored horizontally in text that is laid out from right
+ * to left. For instance, "(" would become its mirror image, ")", in
+ * right-to-left text.
  *
  * If @ch has the Unicode mirrored property and there is another unicode
  * character that typically has a glyph that is the mirror image of @ch's
  * glyph and @mirrored_ch is set, it puts that character in the address
  * pointed to by @mirrored_ch.  Otherwise the original character is put.
  *
- * Return value: %TRUE if @ch has a mirrored character, %FALSE otherwise
+ * Returns: %TRUE if @ch has a mirrored character, %FALSE otherwise
  *
  * Since: 2.4
  **/
@@ -1306,7 +1304,7 @@ g_unichar_get_script_bsearch (gunichar ch)
  * This function is equivalent to pango_script_for_unichar() and the
  * two are interchangeable.
  * 
- * Return value: the #GUnicodeScript for the character.
+ * Returns: the #GUnicodeScript for the character.
  *
  * Since: 2.14
  */
@@ -1456,10 +1454,11 @@ static const guint32 iso15924_tags[] =
  * big-endian fashion.  That is, the code returned for Arabic is
  * 0x41726162 (0x41 is ASCII code for 'A', 0x72 is ASCII code for 'r', etc).
  *
- * See <ulink url="http://unicode.org/iso15924/codelists.html">Codes for the
- * representation of names of scripts</ulink> for details.
+ * See
+ * [Codes for the representation of names of scripts](http://unicode.org/iso15924/codelists.html)
+ * for details.
  *
- * Return value: the ISO 15924 code for @script, encoded as an integer,
+ * Returns: the ISO 15924 code for @script, encoded as an integer,
  *   of zero if @script is %G_UNICODE_SCRIPT_INVALID_CODE or
  *   ISO 15924 code 'Zzzz' (script code for UNKNOWN) if @script is not understood.
  *
@@ -1487,10 +1486,11 @@ g_unicode_script_to_iso15924 (GUnicodeScript script)
  * big-endian fashion.  That is, the code expected for Arabic is
  * 0x41726162 (0x41 is ASCII code for 'A', 0x72 is ASCII code for 'r', etc).
  *
- * See <ulink url="http://unicode.org/iso15924/codelists.html">Codes for the
- * representation of names of scripts</ulink> for details.
+ * See
+ * [Codes for the representation of names of scripts](http://unicode.org/iso15924/codelists.html)
+ * for details.
  *
- * Return value: the Unicode script for @iso15924, or
+ * Returns: the Unicode script for @iso15924, or
  *   of %G_UNICODE_SCRIPT_INVALID_CODE if @iso15924 is zero and
  *   %G_UNICODE_SCRIPT_UNKNOWN if @iso15924 is unknown.
  *

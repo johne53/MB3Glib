@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __G_TEST_UTILS_H__
@@ -68,19 +66,19 @@ typedef void (*GTestFixtureFunc) (gpointer      fixture,
                                                  #err, err, dom, c); } while (0)
 #define g_assert_true(expr)             do { if G_LIKELY (expr) ; else \
                                                g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
-                                                                    #expr); \
+                                                                    "'" #expr "' should be TRUE"); \
                                            } while (0)
 #define g_assert_false(expr)            do { if G_LIKELY (!(expr)) ; else \
                                                g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
-                                                                    #expr); \
+                                                                    "'" #expr "' should be FALSE"); \
                                            } while (0)
 #define g_assert_null(expr)             do { if G_LIKELY ((expr) == NULL) ; else \
                                                g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
-                                                                    #expr); \
+                                                                    "'" #expr "' should be NULL"); \
                                            } while (0)
 #define g_assert_nonnull(expr)          do { if G_LIKELY ((expr) != NULL) ; else \
                                                g_assertion_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
-                                                                    #expr); \
+                                                                    "'" #expr "' should not be NULL"); \
                                            } while (0)
 #ifdef G_DISABLE_ASSERT
 #define g_assert_not_reached()          do { (void) 0; } while (0)
@@ -376,7 +374,7 @@ void            g_test_log_msg_free     (GTestLogMsg    *tmsg);
  *
  * Specifies the prototype of fatal log handler functions.
  *
- * Return value: %TRUE if the program should abort, %FALSE otherwise
+ * Returns: %TRUE if the program should abort, %FALSE otherwise
  *
  * Since: 2.22
  */

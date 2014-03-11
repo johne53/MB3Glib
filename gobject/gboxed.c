@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -149,6 +147,7 @@ G_DEFINE_BOXED_TYPE (GVariantType, g_variant_type, g_variant_type_copy, g_varian
 #undef g_variant_type_get_type
 
 G_DEFINE_BOXED_TYPE (GVariantBuilder, g_variant_builder, g_variant_builder_ref, g_variant_builder_unref)
+G_DEFINE_BOXED_TYPE (GVariantDict, g_variant_dict, g_variant_dict_ref, g_variant_dict_unref)
 
 G_DEFINE_BOXED_TYPE (GError, g_error, g_error_copy, g_error_free)
 
@@ -331,7 +330,7 @@ g_boxed_type_register_static (const gchar   *name,
  * 
  * Provide a copy of a boxed structure @src_boxed which is of type @boxed_type.
  * 
- * Returns: The newly created copy of the boxed structure.
+ * Returns: (transfer full): The newly created copy of the boxed structure.
  */
 gpointer
 g_boxed_copy (GType         boxed_type,

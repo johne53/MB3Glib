@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -664,6 +662,7 @@ get_xattrs_from_fd (int                    fd,
 		g_free (escaped_attr);
 	      
 	      get_one_xattr_from_fd (fd, info, gio_attr, attr);
+	      g_free (gio_attr);
 	    }
 	  
 	  len = strlen (attr) + 1;
@@ -1282,7 +1281,7 @@ get_content_type (const char          *basename,
 static void
 get_thumbnail_attributes (const char     *path,
                           GFileInfo      *info,
-                          const GStatBuf *stat_buf)
+                          const GLocalFileStat *stat_buf)
 {
   GChecksum *checksum;
   char *uri;
@@ -1640,7 +1639,6 @@ get_icon_name (const char *path,
 static GIcon *
 get_icon (const char *path,
           const char *content_type,
-          gboolean    is_folder,
           gboolean    use_symbolic)
 {
   GIcon *icon = NULL;
@@ -1661,11 +1659,6 @@ get_icon (const char *path,
         icon = g_content_type_get_symbolic_icon (content_type);
       else
         icon = g_content_type_get_icon (content_type);
-
-      if (G_IS_THEMED_ICON (icon) && is_folder)
-        {
-          g_themed_icon_append_name (G_THEMED_ICON (icon), use_symbolic ? "folder-symbolic" : "folder");
-        }
     }
 
   return icon;
@@ -1853,7 +1846,7 @@ _g_local_file_info_get (const char             *basename,
 	      GIcon *icon;
 
               /* non symbolic icon */
-              icon = get_icon (path, content_type, S_ISDIR (statbuf.st_mode), FALSE);
+              icon = get_icon (path, content_type, FALSE);
               if (icon != NULL)
                 {
                   g_file_info_set_icon (info, icon);
@@ -1861,7 +1854,7 @@ _g_local_file_info_get (const char             *basename,
                 }
 
               /* symbolic icon */
-              icon = get_icon (path, content_type, S_ISDIR (statbuf.st_mode), TRUE);
+              icon = get_icon (path, content_type, TRUE);
               if (icon != NULL)
                 {
                   g_file_info_set_symbolic_icon (info, icon);

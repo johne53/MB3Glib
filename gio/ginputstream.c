@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -151,7 +149,7 @@ g_input_stream_init (GInputStream *stream)
  *
  * On error -1 is returned and @error is set accordingly.
  * 
- * Return value: Number of bytes read, or -1 on error, or 0 on end of file.
+ * Returns: Number of bytes read, or -1 on error, or 0 on end of file.
  **/
 gssize
 g_input_stream_read  (GInputStream  *stream,
@@ -225,7 +223,7 @@ g_input_stream_read  (GInputStream  *stream,
  * is set to indicate the error status, @bytes_read is updated to contain
  * the number of bytes read into @buffer before the error occurred.
  *
- * Return value: %TRUE on success, %FALSE if there was an error
+ * Returns: %TRUE on success, %FALSE if there was an error
  **/
 gboolean
 g_input_stream_read_all (GInputStream  *stream,
@@ -296,7 +294,7 @@ g_input_stream_read_all (GInputStream  *stream,
  *
  * On error %NULL is returned and @error is set accordingly.
  *
- * Return value: a new #GBytes, or %NULL on error
+ * Returns: a new #GBytes, or %NULL on error
  **/
 GBytes *
 g_input_stream_read_bytes (GInputStream  *stream,
@@ -345,7 +343,7 @@ g_input_stream_read_bytes (GInputStream  *stream,
  * operation was partially finished when the operation was cancelled the
  * partial result will be returned, without an error.
  *
- * Return value: Number of bytes skipped, or -1 on error
+ * Returns: Number of bytes skipped, or -1 on error
  **/
 gssize
 g_input_stream_skip (GInputStream  *stream,
@@ -470,7 +468,7 @@ g_input_stream_real_skip (GInputStream  *stream,
  * Cancelling a close will still leave the stream closed, but some streams
  * can use a faster close that doesn't block to e.g. check errors. 
  *
- * Return value: %TRUE on success, %FALSE on failure
+ * Returns: %TRUE on success, %FALSE on failure
  **/
 gboolean
 g_input_stream_close (GInputStream  *stream,
@@ -541,7 +539,7 @@ async_ready_close_callback_wrapper (GObject      *source_object,
  * @buffer: (array length=count) (element-type guint8): a buffer to
  *     read data into (which should be at least count bytes long).
  * @count: the number of bytes that will be read from the stream
- * @io_priority: the <link linkend="io-priority">I/O priority</link> 
+ * @io_priority: the [I/O priority][io-priority]
  * of the request. 
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
  * @callback: (scope async): callback to call when the request is satisfied
@@ -688,8 +686,7 @@ read_bytes_callback (GObject      *stream,
  * g_input_stream_read_bytes_async:
  * @stream: A #GInputStream.
  * @count: the number of bytes that will be read from the stream
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- *   of the request.
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
  * @callback: (scope async): callback to call when the request is satisfied
  * @user_data: (closure): the data to pass to callback function
@@ -761,8 +758,7 @@ g_input_stream_read_bytes_finish (GInputStream  *stream,
  * g_input_stream_skip_async:
  * @stream: A #GInputStream.
  * @count: the number of bytes that will be skipped from the stream
- * @io_priority: the <link linkend="io-priority">I/O priority</link>
- * of the request.
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to ignore.
  * @callback: (scope async): callback to call when the request is satisfied
  * @user_data: (closure): the data to pass to callback function
@@ -873,8 +869,7 @@ g_input_stream_skip_finish (GInputStream  *stream,
 /**
  * g_input_stream_close_async:
  * @stream: A #GInputStream.
- * @io_priority: the <link linkend="io-priority">I/O priority</link> 
- * of the request. 
+ * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (allow-none): optional cancellable object
  * @callback: (scope async): callback to call when the request is satisfied
  * @user_data: (closure): the data to pass to callback function
@@ -1000,7 +995,7 @@ g_input_stream_has_pending (GInputStream *stream)
  * already set or @stream is closed, it will return %FALSE and set
  * @error.
  *
- * Return value: %TRUE if pending was previously unset and is now set.
+ * Returns: %TRUE if pending was previously unset and is now set.
  **/
 gboolean
 g_input_stream_set_pending (GInputStream *stream, GError **error)

@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -315,17 +313,17 @@ g_find_program_in_path (const gchar *program)
  *  
  * On Windows, if @program does not have a file type suffix, tries
  * with the suffixes .exe, .cmd, .bat and .com, and the suffixes in
- * the <envar>PATHEXT</envar> environment variable. 
+ * the `PATHEXT` environment variable. 
  * 
  * On Windows, it looks for the file in the same way as CreateProcess() 
  * would. This means first in the directory where the executing
  * program was loaded from, then in the current directory, then in the
  * Windows 32-bit system directory, then in the Windows directory, and
- * finally in the directories in the <envar>PATH</envar> environment 
- * variable. If the program is found, the return value contains the 
- * full name including the type suffix.
+ * finally in the directories in the `PATH` environment variable. If
+ * the program is found, the return value contains the full name
+ * including the type suffix.
  *
- * Return value: a newly-allocated string with the absolute path, or %NULL
+ * Returns: a newly-allocated string with the absolute path, or %NULL
  **/
 #ifdef G_OS_WIN32
 static gchar *
@@ -766,10 +764,10 @@ g_get_user_name (void)
 /**
  * g_get_real_name:
  *
- * Gets the real name of the user. This usually comes from the user's entry 
- * in the <filename>passwd</filename> file. The encoding of the returned 
- * string is system-defined. (On Windows, it is, however, always UTF-8.) 
- * If the real user name cannot be determined, the string "Unknown" is 
+ * Gets the real name of the user. This usually comes from the user's
+ * entry in the `passwd` file. The encoding of the returned string is
+ * system-defined. (On Windows, it is, however, always UTF-8.) If the
+ * real user name cannot be determined, the string "Unknown" is 
  * returned.
  *
  * Returns: the user's real name.
@@ -790,28 +788,23 @@ g_get_real_name (void)
  * Gets the current user's home directory.
  *
  * As with most UNIX tools, this function will return the value of the
- * <envar>HOME</envar> environment variable if it is set to an existing
- * absolute path name, falling back to the <filename>passwd</filename>
- * file in the case that it is unset.
+ * `HOME` environment variable if it is set to an existing absolute path
+ * name, falling back to the `passwd` file in the case that it is unset.
  *
- * If the path given in <envar>HOME</envar> is non-absolute, does not
- * exist, or is not a directory, the result is undefined.
+ * If the path given in `HOME` is non-absolute, does not exist, or is
+ * not a directory, the result is undefined.
  *
- * <note><para>
- *   Before version 2.36 this function would ignore the
- *   <envar>HOME</envar> environment variable, taking the value from the
- *   <filename>passwd</filename> database instead.  This was changed to
- *   increase the compatibility of GLib with other programs (and the XDG
- *   basedir specification) and to increase testability of programs
- *   based on GLib (by making it easier to run them from test
- *   frameworks).
- * </para><para>
- *   If your program has a strong requirement for either the new or the
- *   old behaviour (and if you don't wish to increase your GLib
- *   dependency to ensure that the new behaviour is in effect) then you
- *   should either directly check the <envar>HOME</envar> environment
- *   variable yourself or unset it before calling any functions in GLib.
- * </para></note>
+ * Before version 2.36 this function would ignore the `HOME` environment
+ * variable, taking the value from the `passwd` database instead. This was
+ * changed to increase the compatibility of GLib with other programs (and
+ * the XDG basedir specification) and to increase testability of programs
+ * based on GLib (by making it easier to run them from test frameworks).
+ *
+ * If your program has a strong requirement for either the new or the
+ * old behaviour (and if you don't wish to increase your GLib
+ * dependency to ensure that the new behaviour is in effect) then you
+ * should either directly check the `HOME` environment variable yourself
+ * or unset it before calling any functions in GLib.
  *
  * Returns: the current user's home directory
  */
@@ -896,17 +889,18 @@ g_get_home_dir (void)
  *
  * Gets the directory to use for temporary files.
  *
- * On UNIX, this is taken from the <envar>TMPDIR</envar> environment
- * variable.  If the variable is not set, <literal>P_tmpdir</literal> is
- * used, as defined by the system C library.  Failing that, a hard-coded
- * default of "/tmp" is returned.
+ * On UNIX, this is taken from the `TMPDIR` environment variable.
+ * If the variable is not set, `P_tmpdir` is
+ * used, as defined by the system C library. Failing that, a
+ * hard-coded default of "/tmp" is returned.
  *
- * On Windows, the <envar>TEMP</envar> environment variable is used,
- * with the root directory of the Windows installation (eg: "C:\") used
+ * On Windows, the `TEMP` environment variable is used, with the
+ * root directory of the Windows installation (eg: "C:\") used
  * as a default.
  *
- * The encoding of the returned string is system-defined. On Windows, it
- * is always UTF-8. The return value is never %NULL or the empty string.
+ * The encoding of the returned string is system-defined. On Windows,
+ * it is always UTF-8. The return value is never %NULL or the empty
+ * string.
  *
  * Returns: the directory to use for temporary files.
  */
@@ -1004,14 +998,15 @@ static gchar *g_prgname = NULL;
 /**
  * g_get_prgname:
  *
- * Gets the name of the program. This name should <emphasis>not</emphasis> 
- * be localized, contrast with g_get_application_name().
- * (If you are using GDK or GTK+ the program name is set in gdk_init(), 
+ * Gets the name of the program. This name should not be localized,
+ * in contrast to g_get_application_name().
+ *
+ * If you are using GDK or GTK+ the program name is set in gdk_init(), 
  * which is called by gtk_init(). The program name is found by taking 
- * the last component of <literal>argv[0]</literal>.)
+ * the last component of @argv[0].
  *
  * Returns: the name of the program. The returned string belongs 
- * to GLib and must not be modified or freed.
+ *     to GLib and must not be modified or freed.
  */
 const gchar*
 g_get_prgname (void)
@@ -1052,9 +1047,10 @@ g_get_prgname (void)
  * g_set_prgname:
  * @prgname: the name of the program.
  *
- * Sets the name of the program. This name should <emphasis>not</emphasis> 
- * be localized, contrast with g_set_application_name(). Note that for 
- * thread-safety reasons this function can only be called once.
+ * Sets the name of the program. This name should not be localized,
+ * in contrast to g_set_application_name().
+ *
+ * Note that for thread-safety reasons this function can only be called once.
  */
 void
 g_set_prgname (const gchar *prgname)
@@ -1079,7 +1075,7 @@ static gchar *g_application_name = NULL;
  * g_get_prgname() (which may be %NULL if g_set_prgname() has also not
  * been called).
  * 
- * Return value: human-readable application name. may return %NULL
+ * Returns: human-readable application name. may return %NULL
  *
  * Since: 2.2
  **/
@@ -1138,17 +1134,17 @@ g_set_application_name (const gchar *application_name)
  * Returns a base directory in which to access application data such
  * as icons that is customized for a particular user.  
  *
- * On UNIX platforms this is determined using the mechanisms described in
- * the <ulink url="http://www.freedesktop.org/Standards/basedir-spec">
- * XDG Base Directory Specification</ulink>.
- * In this case the directory retrieved will be XDG_DATA_HOME.
+ * On UNIX platforms this is determined using the mechanisms described
+ * in the
+ * [XDG Base Directory Specification](http://www.freedesktop.org/Standards/basedir-spec).
+ * In this case the directory retrieved will be `XDG_DATA_HOME`.
  *
  * On Windows this is the folder to use for local (as opposed to
  * roaming) application data. See documentation for
  * CSIDL_LOCAL_APPDATA. Note that on Windows it thus is the same as
  * what g_get_user_config_dir() returns.
  *
- * Return value: a string owned by GLib that must not be modified 
+ * Returns: a string owned by GLib that must not be modified 
  *               or freed.
  * Since: 2.6
  **/
@@ -1224,17 +1220,17 @@ g_init_user_config_dir (void)
  * Returns a base directory in which to store user-specific application 
  * configuration information such as user preferences and settings. 
  *
- * On UNIX platforms this is determined using the mechanisms described in
- * the <ulink url="http://www.freedesktop.org/Standards/basedir-spec">
- * XDG Base Directory Specification</ulink>.
- * In this case the directory retrieved will be XDG_CONFIG_HOME.
+ * On UNIX platforms this is determined using the mechanisms described
+ * in the
+ * [XDG Base Directory Specification](http://www.freedesktop.org/Standards/basedir-spec).
+ * In this case the directory retrieved will be `XDG_CONFIG_HOME`.
  *
  * On Windows this is the folder to use for local (as opposed to
  * roaming) application data. See documentation for
  * CSIDL_LOCAL_APPDATA. Note that on Windows it thus is the same as
  * what g_get_user_data_dir() returns.
  *
- * Return value: a string owned by GLib that must not be modified 
+ * Returns: a string owned by GLib that must not be modified 
  *               or freed.
  * Since: 2.6
  **/
@@ -1256,9 +1252,9 @@ g_get_user_config_dir (void)
  * Returns a base directory in which to store non-essential, cached
  * data specific to particular user.
  *
- * On UNIX platforms this is determined using the mechanisms described in
- * the <ulink url="http://www.freedesktop.org/Standards/basedir-spec">
- * XDG Base Directory Specification</ulink>.
+ * On UNIX platforms this is determined using the mechanisms described
+ * in the
+ * [XDG Base Directory Specification](http://www.freedesktop.org/Standards/basedir-spec).
  * In this case the directory retrieved will be XDG_CACHE_HOME.
  *
  * On Windows is the directory that serves as a common repository for
@@ -1266,7 +1262,7 @@ g_get_user_config_dir (void)
  * C:\Documents and Settings\username\Local Settings\Temporary Internet Files.
  * See documentation for CSIDL_INTERNET_CACHE.
  *
- * Return value: a string owned by GLib that must not be modified 
+ * Returns: a string owned by GLib that must not be modified 
  *               or freed.
  * Since: 2.6
  **/
@@ -1312,10 +1308,11 @@ g_get_user_cache_dir (void)
  * Returns a directory that is unique to the current user on the local
  * system.
  *
- * On UNIX platforms this is determined using the mechanisms described in
- * the <ulink url="http://www.freedesktop.org/Standards/basedir-spec">
- * XDG Base Directory Specification</ulink>.  This is the directory
- * specified in the <envar>XDG_RUNTIME_DIR</envar> environment variable.
+ * On UNIX platforms this is determined using the mechanisms described
+ * in the 
+ * [XDG Base Directory Specification](http://www.freedesktop.org/Standards/basedir-spec).
+ * This is the directory
+ * specified in the `XDG_RUNTIME_DIR` environment variable.
  * In the case that this variable is not set, GLib will issue a warning
  * message to stderr and return the value of g_get_user_cache_dir().
  *
@@ -1698,16 +1695,16 @@ g_reload_user_special_dirs_cache (void)
  *
  * Returns the full path of a special directory using its logical id.
  *
- * On Unix this is done using the XDG special user directories.
+ * On UNIX this is done using the XDG special user directories.
  * For compatibility with existing practise, %G_USER_DIRECTORY_DESKTOP
- * falls back to <filename>$HOME/Desktop</filename> when XDG special
- * user directories have not been set up. 
+ * falls back to `$HOME/Desktop` when XDG special user directories have
+ * not been set up. 
  *
  * Depending on the platform, the user might be able to change the path
  * of the special directory without requiring the session to restart; GLib
  * will not reflect any change once the special directories are loaded.
  *
- * Return value: the path to the specified special directory, or %NULL
+ * Returns: the path to the specified special directory, or %NULL
  *   if the logical id was not found. The returned string is owned by
  *   GLib and should not be modified or freed.
  *
@@ -1897,9 +1894,9 @@ g_win32_get_system_data_dirs_for_module (void (*address_of_function)(void))
  * Returns an ordered list of base directories in which to access 
  * system-wide application data.
  *
- * On UNIX platforms this is determined using the mechanisms described in
- * the <ulink url="http://www.freedesktop.org/Standards/basedir-spec">
- * XDG Base Directory Specification</ulink>
+ * On UNIX platforms this is determined using the mechanisms described
+ * in the
+ * [XDG Base Directory Specification](http://www.freedesktop.org/Standards/basedir-spec)
  * In this case the list of directories retrieved will be XDG_DATA_DIRS.
  *
  * On Windows the first elements in the list are the Application Data
@@ -1924,7 +1921,7 @@ g_win32_get_system_data_dirs_for_module (void (*address_of_function)(void))
  * Note that on Windows the returned list can vary depending on where
  * this function is called.
  *
- * Return value: (array zero-terminated=1) (transfer none): a %NULL-terminated array of strings owned by GLib that must 
+ * Returns: (array zero-terminated=1) (transfer none): a %NULL-terminated array of strings owned by GLib that must 
  *               not be modified or freed.
  * Since: 2.6
  **/
@@ -1964,10 +1961,10 @@ g_get_system_data_dirs (void)
  * Returns an ordered list of base directories in which to access 
  * system-wide configuration information.
  *
- * On UNIX platforms this is determined using the mechanisms described in
- * the <ulink url="http://www.freedesktop.org/Standards/basedir-spec">
- * XDG Base Directory Specification</ulink>.
- * In this case the list of directories retrieved will be XDG_CONFIG_DIRS.
+ * On UNIX platforms this is determined using the mechanisms described
+ * in the
+ * [XDG Base Directory Specification](http://www.freedesktop.org/Standards/basedir-spec).
+ * In this case the list of directories retrieved will be `XDG_CONFIG_DIRS`.
  *
  * On Windows is the directory that contains application data for all users.
  * A typical path is C:\Documents and Settings\All Users\Application Data.
@@ -1976,7 +1973,7 @@ g_get_system_data_dirs (void)
  * of clip art, or a log file in the CSIDL_COMMON_APPDATA folder.
  * This information will not roam and is available to anyone using the computer.
  *
- * Return value: (array zero-terminated=1) (transfer none): a %NULL-terminated array of strings owned by GLib that must 
+ * Returns: (array zero-terminated=1) (transfer none): a %NULL-terminated array of strings owned by GLib that must 
  *               not be modified or freed.
  * Since: 2.6
  **/

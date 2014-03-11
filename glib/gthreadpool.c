@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -455,7 +453,7 @@ g_thread_pool_start_thread (GRealThreadPool  *pool,
  * errors. An error can only occur when @exclusive is set to %TRUE
  * and not all @max_threads threads could be created.
  *
- * Return value: the new #GThreadPool
+ * Returns: the new #GThreadPool
  */
 GThreadPool *
 g_thread_pool_new (GFunc      func,
@@ -533,7 +531,7 @@ g_thread_pool_new (GFunc      func,
  *
  * Before version 2.32, this function did not return a success status.
  *
- * Return value: %TRUE on success, %FALSE if an error occurred
+ * Returns: %TRUE on success, %FALSE if an error occurred
  */
 gboolean
 g_thread_pool_push (GThreadPool  *pool,
@@ -598,7 +596,7 @@ g_thread_pool_push (GThreadPool  *pool,
  *
  * Before version 2.32, this function did not return a success status.
  *
- * Return value: %TRUE on success, %FALSE if an error occurred
+ * Returns: %TRUE on success, %FALSE if an error occurred
  */
 gboolean
 g_thread_pool_set_max_threads (GThreadPool  *pool,
@@ -650,7 +648,7 @@ g_thread_pool_set_max_threads (GThreadPool  *pool,
  *
  * Returns the maximal number of threads for @pool.
  *
- * Return value: the maximal number of threads
+ * Returns: the maximal number of threads
  */
 gint
 g_thread_pool_get_max_threads (GThreadPool *pool)
@@ -676,7 +674,7 @@ g_thread_pool_get_max_threads (GThreadPool *pool)
  *
  * Returns the number of threads currently running in @pool.
  *
- * Return value: the number of threads currently running
+ * Returns: the number of threads currently running
  */
 guint
 g_thread_pool_get_num_threads (GThreadPool *pool)
@@ -702,7 +700,7 @@ g_thread_pool_get_num_threads (GThreadPool *pool)
  *
  * Returns the number of tasks still unprocessed in @pool.
  *
- * Return value: the number of unprocessed tasks
+ * Returns: the number of unprocessed tasks
  */
 guint
 g_thread_pool_unprocessed (GThreadPool *pool)
@@ -872,7 +870,7 @@ g_thread_pool_set_max_unused_threads (gint max_threads)
  *
  * Returns the maximal allowed number of unused threads.
  *
- * Return value: the maximal number of unused threads
+ * Returns: the maximal number of unused threads
  */
 gint
 g_thread_pool_get_max_unused_threads (void)
@@ -885,7 +883,7 @@ g_thread_pool_get_max_unused_threads (void)
  *
  * Returns the number of currently unused threads.
  *
- * Return value: the number of currently unused threads
+ * Returns: the number of currently unused threads
  */
 guint
 g_thread_pool_get_num_unused_threads (void)
@@ -1010,7 +1008,7 @@ g_thread_pool_set_max_idle_time (guint interval)
  * If this function returns 0, threads waiting in the thread
  * pool for new work are not stopped.
  *
- * Return value: the maximum @interval (milliseconds) to wait
+ * Returns: the maximum @interval (milliseconds) to wait
  *     for new tasks in the thread pool before stopping the
  *     thread
  *

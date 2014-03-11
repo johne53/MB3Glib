@@ -15,8 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with GLib; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- *   Boston, MA 02111-1307, USA.
+ * see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -40,10 +39,8 @@
 
 /**
  * SECTION:markup
- * @Title: Simple XML Subset Parser
- * @Short_description: parses a subset of XML
- * @See_also: <ulink url="http://www.w3.org/TR/REC-xml/">XML
- *     Specification</ulink>
+ * @Title: Simple XML Subset Parser * @Short_description: parses a subset of XML
+ * @See_also: [XML Specification](http://www.w3.org/TR/REC-xml/)
  *
  * The "GMarkup" parser is intended to parse a simple markup format
  * that's a subset of XML. This is a small, efficient, easy-to-use
@@ -57,31 +54,34 @@
  *
  * GMarkup is not guaranteed to signal an error on all invalid XML;
  * the parser may accept documents that an XML parser would not.
- * However, XML documents which are not well-formed<footnote
- * id="wellformed">Being wellformed is a weaker condition than being
- * valid. See the <ulink url="http://www.w3.org/TR/REC-xml/">XML
- * specification</ulink> for definitions of these terms.</footnote>
- * are not considered valid GMarkup documents.
+ * However, XML documents which are not well-formed (which is a
+ * weaker condition than being valid. See the
+ * [XML specification](http://www.w3.org/TR/REC-xml/)
+ * for definitions of these terms.) are not considered valid GMarkup
+ * documents.
  *
  * Simplifications to XML include:
- * <itemizedlist>
- * <listitem>Only UTF-8 encoding is allowed</listitem>
- * <listitem>No user-defined entities</listitem>
- * <listitem>Processing instructions, comments and the doctype declaration
- * are "passed through" but are not interpreted in any way</listitem>
- * <listitem>No DTD or validation.</listitem>
- * </itemizedlist>
+ *
+ * - Only UTF-8 encoding is allowed
+ *
+ * - No user-defined entities
+ *
+ * - Processing instructions, comments and the doctype declaration
+ *   are "passed through" but are not interpreted in any way
+ *
+ * - No DTD or validation
  *
  * The markup format does support:
- * <itemizedlist>
- * <listitem>Elements</listitem>
- * <listitem>Attributes</listitem>
- * <listitem>5 standard entities:
- *   <literal>&amp;amp; &amp;lt; &amp;gt; &amp;quot; &amp;apos;</literal>
- * </listitem>
- * <listitem>Character references</listitem>
- * <listitem>Sections marked as CDATA</listitem>
- * </itemizedlist>
+ *
+ * - Elements
+ *
+ * - Attributes
+ *
+ * - 5 standard entities: &amp; &lt; &gt; &quot; &apos;
+ *
+ * - Character references
+ *
+ * - Sections marked as CDATA
  */
 
 G_DEFINE_QUARK (g-markup-error-quark, g_markup_error)
@@ -213,7 +213,7 @@ string_blank (GString *string)
  * the parse context can't continue to parse text (you have to
  * free it and create a new parse context).
  *
- * Return value: a new #GMarkupParseContext
+ * Returns: a new #GMarkupParseContext
  **/
 GMarkupParseContext *
 g_markup_parse_context_new (const GMarkupParser *parser,
@@ -631,7 +631,7 @@ unescape_gstring_inplace (GMarkupParseContext  *context,
     normalize_attribute = FALSE;
 
   /*
-   * Meeks' theorum: unescaping can only shrink text.
+   * Meeks' theorem: unescaping can only shrink text.
    * for &lt; etc. this is obvious, for &#xffff; more
    * thought is required, but this is patently so.
    */
@@ -1114,7 +1114,7 @@ emit_end_element (GMarkupParseContext  *context,
  * is reported, no further data may be fed to the #GMarkupParseContext;
  * all errors are fatal.
  *
- * Return value: %FALSE if an error occurred, %TRUE on success
+ * Returns: %FALSE if an error occurred, %TRUE on success
  */
 gboolean
 g_markup_parse_context_parse (GMarkupParseContext  *context,
@@ -1745,7 +1745,7 @@ g_markup_parse_context_parse (GMarkupParseContext  *context,
  * This function reports an error if the document isn't complete,
  * for example if elements are still open.
  *
- * Return value: %TRUE on success, %FALSE if an error was set
+ * Returns: %TRUE on success, %FALSE if an error was set
  */
 gboolean
 g_markup_parse_context_end_parse (GMarkupParseContext  *context,
@@ -1996,7 +1996,7 @@ g_markup_parse_context_get_user_data (GMarkupParseContext *context)
  * As an example, see the following implementation of a simple
  * parser that counts the number of tags encountered.
  *
- * |[
+ * |[<!-- language="C" --> 
  * typedef struct
  * {
  *   gint tag_count;
@@ -2038,7 +2038,7 @@ g_markup_parse_context_get_user_data (GMarkupParseContext *context)
  * In order to allow this parser to be easily used as a subparser, the
  * following interface is provided:
  *
- * |[
+ * |[<!-- language="C" --> 
  * void
  * start_counting (GMarkupParseContext *context)
  * {
@@ -2063,13 +2063,13 @@ g_markup_parse_context_get_user_data (GMarkupParseContext *context)
  *
  * The subparser would then be used as follows:
  *
- * |[
+ * |[<!-- language="C" --> 
  * static void start_element (context, element_name, ...)
  * {
  *   if (strcmp (element_name, "count-these") == 0)
  *     start_counting (context);
  *
- *   /&ast; else, handle other tags... &ast;/
+ *   // else, handle other tags...
  * }
  *
  * static void end_element (context, element_name, ...)
@@ -2077,7 +2077,7 @@ g_markup_parse_context_get_user_data (GMarkupParseContext *context)
  *   if (strcmp (element_name, "count-these") == 0)
  *     g_print ("Counted %d tags\n", end_counting (context));
  *
- *   /&ast; else, handle other tags... &ast;/
+ *   // else, handle other tags...
  * }
  * ]|
  *
@@ -2215,12 +2215,12 @@ append_escaped_text (GString     *str,
  * of line endings and attribute values.
  *
  * Note also that this function will produce character references in
- * the range of &amp;#x1; ... &amp;#x1f; for all control sequences
+ * the range of &#x1; ... &#x1f; for all control sequences
  * except for tabstop, newline and carriage return.  The character
  * references in this range are not valid XML 1.0, but they are
  * valid XML 1.1 and will be accepted by the GMarkup parser.
  *
- * Return value: a newly allocated string with the escaped text
+ * Returns: a newly allocated string with the escaped text
  */
 gchar*
 g_markup_escape_text (const gchar *text,
@@ -2251,7 +2251,7 @@ g_markup_escape_text (const gchar *text,
  * Partially based on code from printf-parser.c,
  * Copyright (C) 1999-2000, 2002-2003 Free Software Foundation, Inc.
  *
- * Return value: pointer to the next conversion in @format,
+ * Returns: pointer to the next conversion in @format,
  *  or %NULL, if none.
  */
 static const char *
@@ -2375,7 +2375,7 @@ find_conversion (const char  *format,
  * all string and character arguments in the fashion
  * of g_markup_escape_text(). See g_markup_printf_escaped().
  *
- * Return value: newly allocated result from formatting
+ * Returns: newly allocated result from formatting
  *  operation. Free with g_free().
  *
  * Since: 2.4
@@ -2417,9 +2417,9 @@ g_markup_vprintf_escaped (const gchar *format,
    * To find the span of the first argument, we find the first position
    * where the two arguments differ, which tells us that the first
    * argument formatted to "Susan & Fred". We then escape that
-   * to "Susan &amp; Fred" and join up with the intermediate portions
+   * to "Susan & Fred" and join up with the intermediate portions
    * of the format string and the second argument to get
-   * "Susan &amp; Fred ate 5 apples".
+   * "Susan & Fred ate 5 apples".
    */
 
   /* Create the two modified format strings
@@ -2523,19 +2523,19 @@ g_markup_vprintf_escaped (const gchar *format,
  * output, without having to worry that the strings
  * might themselves contain markup.
  *
- * |[
- * const char *store = "Fortnum &amp; Mason";
+ * |[<!-- language="C" --> 
+ * const char *store = "Fortnum & Mason";
  * const char *item = "Tea";
  * char *output;
- * &nbsp;
- * output = g_markup_printf_escaped ("&lt;purchase&gt;"
- *                                   "&lt;store&gt;&percnt;s&lt;/store&gt;"
- *                                   "&lt;item&gt;&percnt;s&lt;/item&gt;"
- *                                   "&lt;/purchase&gt;",
+ * 
+ * output = g_markup_printf_escaped ("<purchase>"
+ *                                   "<store>%s</store>"
+ *                                   "<item>%s</item>"
+ *                                   "</purchase>",
  *                                   store, item);
  * ]|
  *
- * Return value: newly allocated result from formatting
+ * Returns: newly allocated result from formatting
  *    operation. Free with g_free().
  *
  * Since: 2.4
@@ -2663,7 +2663,7 @@ g_markup_parse_boolean (const char  *string,
  * %G_MARKUP_ERROR_INVALID_CONTENT). In all of these cases %FALSE
  * will be returned and @error will be set as appropriate.
  *
- * Return value: %TRUE if successful
+ * Returns: %TRUE if successful
  *
  * Since: 2.16
  **/

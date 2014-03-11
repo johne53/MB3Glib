@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
@@ -47,9 +45,9 @@ static void file_change_free (FileChange *change);
  *
  * To get informed about changes to the file or directory you are
  * monitoring, connect to the #GFileMonitor::changed signal. The
- * signal will be emitted in the <link
- * linkend="g-main-context-push-thread-default">thread-default main
- * context</link> of the thread that the monitor was created in
+ * signal will be emitted in the
+ * [thread-default main context][g-main-context-push-thread-default]
+ * of the thread that the monitor was created in
  * (though if the global default main context is blocked, this may
  * cause notifications to be blocked even if the thread-default
  * context is still running).
@@ -672,9 +670,8 @@ update_rate_limiter_timeout (GFileMonitor *monitor,
  * has taken place. Should be called from file monitor 
  * implementations only.
  *
- * The signal will be emitted from an idle handler (in the <link
- * linkend="g-main-context-push-thread-default">thread-default main
- * context</link>).
+ * The signal will be emitted from an idle handler (in the
+ * [thread-default main context][g-main-context-push-thread-default]).
  **/
 void
 g_file_monitor_emit_event (GFileMonitor      *monitor,

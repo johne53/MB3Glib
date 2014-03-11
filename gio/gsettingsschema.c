@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -54,7 +52,7 @@
  *
  * Consider the following example:
  *
- * |[
+ * |[<!-- language="C" -->
  * typedef struct
  * {
  *    ...
@@ -111,7 +109,7 @@
  * ships a gschemas.compiled file as part of itself, and then simply do
  * the following:
  *
- * |[
+ * |[<!-- language="C" -->
  * {
  *   GSettings *settings;
  *   gint some_value;
@@ -252,16 +250,14 @@ g_settings_schema_source_unref (GSettingsSchemaSource *source)
  * This function is not required for normal uses of #GSettings but it
  * may be useful to authors of plugin management systems.
  *
- * The directory should contain a file called
- * <filename>gschemas.compiled</filename> as produced by
- * <command>glib-compile-schemas</command>.
+ * The directory should contain a file called `gschemas.compiled` as
+ * produced by the [glib-compile-schemas][glib-compile-schemas] tool.
  *
- * If @trusted is %TRUE then <filename>gschemas.compiled</filename> is
- * trusted not to be corrupted.  This assumption has a performance
- * advantage, but can result in crashes or inconsistent behaviour in the
- * case of a corrupted file.  Generally, you should set @trusted to
- * %TRUE for files installed by the system and to %FALSE for files in
- * the home directory.
+ * If @trusted is %TRUE then `gschemas.compiled` is trusted not to be
+ * corrupted. This assumption has a performance advantage, but can result
+ * in crashes or inconsistent behaviour in the case of a corrupted file.
+ * Generally, you should set @trusted to %TRUE for files installed by the
+ * system and to %FALSE for files in the home directory.
  *
  * If @parent is non-%NULL then there are two effects.
  *
@@ -270,8 +266,8 @@ g_settings_schema_source_unref (GSettingsSchemaSource *source)
  * source, the lookup will recurse to the parent.
  *
  * Second, any references to other schemas specified within this
- * source (ie: <literal>child</literal> or <literal>extends</literal>)
- * references may be resolved from the @parent.
+ * source (ie: `child` or `extends`) references may be resolved
+ * from the @parent.
  *
  * For this second reason, except in very unusual situations, the
  * @parent should probably be given as the default schema source, as
@@ -365,9 +361,8 @@ initialise_schema_sources (void)
  *
  * The returned source may actually consist of multiple schema sources
  * from different directories, depending on which directories were given
- * in <envar>XDG_DATA_DIRS</envar> and
- * <envar>GSETTINGS_SCHEMA_DIR</envar>.  For this reason, all lookups
- * performed against the default source should probably be done
+ * in `XDG_DATA_DIRS` and `GSETTINGS_SCHEMA_DIR`. For this reason, all
+ * lookups performed against the default source should probably be done
  * recursively.
  *
  * Returns: (transfer none): the default schema source
@@ -1596,31 +1591,28 @@ g_settings_schema_key_get_default_value (GSettingsSchemaKey *key)
  * This function will return a #GVariant that fully describes the range
  * of values that are valid for @key.
  *
- * The type of #GVariant returned is <literal>(sv)</literal>.  The
- * string describes the type of range restriction in effect.  The type
- * and meaning of the value contained in the variant depends on the
- * string.
+ * The type of #GVariant returned is `(sv)`. The string describes
+ * the type of range restriction in effect. The type and meaning of
+ * the value contained in the variant depends on the string.
  *
- * If the string is <literal>'type'</literal> then the variant contains
- * an empty array.  The element type of that empty array is the expected
- * type of value and all values of that type are valid.
+ * If the string is `'type'` then the variant contains an empty array.
+ * The element type of that empty array is the expected type of value
+ * and all values of that type are valid.
  *
- * If the string is <literal>'enum'</literal> then the variant contains
- * an array enumerating the possible values.  Each item in the array is
+ * If the string is `'enum'` then the variant contains an array
+ * enumerating the possible values. Each item in the array is
  * a possible valid value and no other values are valid.
  *
- * If the string is <literal>'flags'</literal> then the variant contains
- * an array.  Each item in the array is a value that may appear zero or
- * one times in an array to be used as the value for this key.  For
- * example, if the variant contained the array <literal>['x',
- * 'y']</literal> then the valid values for the key would be
- * <literal>[]</literal>, <literal>['x']</literal>,
- * <literal>['y']</literal>, <literal>['x', 'y']</literal> and
- * <literal>['y', 'x']</literal>.
+ * If the string is `'flags'` then the variant contains an array. Each
+ * item in the array is a value that may appear zero or one times in an
+ * array to be used as the value for this key. For example, if the
+ * variant contained the array `['x', 'y']` then the valid values for
+ * the key would be `[]`, `['x']`, `['y']`, `['x', 'y']` and
+ * `['y', 'x']`.
  *
- * Finally, if the string is <literal>'range'</literal> then the variant
- * contains a pair of like-typed values -- the minimum and maximum
- * permissible values for this key.
+ * Finally, if the string is `'range'` then the variant contains a pair
+ * of like-typed values -- the minimum and maximum permissible values
+ * for this key.
  *
  * This information should not be used by normal programs.  It is
  * considered to be a hint for introspection purposes.  Normal programs
