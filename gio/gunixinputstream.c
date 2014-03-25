@@ -17,7 +17,7 @@
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <sys/types.h>
@@ -528,3 +528,5 @@ g_unix_input_stream_pollable_create_source (GPollableInputStream *stream,
 
   return pollable_source;
 }
+
+#endif /* _MSC_VER */

@@ -228,6 +228,8 @@ gchar *g_format_size        (guint64          size);
 GLIB_DEPRECATED_FOR(g_format_size)
 gchar *g_format_size_for_display (goffset size);
 
+typedef void (*GVoidFunc) (void); /* Moved out of the #ifndef section (below) by JE - 29-11-2012 */
+
 #ifndef G_DISABLE_DEPRECATED
 /**
  * GVoidFunc:
@@ -236,7 +238,6 @@ gchar *g_format_size_for_display (goffset size);
  * and has no return value. It is used to specify the type
  * function passed to g_atexit().
  */
-typedef void (*GVoidFunc) (void);
 #define ATEXIT(proc) g_ATEXIT(proc)
 GLIB_DEPRECATED
 void	g_atexit		(GVoidFunc    func);

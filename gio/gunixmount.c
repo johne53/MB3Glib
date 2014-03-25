@@ -20,7 +20,7 @@
  * Author: Alexander Larsson <alexl@redhat.com>
  *         David Zeuthen <davidz@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <string.h>
@@ -283,7 +283,10 @@ eject_unmount_do_cb (gpointer user_data)
   argv = g_task_get_task_data (task);
 
   if (g_task_return_error_if_cancelled (task))
-    return G_SOURCE_REMOVE;
+    {
+      g_object_unref (task);
+      return G_SOURCE_REMOVE;
+    }
 
   subprocess = g_subprocess_newv (argv, G_SUBPROCESS_FLAGS_STDOUT_SILENCE | G_SUBPROCESS_FLAGS_STDERR_PIPE, &error);
   g_assert_no_error (error);
@@ -388,3 +391,5 @@ g_unix_mount_mount_iface_init (GMountIface *iface)
   iface->eject = g_unix_mount_eject;
   iface->eject_finish = g_unix_mount_eject_finish;
 }
+
+#endif /* _MSC_VER */

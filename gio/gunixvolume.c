@@ -20,7 +20,7 @@
  * Author: Alexander Larsson <alexl@redhat.com>
  *         David Zeuthen <davidz@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <string.h>
@@ -309,7 +309,10 @@ eject_mount_do (GVolume              *volume,
   task = g_task_new (volume, cancellable, callback, user_data);
 
   if (g_task_return_error_if_cancelled (task))
-    return;
+    {
+      g_object_unref (task);
+      return;
+    }
 
   subprocess = g_subprocess_newv (argv, G_SUBPROCESS_FLAGS_STDOUT_SILENCE | G_SUBPROCESS_FLAGS_STDERR_PIPE, &error);
   g_assert_no_error (error);
@@ -426,3 +429,5 @@ g_unix_volume_volume_iface_init (GVolumeIface *iface)
   iface->get_identifier = g_unix_volume_get_identifier;
   iface->enumerate_identifiers = g_unix_volume_enumerate_identifiers;
 }
+
+#endif /* _MSC_VER */

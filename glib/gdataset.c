@@ -1029,7 +1029,8 @@ g_datalist_get_data (GData	 **datalist,
       data_end = data + d->len;
       while (data < data_end)
 	{
-	  if (strcmp (g_quark_to_string (data->key), key) == 0)
+	  if (g_quark_to_string (data->key) != 0) /* This line added by JE - 07-11-13 */
+	    if (strcmp (g_quark_to_string (data->key), key) == 0)
 	    {
 	      res = data->data;
 	      break;

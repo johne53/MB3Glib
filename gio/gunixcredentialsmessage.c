@@ -32,7 +32,7 @@
  * a foreign process connected to a socket, use
  * g_socket_get_credentials().
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -340,3 +340,5 @@ g_unix_credentials_message_get_credentials (GUnixCredentialsMessage *message)
   g_return_val_if_fail (G_IS_UNIX_CREDENTIALS_MESSAGE (message), NULL);
   return message->priv->credentials;
 }
+
+#endif /* _MSC_VER */

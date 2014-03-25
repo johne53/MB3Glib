@@ -2669,6 +2669,7 @@ g_variant_hash (gconstpointer value_)
     default:
       g_return_val_if_fail (!g_variant_is_container (value), 0);
       g_assert_not_reached ();
+      return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 
@@ -2845,6 +2846,7 @@ g_variant_compare (gconstpointer one,
     default:
       g_return_val_if_fail (!g_variant_is_container (a), 0);
       g_assert_not_reached ();
+      return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 
@@ -4718,6 +4720,7 @@ g_variant_valist_new_nnp (const gchar **str,
 
     default:
       g_assert_not_reached ();
+      return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 
@@ -4795,6 +4798,7 @@ g_variant_valist_get_nnp (const gchar **str,
 
     default:
       g_assert_not_reached ();
+      return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 
@@ -4877,6 +4881,7 @@ g_variant_valist_new_leaf (const gchar **str,
 
     default:
       g_assert_not_reached ();
+      return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 
@@ -5710,6 +5715,7 @@ g_variant_deep_copy (GVariant *value)
     }
 
   g_assert_not_reached ();
+  return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
 }
 
 /**
