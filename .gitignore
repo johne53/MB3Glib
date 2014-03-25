@@ -46,3 +46,7 @@ README
 ChangeLog
 /glib-lcov.info
 /glib-lcov/
+
+/glibconfig.h
+/gio/gdbus-2.0/codegen/config.py
+/msvc/glib.vsprops
