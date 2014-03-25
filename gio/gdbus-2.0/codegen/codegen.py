@@ -21,9 +21,9 @@
 
 import sys
 
-from . import config
-from . import utils
-from . import dbustypes
+import config
+import utils
+import dbustypes
 
 # ----------------------------------------------------------------------------------------------------
 

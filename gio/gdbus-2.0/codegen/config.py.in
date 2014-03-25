@@ -22,4 +22,4 @@
 DATADIR = "@datarootdir@"
 DATADIR = DATADIR.replace(
     "${prefix}", "@prefix@")
-VERSION = "@VERSION@"
+VERSION = "@GLIB_VERSION@"
