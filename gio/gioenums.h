@@ -1134,7 +1134,7 @@ typedef enum
   G_DBUS_ERROR_UNKNOWN_OBJECT,                   /* org.freedesktop.DBus.Error.UnknownObject */
   G_DBUS_ERROR_UNKNOWN_INTERFACE,                /* org.freedesktop.DBus.Error.UnknownInterface */
   G_DBUS_ERROR_UNKNOWN_PROPERTY,                 /* org.freedesktop.DBus.Error.UnknownProperty */
-  G_DBUS_ERROR_PROPERTY_READ_ONLY,               /* org.freedesktop.DBus.Error.PropertyReadOnly */
+  G_DBUS_ERROR_PROPERTY_READ_ONLY                /* org.freedesktop.DBus.Error.PropertyReadOnly */
 } GDBusError;
 /* Remember to update g_dbus_error_quark() in gdbuserror.c if you extend this enumeration */
 
@@ -1348,7 +1348,7 @@ typedef enum /*< flags >*/
  * assign a serial number from the #GDBusConnection object when
  * sending a message.
  *
- * Flags used when sending #GDBusMessage<!-- -->s on a #GDBusConnection.
+ * Flags used when sending #GDBusMessages on a #GDBusConnection.
  *
  * Since: 2.26
  */

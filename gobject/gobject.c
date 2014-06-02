@@ -1348,9 +1348,16 @@ object_set_property (GObject             *object,
   if (enable_diagnostic[0] == '1')
     {
       if (pspec->flags & G_PARAM_DEPRECATED)
-        g_warning ("The property %s:%s is deprecated and shouldn't be used "
-                   "anymore. It will be removed in a future version.",
-                   G_OBJECT_TYPE_NAME (object), pspec->name);
+        {
+          /* don't warn for automatically provided construct properties */
+          if (!(pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY)) ||
+              !object_in_construction (object))
+            {
+              g_warning ("The property %s:%s is deprecated and shouldn't be used "
+                         "anymore. It will be removed in a future version.",
+                         G_OBJECT_TYPE_NAME (object), pspec->name);
+            }
+        }
     }
 
   /* provide a copy to work from, convert (if necessary) and validate */
@@ -1397,8 +1404,11 @@ object_interface_check_properties (gpointer check_data,
 
   class = g_type_class_ref (iface_class->g_instance_type);
 
-  if (!G_IS_OBJECT_CLASS (class))
+  if (class == NULL)
     return;
+
+  if (!G_IS_OBJECT_CLASS (class))
+    goto out;
 
   pspecs = g_param_spec_pool_list (pspec_pool, iface_type, &n);
 
@@ -1530,6 +1540,7 @@ object_interface_check_properties (gpointer check_data,
 
   g_free (pspecs);
 
+ out:
   g_type_class_unref (class);
 }
 

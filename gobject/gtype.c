@@ -1780,6 +1780,9 @@ type_iface_blow_holder_info_Wm (TypeNode *iface,
  * directly through g_type_create_instance() which doesn't handle things
  * like singleton objects or object construction.
  *
+ * The extended members of the returned instance are guaranteed to be filled
+ * with zeros.
+ *
  * Note: Do not use this function, unless you're implementing a
  * fundamental type. Also language bindings should not use this
  * function, but g_object_new() instead.
@@ -3972,6 +3975,15 @@ g_type_check_instance_is_a (GTypeInstance *type_instance,
 }
 
 gboolean
+g_type_check_instance_is_fundamentally_a (GTypeInstance *type_instance,
+                                          GType          fundamental_type)
+{
+  if (!type_instance || !type_instance->g_class)
+    return FALSE;
+  return NODE_FUNDAMENTAL_TYPE(lookup_type_node_I (type_instance->g_class->g_type)) == fundamental_type;
+}
+
+gboolean
 g_type_check_class_is_a (GTypeClass *type_class,
 			 GType       is_a_type)
 {
@@ -4409,7 +4421,7 @@ gobject_init_ctor (void)
  * When an object is allocated, the private structures for
  * the type and all of its parent types are allocated
  * sequentially in the same memory block as the public
- * structures.
+ * structures, and are zero-filled.
  *
  * Note that the accumulated size of the private structures of
  * a type and all its parent types cannot exceed 64 KiB.
@@ -4451,6 +4463,7 @@ gobject_init_ctor (void)
  *   my_object->priv = G_TYPE_INSTANCE_GET_PRIVATE (my_object,
  *                                                  MY_TYPE_OBJECT,
  *                                                  MyObjectPrivate);
+ *   // my_object->priv->some_field will be automatically initialised to 0
  * }
  *
  * static int
@@ -4687,7 +4700,9 @@ g_type_class_get_instance_private_offset (gpointer g_class)
  * when the class is allocated, the private structures for
  * the class and all of its parent types are allocated
  * sequentially in the same memory block as the public
- * structures. This function should be called in the
+ * structures, and are zero-filled.
+ *
+ * This function should be called in the
  * type's get_type() function after the type is registered.
  * The private structure can be retrieved using the
  * G_TYPE_CLASS_GET_PRIVATE() macro.
