@@ -50,7 +50,11 @@ G_BEGIN_DECLS
  * Checks whether @pspec "is a" valid #GParamSpec structure of type %G_TYPE_PARAM
  * or derived.
  */
+#if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_42
 #define G_IS_PARAM_SPEC(pspec)		(G_TYPE_CHECK_INSTANCE_FUNDAMENTAL_TYPE ((pspec), G_TYPE_PARAM))
+#else
+#define G_IS_PARAM_SPEC(pspec)		(G_TYPE_CHECK_INSTANCE_TYPE ((pspec), G_TYPE_PARAM))
+#endif
 /**
  * G_PARAM_SPEC_CLASS:
  * @pclass: a valid #GParamSpecClass
@@ -130,6 +134,10 @@ G_BEGIN_DECLS
  *  parameter is guaranteed to remain valid and 
  *  unmodified for the lifetime of the parameter. 
  *  Since 2.8
+ * @G_PARAM_EXPLICIT_NOTIFY: calls to g_object_set_property() for this
+ *   property will not automatically result in a "notify" signal being
+ *   emitted: the implementation must call g_object_notify() themselves
+ *   in case the property actually changes.  Since: 2.42.
  * @G_PARAM_PRIVATE: internal
  * @G_PARAM_DEPRECATED: the parameter is deprecated and will be removed
  *  in a future version. A warning will be generated if it is used
@@ -153,7 +161,8 @@ typedef enum
 #endif
   G_PARAM_STATIC_NICK	      = 1 << 6,
   G_PARAM_STATIC_BLURB	      = 1 << 7,
-  /* User defined flags go up to 30 */
+  /* User defined flags go here */
+  G_PARAM_EXPLICIT_NOTIFY     = 1 << 30,
   G_PARAM_DEPRECATED          = 1 << 31
 } GParamFlags;
 /**
@@ -175,7 +184,7 @@ typedef enum
  * G_PARAM_USER_SHIFT:
  * 
  * Minimum shift count to be used for user defined flags, to be stored in
- * #GParamSpec.flags. The maximum allowed is 30 + G_PARAM_USER_SHIFT.
+ * #GParamSpec.flags. The maximum allowed is 10.
  */
 #define	G_PARAM_USER_SHIFT	(8)
 

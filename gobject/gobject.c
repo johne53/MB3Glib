@@ -523,7 +523,12 @@ install_property_internal (GType       g_type,
  * @property_id: the id for the new property
  * @pspec: the #GParamSpec for the new property
  *
- * Installs a new property. This is usually done in the class initializer.
+ * Installs a new property.
+ *
+ * All properties should be installed during the class initializer.  It
+ * is possible to install properties after that, but doing so is not
+ * recommend, and specifically, is not guaranteed to be thread-safe vs.
+ * use of properties on the same type on other threads.
  *
  * Note that it is possible to redefine a property in a derived class,
  * by installing a property with the same name. This can be useful at times,
@@ -539,9 +544,6 @@ g_object_class_install_property (GObjectClass *class,
 
   if (CLASS_HAS_DERIVED_CLASS (class))
     g_error ("Attempt to add property %s::%s to class after it was derived", G_OBJECT_CLASS_NAME (class), pspec->name);
-
-  if (!g_type_is_in_init (G_OBJECT_CLASS_TYPE (class)))
-    g_warning ("Attempt to add property %s::%s after class was initialised", G_OBJECT_CLASS_NAME (class), pspec->name);
 
   class->flags |= CLASS_HAS_PROPS_FLAG;
 
@@ -577,8 +579,12 @@ g_object_class_install_property (GObjectClass *class,
  * @pspecs: (array length=n_pspecs): the #GParamSpecs array
  *   defining the new properties
  *
- * Installs new properties from an array of #GParamSpecs. This is
- * usually done in the class initializer.
+ * Installs new properties from an array of #GParamSpecs.
+ *
+ * All properties should be installed during the class initializer.  It
+ * is possible to install properties after that, but doing so is not
+ * recommend, and specifically, is not guaranteed to be thread-safe vs.
+ * use of properties on the same type on other threads.
  *
  * The property id of each property is the index of each #GParamSpec in
  * the @pspecs array.
@@ -652,9 +658,6 @@ g_object_class_install_properties (GObjectClass  *oclass,
   if (CLASS_HAS_DERIVED_CLASS (oclass))
     g_error ("Attempt to add properties to %s after it was derived",
              G_OBJECT_CLASS_NAME (oclass));
-
-  if (!g_type_is_in_init (G_OBJECT_CLASS_TYPE (oclass)))
-    g_warning ("Attempt to add properties to %s after it was initialised", G_OBJECT_CLASS_NAME (oclass));
 
   oclass_type = G_OBJECT_CLASS_TYPE (oclass);
   parent_type = g_type_parent (oclass_type);
@@ -1380,14 +1383,17 @@ object_set_property (GObject             *object,
     }
   else
     {
-      GParamSpec *notify_pspec;
-
       class->set_property (object, param_id, &tmp_value, pspec);
 
-      notify_pspec = get_notify_pspec (pspec);
+      if (~pspec->flags & G_PARAM_EXPLICIT_NOTIFY)
+        {
+          GParamSpec *notify_pspec;
 
-      if (notify_pspec != NULL)
-        g_object_notify_queue_add (object, nqueue, notify_pspec);
+          notify_pspec = get_notify_pspec (pspec);
+
+          if (notify_pspec != NULL)
+            g_object_notify_queue_add (object, nqueue, notify_pspec);
+        }
     }
   g_value_unset (&tmp_value);
 }
