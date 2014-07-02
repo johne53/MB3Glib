@@ -3385,8 +3385,9 @@ socket_source_new (GSocket      *socket,
  * @condition: a #GIOCondition mask to monitor
  * @cancellable: (allow-none): a %GCancellable or %NULL
  *
- * Creates a %GSource that can be attached to a %GMainContext to monitor
- * for the availability of the specified @condition on the socket.
+ * Creates a #GSource that can be attached to a %GMainContext to monitor
+ * for the availability of the specified @condition on the socket. The #GSource
+ * keeps a reference to the @socket.
  *
  * The callback on the source is of the #GSocketSourceFunc type.
  *
@@ -4466,6 +4467,23 @@ g_socket_get_credentials (GSocket   *socket,
         g_credentials_set_native (ret,
                                   G_CREDENTIALS_NATIVE_TYPE,
                                   native_creds_buf);
+      }
+  }
+#elif G_CREDENTIALS_USE_NETBSD_UNPCBID
+  {
+    struct unpcbid cred;
+    socklen_t optlen = sizeof (cred);
+
+    if (getsockopt (socket->priv->fd,
+                    0,
+                    LOCAL_PEEREID,
+                    &cred,
+                    &optlen) == 0)
+      {
+        ret = g_credentials_new ();
+        g_credentials_set_native (ret,
+                                  G_CREDENTIALS_NATIVE_TYPE,
+                                  &cred);
       }
   }
 #elif G_CREDENTIALS_USE_SOLARIS_UCRED

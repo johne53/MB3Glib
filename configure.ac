@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [41])
-m4_define([glib_micro_version], [0])
+m4_define([glib_micro_version], [2])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -216,6 +216,8 @@ AS_IF([test "x$glib_have_carbon" = "xyes"], [
   CARBON_LIBS="-Wl,-framework,Carbon"
   LDFLAGS="$LDFLAGS $CARBON_LIBS"
 ], [CARBON_LIBS=""])
+
+AC_SUBST([CARBON_LIBS])
 
 AS_IF([test "x$glib_have_cocoa" = "xyes"], [
   AC_DEFINE(HAVE_COCOA, 1, [define to 1 if Cocoa is available])
@@ -2384,13 +2386,7 @@ AC_CACHE_CHECK(for futex(2) system call,
 #include <sys/syscall.h>
 #include <unistd.h>
 ],[
-int
-main (void)
-{
-  /* it is not like this actually runs or anything... */
   syscall (__NR_futex, NULL, FUTEX_WAKE, FUTEX_WAIT);
-  return 0;
-}
 ])],glib_cv_futex=yes,glib_cv_futex=no))
 if test x"$glib_cv_futex" = xyes; then
   AC_DEFINE(HAVE_FUTEX, 1, [we have the futex(2) system call])
@@ -2401,12 +2397,7 @@ AC_CACHE_CHECK(for eventfd(2) system call,
 #include <sys/eventfd.h>
 #include <unistd.h>
 ],[
-int
-main (void)
-{
   eventfd (0, EFD_CLOEXEC);
-  return 0;
-}
 ])],glib_cv_eventfd=yes,glib_cv_eventfd=no))
 if test x"$glib_cv_eventfd" = x"yes"; then
   AC_DEFINE(HAVE_EVENTFD, 1, [we have the eventfd(2) system call])

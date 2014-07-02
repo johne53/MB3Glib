@@ -1364,6 +1364,7 @@ typedef enum
  * @G_CREDENTIALS_TYPE_INVALID: Indicates an invalid native credential type.
  * @G_CREDENTIALS_TYPE_LINUX_UCRED: The native credentials type is a <type>struct ucred</type>.
  * @G_CREDENTIALS_TYPE_FREEBSD_CMSGCRED: The native credentials type is a <type>struct cmsgcred</type>.
+ * @G_CREDENTIALS_TYPE_NETBSD_UNPCBID: The native credentials type is a <type>struct unpcbid</type>.
  * @G_CREDENTIALS_TYPE_OPENBSD_SOCKPEERCRED: The native credentials type is a <type>struct sockpeercred</type>. Added in 2.30.
  * @G_CREDENTIALS_TYPE_SOLARIS_UCRED: The native credentials type is a <type>ucred_t</type>. Added in 2.40.
  *
@@ -1376,6 +1377,7 @@ typedef enum
   G_CREDENTIALS_TYPE_INVALID,
   G_CREDENTIALS_TYPE_LINUX_UCRED,
   G_CREDENTIALS_TYPE_FREEBSD_CMSGCRED,
+  G_CREDENTIALS_TYPE_NETBSD_UNPCBID,
   G_CREDENTIALS_TYPE_OPENBSD_SOCKPEERCRED,
   G_CREDENTIALS_TYPE_SOLARIS_UCRED
 } GCredentialsType;
@@ -1782,6 +1784,32 @@ typedef enum {
   G_SUBPROCESS_FLAGS_STDERR_MERGE          = (1u << 6),
   G_SUBPROCESS_FLAGS_INHERIT_FDS           = (1u << 7)
 } GSubprocessFlags;
+
+/**
+ * GNotificationPriority:
+ * @G_NOTIFICATION_PRIORITY_LOW: for notifications that do not require
+ *   immediate attention - typically used for contextual background
+ *   information, such as contact birthdays or local weather
+ * @G_NOTIFICATION_PRIORITY_NORMAL: the default priority, to be used for the
+ *   majority of notifications (for example email messages, software updates,
+ *   completed download/sync operations)
+ * @G_NOTIFICATION_PRIORITY_HIGH: for events that require more attention,
+ *   usually because responses are time-sensitive (for example chat and SMS
+ *   messages or alarms)
+ * @G_NOTIFICATION_PRIORITY_URGENT: for urgent notifications, or notifications
+ *   that require a response in a short space of time (for example phone calls
+ *   or emergency warnings)
+ *
+ * Priority levels for #GNotifications.
+ *
+ * Since: 2.42
+ */
+typedef enum {
+  G_NOTIFICATION_PRIORITY_NORMAL,
+  G_NOTIFICATION_PRIORITY_LOW,
+  G_NOTIFICATION_PRIORITY_HIGH,
+  G_NOTIFICATION_PRIORITY_URGENT
+} GNotificationPriority;
 
 G_END_DECLS
 
