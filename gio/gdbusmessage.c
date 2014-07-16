@@ -64,6 +64,16 @@ struct _GMemoryBuffer
   GDataStreamByteOrder byte_order;
 };
 
+static gboolean
+g_memory_buffer_is_byteswapped (GMemoryBuffer *mbuf)
+{
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+  return mbuf->byte_order == G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN;
+#else
+  return mbuf->byte_order == G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN;
+#endif
+}
+
 static guchar
 g_memory_buffer_read_byte (GMemoryBuffer  *mbuf)
 {
@@ -85,18 +95,10 @@ g_memory_buffer_read_int16 (GMemoryBuffer  *mbuf)
 
   memcpy (&v, mbuf->data + mbuf->pos, 2);
   mbuf->pos += 2;
-  switch (mbuf->byte_order)
-    {
-    case G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN:
-      v = GINT16_FROM_BE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN:
-      v = GINT16_FROM_LE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN:
-    default:
-      break;
-    }
+
+  if (g_memory_buffer_is_byteswapped (mbuf))
+    v = GUINT16_SWAP_LE_BE (v);
+
   return v;
 }
 
@@ -113,18 +115,10 @@ g_memory_buffer_read_uint16 (GMemoryBuffer  *mbuf)
 
   memcpy (&v, mbuf->data + mbuf->pos, 2);
   mbuf->pos += 2;
-  switch (mbuf->byte_order)
-    {
-    case G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN:
-      v = GINT16_FROM_BE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN:
-      v = GINT16_FROM_LE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN:
-    default:
-      break;
-    }
+
+  if (g_memory_buffer_is_byteswapped (mbuf))
+    v = GUINT16_SWAP_LE_BE (v);
+
   return v;
 }
 
@@ -141,18 +135,10 @@ g_memory_buffer_read_int32 (GMemoryBuffer  *mbuf)
 
   memcpy (&v, mbuf->data + mbuf->pos, 4);
   mbuf->pos += 4;
-  switch (mbuf->byte_order)
-    {
-    case G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN:
-      v = GINT32_FROM_BE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN:
-      v = GINT32_FROM_LE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN:
-    default:
-      break;
-    }
+
+  if (g_memory_buffer_is_byteswapped (mbuf))
+    v = GUINT32_SWAP_LE_BE (v);
+
   return v;
 }
 
@@ -169,18 +155,10 @@ g_memory_buffer_read_uint32 (GMemoryBuffer  *mbuf)
 
   memcpy (&v, mbuf->data + mbuf->pos, 4);
   mbuf->pos += 4;
-  switch (mbuf->byte_order)
-    {
-    case G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN:
-      v = GUINT32_FROM_BE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN:
-      v = GUINT32_FROM_LE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN:
-    default:
-      break;
-    }
+
+  if (g_memory_buffer_is_byteswapped (mbuf))
+    v = GUINT32_SWAP_LE_BE (v);
+
   return v;
 }
 
@@ -197,18 +175,10 @@ g_memory_buffer_read_int64 (GMemoryBuffer  *mbuf)
 
   memcpy (&v, mbuf->data + mbuf->pos, 8);
   mbuf->pos += 8;
-  switch (mbuf->byte_order)
-    {
-    case G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN:
-      v = GINT64_FROM_BE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN:
-      v = GINT64_FROM_LE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN:
-    default:
-      break;
-    }
+
+  if (g_memory_buffer_is_byteswapped (mbuf))
+    v = GUINT64_SWAP_LE_BE (v);
+
   return v;
 }
 
@@ -225,19 +195,11 @@ g_memory_buffer_read_uint64 (GMemoryBuffer  *mbuf)
 
   memcpy (&v, mbuf->data + mbuf->pos, 8);
   mbuf->pos += 8;
-  switch (mbuf->byte_order)
-    {
-    case G_DATA_STREAM_BYTE_ORDER_BIG_ENDIAN:
-      v = GUINT64_FROM_BE (v);
-      break;
-    case G_DATA_STREAM_BYTE_ORDER_LITTLE_ENDIAN:
-      v = GUINT64_FROM_LE (v);
-      break;
-	case G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN:
-	default:
-	  break;
-	}
-      return v;
+
+  if (g_memory_buffer_is_byteswapped (mbuf))
+    v = GUINT64_SWAP_LE_BE (v);
+
+  return v;
 }
 
 #define MIN_ARRAY_SIZE  128
@@ -1243,6 +1205,27 @@ g_dbus_message_set_unix_fd_list (GDBusMessage  *message,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static guint
+get_type_fixed_size (const GVariantType *type)
+{
+  /* NB: we do not treat 'b' as fixed-size here because GVariant and
+   * D-Bus disagree about the size.
+   */
+  switch (*g_variant_type_peek_string (type))
+    {
+    case 'y':
+      return 1;
+    case 'n': case 'q':
+      return 2;
+    case 'i': case 'u': case 'h':
+      return 4;
+    case 'x': case 't': case 'd':
+      return 8;
+    default:
+      return 0;
+    }
+}
+
 static gboolean
 validate_headers (GDBusMessage  *message,
                   GError       **error)
@@ -1363,7 +1346,7 @@ read_string (GMemoryBuffer  *mbuf,
   gchar *str;
   const gchar *end_valid;
 
-  if (mbuf->pos + len >= mbuf->valid_len || mbuf->pos + len < mbuf->pos)
+  if G_UNLIKELY (mbuf->pos + len >= mbuf->valid_len || mbuf->pos + len < mbuf->pos)
     {
       mbuf->pos = mbuf->valid_len;
       /* G_GSIZE_FORMAT doesn't work with gettext, so we use %lu */
@@ -1379,7 +1362,7 @@ read_string (GMemoryBuffer  *mbuf,
       return NULL;
     }
 
-  if (mbuf->data[mbuf->pos + len] != '\0')
+  if G_UNLIKELY (mbuf->data[mbuf->pos + len] != '\0')
     {
       str = g_strndup (mbuf->data + mbuf->pos, len);
       g_set_error (error,
@@ -1395,7 +1378,7 @@ read_string (GMemoryBuffer  *mbuf,
   str = mbuf->data + mbuf->pos;
   mbuf->pos += len + 1;
 
-  if (!g_utf8_validate (str, -1, &end_valid))
+  if G_UNLIKELY (!g_utf8_validate (str, -1, &end_valid))
     {
       gint offset;
       gchar *valid_str;
@@ -1414,6 +1397,35 @@ read_string (GMemoryBuffer  *mbuf,
     }
 
   return str;
+}
+
+static gconstpointer
+read_bytes (GMemoryBuffer  *mbuf,
+            gsize           len,
+            GError        **error)
+{
+  gconstpointer result;
+
+  if G_UNLIKELY (mbuf->pos + len > mbuf->valid_len || mbuf->pos + len < mbuf->pos)
+    {
+      mbuf->pos = mbuf->valid_len;
+      /* G_GSIZE_FORMAT doesn't work with gettext, so we use %lu */
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_INVALID_ARGUMENT,
+                   g_dngettext (GETTEXT_PACKAGE,
+                                "Wanted to read %lu byte but only got %lu",
+                                "Wanted to read %lu bytes but only got %lu",
+                                (gulong)len),
+                                (gulong)len,
+                   (gulong)(mbuf->valid_len - mbuf->pos));
+      return NULL;
+    }
+
+  result = mbuf->data + mbuf->pos;
+  mbuf->pos += len;
+
+  return result;
 }
 
 /* if just_align==TRUE, don't read a value, just align the input stream wrt padding */
@@ -1626,10 +1638,8 @@ parse_value_from_blob (GMemoryBuffer       *buf,
       if (!just_align)
         {
           guint32 array_len;
-          goffset offset;
-          goffset target;
           const GVariantType *element_type;
-          GVariantBuilder builder;
+          guint fixed_size;
 
           array_len = g_memory_buffer_read_uint32 (buf);
 
@@ -1652,44 +1662,82 @@ parse_value_from_blob (GMemoryBuffer       *buf,
               goto fail;
             }
 
-          g_variant_builder_init (&builder, type);
           element_type = g_variant_type_element (type);
+          fixed_size = get_type_fixed_size (element_type);
 
-          if (array_len == 0)
+          /* Fast-path the cases like 'ay', etc. */
+          if (fixed_size != 0)
             {
-              GVariant *item;
-              item = parse_value_from_blob (buf,
-                                            element_type,
-                                            TRUE,
-                                            indent + 2,
-                                            NULL);
-              g_assert (item == NULL);
+              gconstpointer array_data;
+
+              if (array_len % fixed_size != 0)
+                {
+                  g_set_error (&local_error,
+                               G_IO_ERROR,
+                               G_IO_ERROR_INVALID_ARGUMENT,
+                               _("Encountered array of type 'a%c', expected to have a length a multiple "
+                                 "of %u bytes, but found to be %u bytes in length"),
+                               g_variant_type_peek_string (element_type)[0], fixed_size, array_len);
+                  goto fail;
+                }
+
+              ensure_input_padding (buf, fixed_size);
+              array_data = read_bytes (buf, array_len, &local_error);
+              if (array_data == NULL)
+                goto fail;
+
+              ret = g_variant_new_fixed_array (element_type, array_data, array_len / fixed_size, fixed_size);
+
+              if (g_memory_buffer_is_byteswapped (buf))
+                {
+                  GVariant *tmp = g_variant_ref_sink (ret);
+                  ret = g_variant_byteswap (tmp);
+                  g_variant_unref (tmp);
+                }
             }
           else
             {
-              /* TODO: optimize array of primitive types */
-              offset = buf->pos;
-              target = offset + array_len;
-              while (offset < target)
+              GVariantBuilder builder;
+              goffset offset;
+              goffset target;
+
+              g_variant_builder_init (&builder, type);
+
+              if (array_len == 0)
                 {
                   GVariant *item;
                   item = parse_value_from_blob (buf,
                                                 element_type,
-                                                FALSE,
+                                                TRUE,
                                                 indent + 2,
-                                                &local_error);
-                  if (item == NULL)
-                    {
-                      g_variant_builder_clear (&builder);
-                      goto fail;
-                    }
-                  g_variant_builder_add_value (&builder, item);
-                  g_variant_unref (item);
-                  offset = buf->pos;
+                                                NULL);
+                  g_assert (item == NULL);
                 }
-            }
+              else
+                {
+                  offset = buf->pos;
+                  target = offset + array_len;
+                  while (offset < target)
+                    {
+                      GVariant *item;
+                      item = parse_value_from_blob (buf,
+                                                    element_type,
+                                                    FALSE,
+                                                    indent + 2,
+                                                    &local_error);
+                      if (item == NULL)
+                        {
+                          g_variant_builder_clear (&builder);
+                          goto fail;
+                        }
+                      g_variant_builder_add_value (&builder, item);
+                      g_variant_unref (item);
+                      offset = buf->pos;
+                    }
+                }
 
-          ret = g_variant_builder_end (&builder);
+              ret = g_variant_builder_end (&builder);
+            }
         }
       break;
 
@@ -1850,12 +1898,9 @@ parse_value_from_blob (GMemoryBuffer       *buf,
   is_leaf = is_leaf; /* To avoid -Wunused-but-set-variable */
 #endif /* DEBUG_SERIALIZER */
 
-  /* sink the reference */
+  /* sink the reference, if floating */
   if (ret != NULL)
-    {
-      g_assert (g_variant_is_floating (ret));
-      g_variant_ref_sink (ret);
-    }
+    g_variant_take_ref (ret);
   return ret;
 
  fail:
@@ -2321,12 +2366,14 @@ append_value_to_blob (GVariant            *value,
 
     case 'a': /* G_VARIANT_TYPE_ARRAY */
       {
+        const GVariantType *element_type;
         GVariant *item;
         GVariantIter iter;
         goffset array_len_offset;
         goffset array_payload_begin_offset;
         goffset cur_offset;
         gsize array_len;
+        guint fixed_size;
 
         padding_added = ensure_output_padding (mbuf, 4);
         if (value != NULL)
@@ -2350,16 +2397,33 @@ append_value_to_blob (GVariant            *value,
              */
             array_payload_begin_offset = mbuf->valid_len;
 
+            element_type = g_variant_type_element (type);
+            fixed_size = get_type_fixed_size (element_type);
+
             if (g_variant_n_children (value) == 0)
               {
                 gsize padding_added_for_item;
                 if (!append_value_to_blob (NULL,
-                                           g_variant_type_element (type),
+                                           element_type,
                                            mbuf,
                                            &padding_added_for_item,
                                            error))
                   goto fail;
                 array_payload_begin_offset += padding_added_for_item;
+              }
+            else if (fixed_size != 0)
+              {
+                GVariant *use_value;
+
+                if (g_memory_buffer_is_byteswapped (mbuf))
+                  use_value = g_variant_byteswap (value);
+                else
+                  use_value = g_variant_ref (value);
+
+                ensure_output_padding (mbuf, fixed_size);
+                array_len = g_variant_get_size (use_value);
+                g_memory_buffer_write (mbuf, g_variant_get_data (use_value), array_len);
+                g_variant_unref (use_value);
               }
             else
               {
