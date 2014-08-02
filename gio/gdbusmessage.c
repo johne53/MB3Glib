@@ -2420,7 +2420,8 @@ append_value_to_blob (GVariant            *value,
                 else
                   use_value = g_variant_ref (value);
 
-                ensure_output_padding (mbuf, fixed_size);
+                array_payload_begin_offset += ensure_output_padding (mbuf, fixed_size);
+
                 array_len = g_variant_get_size (use_value);
                 g_memory_buffer_write (mbuf, g_variant_get_data (use_value), array_len);
                 g_variant_unref (use_value);
