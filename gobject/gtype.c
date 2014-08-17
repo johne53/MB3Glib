@@ -3499,6 +3499,9 @@ g_type_is_a (GType type,
 {
   TypeNode *node, *iface_node;
   gboolean is_a;
+
+  if (type == iface_type)
+    return TRUE;
   
   node = lookup_type_node_I (type);
   iface_node = lookup_type_node_I (iface_type);
@@ -3972,9 +3975,11 @@ gboolean
 g_type_check_instance_is_fundamentally_a (GTypeInstance *type_instance,
                                           GType          fundamental_type)
 {
+  TypeNode *node;
   if (!type_instance || !type_instance->g_class)
     return FALSE;
-  return NODE_FUNDAMENTAL_TYPE(lookup_type_node_I (type_instance->g_class->g_type)) == fundamental_type;
+  node = lookup_type_node_I (type_instance->g_class->g_type);
+  return node && (NODE_FUNDAMENTAL_TYPE(node) == fundamental_type);
 }
 
 gboolean
