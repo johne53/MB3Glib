@@ -1,3 +1,55 @@
+Overview of changes in GLib 2.41.5
+==================================
+
+* Bug fixes:
+ 735819 single native credential struct used for two purposes
+ 735915 glib-building.html uses --enable-gcov instead of --enable-coverage
+ 736350 GDesktopAppInfo: avoid polling on missing desktop dirs
+ 736351 Don't use issetugid() on Android
+        Fix the default application logic in GDesktopAppInfo
+ 736458 Only use rand_s() when targetting Visual Studio >= 2005
+
+* Translation updates
+ Galician
+ Hungarian
+ Indonesian
+ Kannada
+ Latvian
+ Polish
+ Russian
+ Slovenian
+ Tamil
+
+
+Overview of changes in GLib 2.41.4
+==================================
+
+* GApplication now has binding-friendly API to handle
+  commandline options: g_application_add_main_option
+
+* G_GNUC_BEGIN_IGNORE_DEPRECATIONS works with clang
+
+* Bugs fixed:
+ 583330 poll list of mounted file systems (no mtab support)
+ 727455 Command line option parsing from bindings
+ 734126 add G_GNUC_BEGIN_IGNORE_DEPRECATIONS macro for clang
+ 735179 gsocketclient: Handle cancellation between CONNECTING...
+ 735297 Docs claim that GThread struct is deprecated 
+
+* Translation updates:
+  Assamese
+  Catalan
+  Catalan (Valencian)
+  Czech
+  French
+  German
+  Greek
+  Hebrew
+  Korean
+  Oriya
+  Traditional Chinese
+
+
 Overview of changes in GLib 2.41.3
 ==================================
 
