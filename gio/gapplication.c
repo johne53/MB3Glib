@@ -698,7 +698,7 @@ void
 g_application_add_main_option (GApplication *application,
                                const char   *long_name,
                                char          short_name,
-                               gint          flags,
+                               GOptionFlags  flags,
                                GOptionArg    arg,
                                const char   *description,
                                const char   *arg_description)
@@ -1415,11 +1415,6 @@ g_application_class_init (GApplicationClass *class)
    * decide to perform certain actions, including direct local handling
    * (which may be useful for options like --version).
    *
-   * If the options have been "handled" then a non-negative value should
-   * be returned.   In this case, the return value is the exit status: 0
-   * for success and a positive value for failure.  -1 means to continue
-   * normal processing.
-   *
    * In the event that the application is marked
    * %G_APPLICATION_HANDLES_COMMAND_LINE the "normal processing" will
    * send the @option dictionary to the primary instance where it can be
@@ -1449,6 +1444,11 @@ g_application_class_init (GApplicationClass *class)
    * You can override local_command_line() if you need more powerful
    * capabilities than what is provided here, but this should not
    * normally be required.
+   *
+   * Returns: an exit code. If you have handled your options and want
+   * to exit the process, return a non-negative option, 0 for success,
+   * and a positive value for failure. To continue, return -1 to let
+   * the default option processing continue.
    *
    * Since: 2.40
    **/
@@ -1722,7 +1722,7 @@ g_application_get_resource_base_path (GApplication *application)
  */
 void
 g_application_set_resource_base_path (GApplication *application,
-                                 const gchar  *resource_path)
+                                      const gchar  *resource_path)
 {
   g_return_if_fail (G_IS_APPLICATION (application));
   g_return_if_fail (resource_path == NULL || g_str_has_prefix (resource_path, "/"));

@@ -99,7 +99,7 @@ break g_object_unref if _object == 0xcafebabe
     (a small program part of the libxslt library) to generate the final HTML
     output. Other tools can be used to generate PDF output from the source XML.
     The following code excerpt shows what these comments look like.
-    <programlisting>
+      <informalexample><programlisting>
 /**
  * gtk_widget_freeze_child_notify:
  * @widget: a #GtkWidget
@@ -113,13 +113,13 @@ void
 gtk_widget_freeze_child_notify (GtkWidget *widget)
 {
 ...
-      </programlisting>
+      </programlisting></informalexample>
     </para>
     <para>
     Thorough
-    <ulink url="http://library.gnome.org/devel/gtk-doc-manual/stable/">documentation</ulink>
+    <ulink url="https://developer.gnome.org/gtk-doc-manual/stable/">documentation</ulink>
     on how to set up and use gtk-doc in your project is provided on the
-    <ulink url="http://library.gnome.org/devel/">GNOME developer website</ulink>.
+    <ulink url="https://developer.gnome.org/">GNOME developer website</ulink>.
     </para>
   </chapter>
 </part>
