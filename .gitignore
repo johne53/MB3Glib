@@ -46,3 +46,11 @@ README
 ChangeLog
 /glib-lcov.info
 /glib-lcov/
+
+/glibconfig.h
+/gio/gdbus-2.0/codegen/config.py
+/win32-fixup.pl.in
+/msvc/glib.vsprops
+
+/build/win32/vs10/glibprepbuild.props
+/build/win32/vs9/glibprepbuild.vsprops
