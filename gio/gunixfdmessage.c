@@ -33,7 +33,7 @@
  * interfaces, thus you have to use the `gio-unix-2.0.pc` pkg-config
  * file when using it.
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <unistd.h>
@@ -317,3 +317,5 @@ g_unix_fd_message_append_fd (GUnixFDMessage  *message,
 
   return g_unix_fd_list_append (message->priv->list, fd, error) >= 0;
 }
+
+#endif /* _MSC_VER */

@@ -20,7 +20,7 @@
  * Author: Alexander Larsson <alexl@redhat.com>
  *         David Zeuthen <davidz@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include <string.h>
@@ -391,3 +391,5 @@ g_unix_mount_mount_iface_init (GMountIface *iface)
   iface->eject = g_unix_mount_eject;
   iface->eject_finish = g_unix_mount_eject_finish;
 }
+
+#endif /* _MSC_VER */

@@ -946,6 +946,7 @@ g_io_win32_check (GSource *source)
     default:
       g_assert_not_reached ();
       abort ();
+      return FALSE; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
     }
 }
 

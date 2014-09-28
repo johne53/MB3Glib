@@ -18,7 +18,7 @@
  * Authors: Christian Kellner <gicmo@gnome.org>
  *          Samuel Cormier-Iijima <sciyoshi@gmail.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include <config.h>
 #include <glib.h>
 #include <string.h>
@@ -509,3 +509,5 @@ g_unix_socket_address_abstract_names_supported (void)
   return FALSE;
 #endif
 }
+
+#endif /* _MSC_VER */
