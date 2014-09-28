@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General
  * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
-
+/* Some assertion tests modified by JE - 12-04-2013 */
 #include <string.h>
 
 #undef	G_LOG_DOMAIN
