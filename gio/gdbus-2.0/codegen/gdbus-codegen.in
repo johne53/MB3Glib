@@ -34,6 +34,6 @@ else:
     path = os.path.join('@datadir@', 'glib-2.0')
 
 sys.path.insert(0, os.path.abspath(path))
-from codegen import codegen_main
+import codegen_main
 
 sys.exit(codegen_main.codegen_main())
