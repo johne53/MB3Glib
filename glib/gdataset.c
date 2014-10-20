@@ -850,7 +850,6 @@ g_datalist_id_dup_data (GData          **datalist,
   GDataElt *data, *data_end;
 
   g_return_val_if_fail (datalist != NULL, NULL);
-  g_return_val_if_fail (key_id != 0, NULL);
 
   g_datalist_lock (datalist);
 
@@ -1029,8 +1028,8 @@ g_datalist_get_data (GData	 **datalist,
       data_end = data + d->len;
       while (data < data_end)
 	{
-	  if (g_quark_to_string (data->key) != 0) /* This line added by JE - 07-11-13 */
-	    if (strcmp (g_quark_to_string (data->key), key) == 0)
+	  if ((g_quark_to_string (data->key) != 0) || (key == 0)) /* This line added by JE - 20-10-14 */
+		  if (g_strcmp0 (g_quark_to_string (data->key), key) == 0)
 	    {
 	      res = data->data;
 	      break;
