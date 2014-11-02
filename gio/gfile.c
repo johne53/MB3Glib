@@ -660,6 +660,9 @@ g_file_equal (GFile *file1,
   g_return_val_if_fail (G_IS_FILE (file1), FALSE);
   g_return_val_if_fail (G_IS_FILE (file2), FALSE);
 
+  if (file1 == file2)
+    return TRUE;
+
   if (G_TYPE_FROM_INSTANCE (file1) != G_TYPE_FROM_INSTANCE (file2))
     return FALSE;
 
@@ -1721,14 +1724,14 @@ g_file_create (GFile             *file,
  * operation was cancelled, the error %G_IO_ERROR_CANCELLED will be
  * returned.
  *
- * If you pass in a non-%NULL @etag value, then this value is
- * compared to the current entity tag of the file, and if they differ
- * an %G_IO_ERROR_WRONG_ETAG error is returned. This generally means
- * that the file has been changed since you last read it. You can get
- * the new etag from g_file_output_stream_get_etag() after you've
- * finished writing and closed the #GFileOutputStream. When you load
- * a new file you can use g_file_input_stream_query_info() to get
- * the etag of the file.
+ * If you pass in a non-%NULL @etag value and @file already exists, then
+ * this value is compared to the current entity tag of the file, and if
+ * they differ an %G_IO_ERROR_WRONG_ETAG error is returned. This
+ * generally means that the file has been changed since you last read
+ * it. You can get the new etag from g_file_output_stream_get_etag()
+ * after you've finished writing and closed the #GFileOutputStream. When
+ * you load a new file you can use g_file_input_stream_query_info() to
+ * get the etag of the file.
  *
  * If @make_backup is %TRUE, this function will attempt to make a
  * backup of the current file before overwriting it. If this fails
