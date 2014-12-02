@@ -2413,9 +2413,11 @@ g_strsplit_set (const gchar *string,
 /**
  * g_strfreev:
  * @str_array: a %NULL-terminated array of strings to free
-
- * Frees a %NULL-terminated array of strings, and the array itself.
- * If called on a %NULL value, g_strfreev() simply returns.
+ *
+ * Frees a %NULL-terminated array of strings, as well as each
+ * string it contains.
+ *
+ * If @str_array is %NULL, this function simply returns.
  */
 void
 g_strfreev (gchar **str_array)
@@ -3074,4 +3076,31 @@ one_matched:
   g_strfreev (alternates);
 
   return matched;
+}
+
+/**
+ * g_strv_contains:
+ * @strv: a %NULL-terminated array of strings
+ * @str: a string
+ *
+ * Checks if @strv contains @str. @strv must not be %NULL.
+ *
+ * Returns: %TRUE if @str is an element of @strv, according to g_str_equal().
+ *
+ * Since: 2.44
+ */
+gboolean
+g_strv_contains (const gchar * const *strv,
+                 const gchar         *str)
+{
+  g_return_val_if_fail (strv != NULL, FALSE);
+  g_return_val_if_fail (str != NULL, FALSE);
+
+  for (; *strv != NULL; strv++)
+    {
+      if (g_str_equal (str, *strv))
+        return TRUE;
+    }
+
+  return FALSE;
 }
