@@ -4051,10 +4051,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gio\gnetworkmonitornetlink.h"
-				>
-			</File>
-			<File
 				RelativePath="..\gio\gnotification.h"
 				>
 			</File>
