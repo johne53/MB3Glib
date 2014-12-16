@@ -248,6 +248,12 @@ g_io_error_from_errno (gint err_no)
       break;
 #endif
 
+#ifdef ENOTCONN
+    case ENOTCONN:
+      return G_IO_ERROR_NOT_CONNECTED;
+      break;
+#endif
+
     default:
       return G_IO_ERROR_FAILED;
       break;
@@ -313,6 +319,9 @@ g_io_error_from_win32_error (gint error_code)
 
     case WSAECONNRESET:
       return G_IO_ERROR_CONNECTION_CLOSED;
+
+    case ERROR_PIPE_LISTENING:
+      return G_IO_ERROR_NOT_CONNECTED;
 
     default:
       return G_IO_ERROR_FAILED;

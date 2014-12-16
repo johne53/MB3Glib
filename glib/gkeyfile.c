@@ -383,13 +383,31 @@
  */
 
 /**
- * G_KEY_FILE_DESKTOP_KEY_URL :
+ * G_KEY_FILE_DESKTOP_KEY_URL:
  *
  * A key under #G_KEY_FILE_DESKTOP_GROUP, whose value is a string
  * giving the URL to access. It is only valid for desktop entries
  * with the `Link` type.
  *
  * Since: 2.14
+ */
+
+/**
+ * G_KEY_FILE_DESKTOP_KEY_DBUS_ACTIVATABLE:
+ *
+ * A key under #G_KEY_FILE_DESKTOP_GROUP, whose value is a boolean set to true
+ * if the application is D-Bus activatable.
+ *
+ * Since: 2.38
+ */
+
+/**
+ * G_KEY_FILE_DESKTOP_KEY_ACTIONS:
+ *
+ * A key under #G_KEY_FILE_DESKTOP_GROUP, whose value is a string list
+ * giving the available application actions.
+ *
+ * Since: 2.38
  */
 
 /**
@@ -1648,6 +1666,17 @@ g_key_file_get_groups (GKeyFile *key_file,
   return groups;
 }
 
+static void
+set_not_found_key_error (const char *group_name,
+                         const char *key,
+                         GError    **error)
+{
+  g_set_error (error, G_KEY_FILE_ERROR,
+               G_KEY_FILE_ERROR_KEY_NOT_FOUND,
+               _("Key file does not have key '%s' in group '%s'"),
+               key, group_name);
+}
+
 /**
  * g_key_file_get_value:
  * @key_file: a #GKeyFile
@@ -1699,9 +1728,7 @@ g_key_file_get_value (GKeyFile     *key_file,
   if (pair)
     value = g_strdup (pair->value);
   else
-    g_set_error (error, G_KEY_FILE_ERROR,
-                 G_KEY_FILE_ERROR_KEY_NOT_FOUND,
-                 _("Key file does not have key '%s'"), key);
+    set_not_found_key_error (group_name, key, error);
 
   return value;
 }
@@ -3082,10 +3109,7 @@ g_key_file_set_key_comment (GKeyFile     *key_file,
 
   if (key_node == NULL)
     {
-      g_set_error (error, G_KEY_FILE_ERROR,
-                   G_KEY_FILE_ERROR_KEY_NOT_FOUND,
-                   _("Key file does not have key '%s' in group '%s'"),
-                   key, group->name);
+      set_not_found_key_error (group->name, key, error);
       return FALSE;
     }
 
@@ -3274,10 +3298,7 @@ g_key_file_get_key_comment (GKeyFile     *key_file,
 
   if (key_node == NULL)
     {
-      g_set_error (error, G_KEY_FILE_ERROR,
-                   G_KEY_FILE_ERROR_KEY_NOT_FOUND,
-                   _("Key file does not have key '%s' in group '%s'"),
-                   key, group->name);
+      set_not_found_key_error (group->name, key, error);
       return NULL;
     }
 
@@ -3841,10 +3862,7 @@ g_key_file_remove_key (GKeyFile     *key_file,
 
   if (!pair)
     {
-      g_set_error (error, G_KEY_FILE_ERROR,
-                   G_KEY_FILE_ERROR_KEY_NOT_FOUND,
-                   _("Key file does not have key '%s' in group '%s'"),
-		   key, group->name);
+      set_not_found_key_error (group->name, key, error);
       return FALSE;
     }
 

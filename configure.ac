@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [43])
-m4_define([glib_micro_version], [1])
+m4_define([glib_micro_version], [2])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -1030,7 +1030,7 @@ if $glib_failed ; then
   AC_MSG_ERROR([Could not determine values for MSG_* constants])
 fi
 
-AC_CHECK_FUNCS(getprotobyname_r endservent if_nametoindex if_indextoname)
+AC_CHECK_FUNCS(getprotobyname_r endservent if_nametoindex if_indextoname sendmmsg)
 
 AS_IF([test $glib_native_win32 = yes], [
   # <wspiapi.h> in the Windows SDK and in mingw-w64 has wrappers for
