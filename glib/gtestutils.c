@@ -94,8 +94,9 @@
  * over plain g_assert() is that the assertion messages can be more
  * elaborate, and include the values of the compared entities.
  *
- * GLib ships with two utilities called gtester and gtester-report to
- * facilitate running tests and producing nicely formatted test reports.
+ * GLib ships with two utilities called [gtester][gtester] and
+ * [gtester-report][gtester-report] to facilitate running tests and producing
+ * nicely formatted test reports.
  */
 
 /**
@@ -1511,14 +1512,14 @@ g_test_run (void)
  * Create a new #GTestCase, named @test_name, this API is fairly
  * low level, calling g_test_add() or g_test_add_func() is preferable.
  * When this test is executed, a fixture structure of size @data_size
- * will be allocated and filled with 0s. Then @data_setup is called
- * to initialize the fixture. After fixture setup, the actual test
- * function @data_test is called. Once the test run completed, the
- * fixture structure is torn down  by calling @data_teardown and
- * after that the memory is released.
+ * will be automatically allocated and filled with zeros. Then @data_setup is
+ * called to initialize the fixture. After fixture setup, the actual test
+ * function @data_test is called. Once the test run completes, the
+ * fixture structure is torn down by calling @data_teardown and
+ * after that the memory is automatically released by the test framework.
  *
  * Splitting up a test run into fixture setup, test function and
- * fixture teardown is most usful if the same fixture is used for
+ * fixture teardown is most useful if the same fixture is used for
  * multiple tests. In this cases, g_test_create_case() will be
  * called with the same fixture, but varying @test_name and
  * @data_test arguments.
@@ -3351,11 +3352,12 @@ g_test_get_filename (GTestFileType  file_type,
  * @fteardown: The function to tear down the fixture data.
  *
  * Hook up a new test case at @testpath, similar to g_test_add_func().
- * A fixture data structure with setup and teardown function may be provided
- * though, similar to g_test_create_case().
+ * A fixture data structure with setup and teardown functions may be provided,
+ * similar to g_test_create_case().
+ *
  * g_test_add() is implemented as a macro, so that the fsetup(), ftest() and
- * fteardown() callbacks can expect a @Fixture pointer as first argument in
- * a type safe manner.
+ * fteardown() callbacks can expect a @Fixture pointer as their first argument
+ * in a type safe manner. They otherwise have type #GTestFixtureFunc.
  *
  * Since: 2.16
  **/
