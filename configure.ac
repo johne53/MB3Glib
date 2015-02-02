@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [43])
-m4_define([glib_micro_version], [3])
+m4_define([glib_micro_version], [4])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -2239,6 +2239,16 @@ AS_IF([ test x"$have_threads" = xposix], [
             [AC_MSG_RESULT(yes)
              AC_DEFINE(HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE_NP,1,
                 [Have function pthread_cond_timedwait_relative_np])],
+            [AC_MSG_RESULT(no)])
+        dnl Sets thread names on OS X 10.6, iOS 3.2 (and higher)
+        AC_MSG_CHECKING(for pthread_setname_np(const char*))
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM(
+                [#include <pthread.h>],
+                [pthread_setname_np("example")])],
+            [AC_MSG_RESULT(yes)
+             AC_DEFINE(HAVE_PTHREAD_SETNAME_NP_WITHOUT_TID,1,
+                [Have function pthread_setname_np(const char*)])],
             [AC_MSG_RESULT(no)])
         CPPFLAGS="$glib_save_CPPFLAGS"
 ])

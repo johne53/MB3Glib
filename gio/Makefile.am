@@ -472,6 +472,8 @@ libgio_2_0_la_SOURCES =		\
 	gmountprivate.h 	\
 	gioenumtypes.h		\
 	gioenumtypes.c		\
+	glistmodel.c 		\
+	gliststore.c 		\
 	$(appinfo_sources) 	\
 	$(unix_sources) 	\
 	$(win32_sources) 	\
@@ -565,6 +567,7 @@ gio_headers =			\
 	ginputstream.h 		\
 	ginitable.h		\
 	gio.h			\
+	gio-autocleanups.h	\
 	giotypes.h		\
 	gioenums.h		\
 	gioerror.h 		\
@@ -626,6 +629,8 @@ gio_headers =			\
 	gvolumemonitor.h 	\
 	gzlibcompressor.h	\
 	gzlibdecompressor.h	\
+	glistmodel.h		\
+	gliststore.h		\
 	$(application_headers)	\
 	$(settings_headers)	\
 	$(gdbus_headers)	\
@@ -782,7 +787,7 @@ dist-hook: $(BUILT_EXTRA_DIST) ../build/win32/vs9/gio.vcproj ../build/win32/vs10
 ../build/win32/vs9/gio.vcproj: $(top_srcdir)/build/win32/vs9/gio.vcprojin
 	for F in `echo $(libgio_2_0_la_SOURCES) $(win32_actual_sources) $(win32_more_sources_for_vcproj) | tr '/' '\\'`; do \
 		case $$F in \
-		gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c) ;; \
+		gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c|gnetworkmonitornm.c) ;; \
 		*.c) echo '   <File RelativePath="..\..\..\gio\'$$F'" />' \
 		     ;; \
 		esac; \
@@ -793,7 +798,7 @@ dist-hook: $(BUILT_EXTRA_DIST) ../build/win32/vs9/gio.vcproj ../build/win32/vs10
 ../build/win32/vs10/gio.vcxproj: $(top_srcdir)/build/win32/vs10/gio.vcxprojin
 	for F in `echo $(libgio_2_0_la_SOURCES) $(win32_actual_sources) $(win32_more_sources_for_vcproj) | tr '/' '\\'`; do \
 		case $$F in \
-		gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c) ;; \
+		gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c|gnetworkmonitornm.c) ;; \
 		*.c) echo '    <ClCompile Include="..\..\..\gio\'$$F'" />' \
 		     ;; \
 		esac; \
@@ -804,7 +809,7 @@ dist-hook: $(BUILT_EXTRA_DIST) ../build/win32/vs9/gio.vcproj ../build/win32/vs10
 ../build/win32/vs10/gio.vcxproj.filters: $(top_srcdir)/build/win32/vs10/gio.vcxproj.filtersin
 	for F in `echo $(libgio_2_0_la_SOURCES) $(win32_actual_sources) $(win32_more_sources_for_vcproj) | tr '/' '\\'`; do \
 		case $$F in \
-		gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c) ;; \
+		gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c|gnetworkmonitornm.c) ;; \
 		*.c) echo '    <ClCompile Include="..\..\..\gio\'$$F'"><Filter>Source Files</Filter></ClCompile>' \
 		     ;; \
 		esac; \

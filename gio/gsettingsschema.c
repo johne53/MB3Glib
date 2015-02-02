@@ -1004,6 +1004,47 @@ g_settings_schema_has_key (GSettingsSchema *schema,
   return gvdb_table_has_value (schema->table, key);
 }
 
+/**
+ * g_settings_schema_list_children:
+ * @schema: a #GSettingsSchema
+ *
+ * Gets the list of children in @schema.
+ *
+ * You should free the return value with g_strfreev() when you are done
+ * with it.
+ *
+ * Returns: (transfer full) (element-type utf8): a list of the children on @settings
+ *
+ * Since: 2.44
+ */
+gchar **
+g_settings_schema_list_children (GSettingsSchema *schema)
+{
+  const GQuark *keys;
+  gchar **strv;
+  gint n_keys;
+  gint i, j;
+
+  keys = g_settings_schema_list (schema, &n_keys);
+  strv = g_new (gchar *, n_keys + 1);
+  for (i = j = 0; i < n_keys; i++)
+    {
+      const gchar *key = g_quark_to_string (keys[i]);
+
+      if (g_str_has_suffix (key, "/"))
+        {
+          gint length = strlen (key);
+
+          strv[j] = g_memdup (key, length);
+          strv[j][length - 1] = '\0';
+          j++;
+        }
+    }
+  strv[j] = NULL;
+
+  return strv;
+}
+
 const GQuark *
 g_settings_schema_list (GSettingsSchema *schema,
                         gint            *n_items)
@@ -1469,6 +1510,24 @@ g_settings_schema_get_key (GSettingsSchema *schema,
   key->ref_count = 1;
 
   return key;
+}
+
+/**
+ * g_settings_schema_key_get_name:
+ * @key: a #GSettingsSchemaKey
+ *
+ * Gets the name of @key.
+ *
+ * Returns: the name of @key.
+ *
+ * Since: 2.44
+ */
+const gchar *
+g_settings_schema_key_get_name (GSettingsSchemaKey *key)
+{
+  g_return_val_if_fail (key != NULL, NULL);
+
+  return key->name;
 }
 
 /**

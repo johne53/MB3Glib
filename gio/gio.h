@@ -160,6 +160,10 @@
 #include <gio/gmenuexporter.h>
 #include <gio/gdbusmenumodel.h>
 #include <gio/gnotification.h>
+#include <gio/glistmodel.h>
+#include <gio/gliststore.h>
+
+#include <gio/gio-autocleanups.h>
 
 #undef __GIO_GIO_H_INSIDE__
 
