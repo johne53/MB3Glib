@@ -230,6 +230,13 @@
  * #G_SETTINGS_BIND_NO_SENSITIVITY flag.
  */
 
+/**
+ * GSettings:
+ *
+ * #GSettings is an opaque data structure and can only be accessed
+ * using the following functions.
+ **/
+
 struct _GSettingsPrivate
 {
   /* where the signals go... */
@@ -1026,7 +1033,7 @@ g_settings_new_with_backend_and_path (const gchar      *schema_id,
  * backend, and a #GMainContext to which signals are dispatched.
  *
  * This constructor therefore gives you full control over constructing
- * #GSettings instances.  The first 4 parameters are given directly as
+ * #GSettings instances.  The first 3 parameters are given directly as
  * @schema, @backend and @path, and the main context is taken from the
  * thread-default (as per g_settings_new()).
  *

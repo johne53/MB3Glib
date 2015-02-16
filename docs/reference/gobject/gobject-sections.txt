@@ -105,6 +105,7 @@ g_type_get_instance_count
 
 G_DECLARE_FINAL_TYPE
 G_DECLARE_DERIVABLE_TYPE
+G_DECLARE_INTERFACE
 G_DEFINE_TYPE
 G_DEFINE_TYPE_WITH_PRIVATE
 G_DEFINE_TYPE_WITH_CODE
@@ -425,6 +426,10 @@ g_source_get_type
 g_pollfd_get_type
 g_bytes_get_type
 g_key_file_get_type
+g_checksum_get_type
+g_mapped_file_get_type
+g_markup_parse_context_get_type
+g_thread_get_type
 </SECTION>
 
 <SECTION>
@@ -492,7 +497,6 @@ G_PARAM_SPEC_VALUE_TYPE
 GParamSpec
 GParamSpecClass
 GParamFlags
-G_PARAM_READWRITE
 G_PARAM_STATIC_STRINGS
 G_PARAM_MASK
 G_PARAM_USER_SHIFT

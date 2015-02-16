@@ -26,7 +26,7 @@
 #include "glistmodel.h"
 
 /**
- * SECTION:glistmodel
+ * SECTION:gliststore
  * @title: GListStore
  * @short_description: A simple implementation of #GListModel
  * @include: gio/gio.h
@@ -37,6 +37,13 @@
  * It provides insertions, deletions, and lookups in logarithmic time
  * with a fast path for the common case of iterating the list linearly.
  */
+
+/**
+ * GListStore:
+ *
+ * #GListStore is an opaque data structure and can only be accessed
+ * using the following functions.
+ **/
 
 struct _GListStore
 {
@@ -266,6 +273,45 @@ g_list_store_insert (GListStore *store,
   g_sequence_insert_before (it, g_object_ref (item));
 
   g_list_store_items_changed (store, position, 0, 1);
+}
+
+/**
+ * g_list_store_insert_sorted:
+ * @store: a #GListStore
+ * @item: the new item
+ *
+ * Inserts @item into @store at a position to be determined by the
+ * @compare_func.
+ *
+ * The list must already be sorted before calling this function or the
+ * result is undefined.  Usually you would approach this by only ever
+ * inserting items by way of this function.
+ *
+ * This function takes a ref on @item.
+ *
+ * Returns: the position at which @item was inserted
+ *
+ * Since: 2.44
+ */
+guint
+g_list_store_insert_sorted (GListStore       *store,
+                            gpointer          item,
+                            GCompareDataFunc  compare_func,
+                            gpointer          user_data)
+{
+  GSequenceIter *it;
+  guint position;
+
+  g_return_val_if_fail (G_IS_LIST_STORE (store), 0);
+  g_return_val_if_fail (g_type_is_a (G_OBJECT_TYPE (item), store->item_type), 0);
+  g_return_val_if_fail (compare_func != NULL, 0);
+
+  it = g_sequence_insert_sorted (store->items, g_object_ref (item), compare_func, user_data);
+  position = g_sequence_iter_get_position (it);
+
+  g_list_store_items_changed (store, position, 0, 1);
+
+  return position;
 }
 
 /**

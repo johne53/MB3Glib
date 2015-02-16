@@ -34,6 +34,14 @@
  * file when using it.
  */
 #ifndef _MSC_VER /* Added by JE - 13-06-2010 */
+
+/**
+ * GUnixFDMessage:
+ *
+ * #GUnixFDMessage is an opaque data structure and can only be accessed
+ * using the following functions.
+ **/
+
 #include "config.h"
 
 #include <unistd.h>
