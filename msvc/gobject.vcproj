@@ -829,7 +829,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gobject\gobject-autocleanups.h"
+				>
+			</File>
+			<File
 				RelativePath="..\gobject\gtype-private.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gobject\gtype.h"
 				>
 			</File>
 			<File

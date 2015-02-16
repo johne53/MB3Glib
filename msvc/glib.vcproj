@@ -708,6 +708,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gio-autocleanups.h"
+				>
+			</File>
+			<File
 				RelativePath="..\glib\glib-init.h"
 				>
 			</File>
@@ -717,6 +721,10 @@
 			</File>
 			<File
 				RelativePath="..\glib\glibintl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\glib\gmacros.h"
 				>
 			</File>
 			<File

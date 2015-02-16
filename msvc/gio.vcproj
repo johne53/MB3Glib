@@ -1767,6 +1767,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\glistmodel.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gliststore.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gloadableicon.c"
 				>
 				<FileConfiguration
@@ -3959,6 +3967,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gio-autocleanups.h"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gio-marshal.h"
 				>
 			</File>
@@ -3976,6 +3988,14 @@
 			</File>
 			<File
 				RelativePath="..\glib\glibintl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\glistmodel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gliststore.h"
 				>
 			</File>
 			<File
