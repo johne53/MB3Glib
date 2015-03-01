@@ -489,6 +489,12 @@ gdbus_serialization_SOURCES = \
 	gdbus-tests.c
 endif
 
+if HAVE_GCC
+test_programs += \
+	autoptr				\
+	$(NULL)
+endif
+
 # -----------------------------------------------------------------------------
 #  The resources test is a bit more complicated...
 
@@ -551,6 +557,8 @@ giotypefuncs.c: Makefile
 CLEANFILES += xgen-giosrc.c xgen-gio giotypefuncs.c
 
 if ENABLE_INSTALLED_TESTS
+if OS_UNIX
 install-data-hook:
 	$(AM_V_at) chmod a+x $(DESTDIR)$(installed_testdir)/x-content/win32-software/autorun.exe
+endif
 endif

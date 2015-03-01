@@ -220,6 +220,7 @@ g_file_get_type
 <FILE>gfileenumerator</FILE>
 <TITLE>GFileEnumerator</TITLE>
 GFileEnumerator
+g_file_enumerator_iterate
 g_file_enumerator_next_file
 g_file_enumerator_close
 g_file_enumerator_next_files_async
@@ -1037,6 +1038,20 @@ G_TYPE_IO_STREAM_SPLICE_FLAGS
 GIOStreamPrivate
 GIOStreamAdapter
 g_io_stream_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gsimpleiostream</FILE>
+<TITLE>GSimpleIOStream</TITLE>
+GSimpleIOStream
+g_simple_io_stream_new
+<SUBSECTION Standard>
+GIOStreamClass
+G_TYPE_SIMPLE_IO_STREAM
+G_IS_SIMPLE_IO_STREAM
+G_SIMPLE_IO_STREAM
+<SUBSECTION Private>
+g_simple_io_stream_get_type
 </SECTION>
 
 <SECTION>
@@ -3136,7 +3151,9 @@ g_application_get_default
 <SUBSECTION>
 g_application_mark_busy
 g_application_unmark_busy
+g_application_get_is_busy
 g_application_bind_busy_property
+g_application_unbind_busy_property
 <SUBSECTION Standard>
 G_TYPE_APPLICATION
 G_APPLICATION

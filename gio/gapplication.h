@@ -217,6 +217,8 @@ GLIB_AVAILABLE_IN_2_38
 void                    g_application_mark_busy                         (GApplication             *application);
 GLIB_AVAILABLE_IN_2_38
 void                    g_application_unmark_busy                       (GApplication             *application);
+GLIB_AVAILABLE_IN_2_44
+gboolean                g_application_get_is_busy                       (GApplication             *application);
 
 GLIB_AVAILABLE_IN_2_40
 void                    g_application_send_notification                 (GApplication             *application,
@@ -228,6 +230,11 @@ void                    g_application_withdraw_notification             (GApplic
 
 GLIB_AVAILABLE_IN_2_44
 void                    g_application_bind_busy_property                (GApplication             *application,
+                                                                         gpointer                  object,
+                                                                         const gchar              *property);
+
+GLIB_AVAILABLE_IN_2_44
+void                    g_application_unbind_busy_property              (GApplication             *application,
                                                                          gpointer                  object,
                                                                          const gchar              *property);
 

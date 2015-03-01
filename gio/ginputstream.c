@@ -1231,7 +1231,7 @@ g_input_stream_clear_pending (GInputStream *stream)
   stream->priv->pending = FALSE;
 }
 
-/**
+/*< internal >
  * g_input_stream_async_read_is_via_threads:
  * @stream: input stream
  *
@@ -1251,6 +1251,26 @@ g_input_stream_async_read_is_via_threads (GInputStream *stream)
   return (class->read_async == g_input_stream_real_read_async &&
       !(G_IS_POLLABLE_INPUT_STREAM (stream) &&
         g_pollable_input_stream_can_poll (G_POLLABLE_INPUT_STREAM (stream))));
+}
+
+/*< internal >
+ * g_input_stream_async_close_is_via_threads:
+ * @stream: input stream
+ *
+ * Checks if an input stream's close_async function uses threads.
+ *
+ * Returns: %TRUE if @stream's close_async function uses threads.
+ **/
+gboolean
+g_input_stream_async_close_is_via_threads (GInputStream *stream)
+{
+  GInputStreamClass *class;
+
+  g_return_val_if_fail (G_IS_INPUT_STREAM (stream), FALSE);
+
+  class = G_INPUT_STREAM_GET_CLASS (stream);
+
+  return class->close_async == g_input_stream_real_close_async;
 }
 
 /********************************************

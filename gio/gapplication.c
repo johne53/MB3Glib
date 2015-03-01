@@ -263,7 +263,8 @@ enum
   PROP_IS_REGISTERED,
   PROP_IS_REMOTE,
   PROP_INACTIVITY_TIMEOUT,
-  PROP_ACTION_GROUP
+  PROP_ACTION_GROUP,
+  PROP_IS_BUSY
 };
 
 enum
@@ -1180,6 +1181,10 @@ g_application_get_property (GObject    *object,
                         g_application_get_inactivity_timeout (application));
       break;
 
+    case PROP_IS_BUSY:
+      g_value_set_boolean (value, g_application_get_is_busy (application));
+      break;
+
     default:
       g_assert_not_reached ();
     }
@@ -1213,9 +1218,9 @@ g_application_finalize (GObject *object)
 {
   GApplication *application = G_APPLICATION (object);
 
-  g_slist_free_full (application->priv->option_groups, (GDestroyNotify) g_option_group_free);
+  g_slist_free_full (application->priv->option_groups, (GDestroyNotify) g_option_group_unref);
   if (application->priv->main_options)
-    g_option_group_free (application->priv->main_options);
+    g_option_group_unref (application->priv->main_options);
   if (application->priv->packed_options)
     {
       g_slist_free_full (application->priv->option_strings, g_free);
@@ -1342,6 +1347,20 @@ g_application_class_init (GApplicationClass *class)
                          P_("The group of actions that the application exports"),
                          G_TYPE_ACTION_GROUP,
                          G_PARAM_DEPRECATED | G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GApplication:is-busy:
+   *
+   * Whether the application is currently marked as busy through
+   * g_application_mark_busy() or g_application_bind_busy_property().
+   *
+   * Since: 2.44
+   */
+  g_object_class_install_property (object_class, PROP_IS_BUSY,
+    g_param_spec_boolean ("is-busy",
+                          P_("Is busy"),
+                          P_("If this application is currently marked busy"),
+                          FALSE, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   /**
    * GApplication::startup:
@@ -2198,11 +2217,7 @@ g_application_open (GApplication  *application,
  * use.
  *
  * This function sets the prgname (g_set_prgname()), if not already set,
- * to the basename of argv[0].  Since 2.38, if %G_APPLICATION_IS_SERVICE
- * is specified, the prgname is set to the application ID.  The main
- * impact of this is is that the wmclass of windows created by Gtk+ will
- * be set accordingly, which helps the window manager determine which
- * application is showing the window.
+ * to the basename of argv[0].
  *
  * Since 2.40, applications that are not explicitly flagged as services
  * or launchers (ie: neither %G_APPLICATION_IS_SERVICE or
@@ -2250,20 +2265,13 @@ g_application_run (GApplication  *application,
   }
 #endif
 
-  if (g_get_prgname () == NULL)
+  if (g_get_prgname () == NULL && argc > 0)
     {
-      if (application->priv->flags & G_APPLICATION_IS_SERVICE)
-        {
-          g_set_prgname (application->priv->id);
-        }
-      else if (argc > 0)
-        {
-          gchar *prgname;
+      gchar *prgname;
 
-          prgname = g_path_get_basename (argv[0]);
-          g_set_prgname (prgname);
-          g_free (prgname);
-        }
+      prgname = g_path_get_basename (argv[0]);
+      g_set_prgname (prgname);
+      g_free (prgname);
     }
 
   if (!G_APPLICATION_GET_CLASS (application)
@@ -2315,6 +2323,9 @@ g_application_run (GApplication  *application,
     g_application_impl_flush (application->priv->impl);
 
   g_settings_sync ();
+
+  while (g_main_context_iteration (NULL, FALSE))
+    ;
 
   return status;
 }
@@ -2555,7 +2566,10 @@ g_application_mark_busy (GApplication *application)
   application->priv->busy_count++;
 
   if (!was_busy)
-    g_application_impl_set_busy_state (application->priv->impl, TRUE);
+    {
+      g_application_impl_set_busy_state (application->priv->impl, TRUE);
+      g_object_notify (G_OBJECT (application), "is-busy");
+    }
 }
 
 /**
@@ -2581,7 +2595,29 @@ g_application_unmark_busy (GApplication *application)
   application->priv->busy_count--;
 
   if (application->priv->busy_count == 0)
-    g_application_impl_set_busy_state (application->priv->impl, FALSE);
+    {
+      g_application_impl_set_busy_state (application->priv->impl, FALSE);
+      g_object_notify (G_OBJECT (application), "is-busy");
+    }
+}
+
+/**
+ * g_application_get_is_busy:
+ * @application: a #GApplication
+ *
+ * Gets the application's current busy state, as set through
+ * g_application_mark_busy() or g_application_bind_busy_property().
+ *
+ * Returns: %TRUE if @application is currenty marked as busy
+ *
+ * Since: 2.44
+ */
+gboolean
+g_application_get_is_busy (GApplication *application)
+{
+  g_return_val_if_fail (G_IS_APPLICATION (application), FALSE);
+
+  return application->priv->busy_count > 0;
 }
 
 /* Notifications {{{1 */
@@ -2721,15 +2757,11 @@ g_application_notify_busy_binding (GObject    *object,
 /**
  * g_application_bind_busy_property:
  * @application: a #GApplication
- * @object: a #GObject
- * @property: (allow-none): the name of a boolean property of @object
+ * @object: (type GObject.Object): a #GObject
+ * @property: the name of a boolean property of @object
  *
  * Marks @application as busy (see g_application_mark_busy()) while
  * @property on @object is %TRUE.
- *
- * Multiple such bindings can exist, but only one property can be bound
- * per object. Calling this function again for the same object replaces
- * a previous binding. If @property is %NULL, the binding is destroyed.
  *
  * The binding holds a reference to @application while it is active, but
  * not to @object. Instead, the binding is destroyed when @object is
@@ -2742,45 +2774,78 @@ g_application_bind_busy_property (GApplication *application,
                                   gpointer      object,
                                   const gchar  *property)
 {
-  GClosure *closure = NULL;
   guint notify_id;
+  GQuark property_quark;
+  GParamSpec *pspec;
+  GApplicationBusyBinding *binding;
+  GClosure *closure;
+
+  g_return_if_fail (G_IS_APPLICATION (application));
+  g_return_if_fail (G_IS_OBJECT (object));
+  g_return_if_fail (property != NULL);
+
+  notify_id = g_signal_lookup ("notify", G_TYPE_OBJECT);
+  property_quark = g_quark_from_string (property);
+  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), property);
+
+  g_return_if_fail (pspec != NULL && pspec->value_type == G_TYPE_BOOLEAN);
+
+  if (g_signal_handler_find (object, G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DETAIL | G_SIGNAL_MATCH_FUNC,
+                             notify_id, property_quark, NULL, g_application_notify_busy_binding, NULL) > 0)
+    {
+      g_critical ("%s: '%s' is already bound to the busy state of the application", G_STRFUNC, property);
+      return;
+    }
+
+  binding = g_slice_new (GApplicationBusyBinding);
+  binding->app = g_object_ref (application);
+  binding->is_busy = FALSE;
+
+  closure = g_cclosure_new (G_CALLBACK (g_application_notify_busy_binding), binding,
+                            g_application_busy_binding_destroy);
+  g_signal_connect_closure_by_id (object, notify_id, property_quark, closure, FALSE);
+
+  /* fetch the initial value */
+  g_application_notify_busy_binding (object, pspec, binding);
+}
+
+/**
+ * g_application_unbind_busy_property:
+ * @application: a #GApplication
+ * @object: (type GObject.Object): a #GObject
+ * @property: the name of a boolean property of @object
+ *
+ * Destroys a binding between @property and the busy state of
+ * @application that was previously created with
+ * g_application_bind_busy_property().
+ *
+ * Since: 2.44
+ */
+void
+g_application_unbind_busy_property (GApplication *application,
+                                    gpointer      object,
+                                    const gchar  *property)
+{
+  guint notify_id;
+  GQuark property_quark;
   gulong handler_id;
 
   g_return_if_fail (G_IS_APPLICATION (application));
   g_return_if_fail (G_IS_OBJECT (object));
+  g_return_if_fail (property != NULL);
 
   notify_id = g_signal_lookup ("notify", G_TYPE_OBJECT);
+  property_quark = g_quark_from_string (property);
 
-  if (property != NULL)
+  handler_id = g_signal_handler_find (object, G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_DETAIL | G_SIGNAL_MATCH_FUNC,
+                                      notify_id, property_quark, NULL, g_application_notify_busy_binding, NULL);
+  if (handler_id == 0)
     {
-      GParamSpec *pspec;
-      GApplicationBusyBinding *binding;
-
-      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), property);
-      g_return_if_fail (pspec != NULL && pspec->value_type == G_TYPE_BOOLEAN);
-
-      binding = g_slice_new (GApplicationBusyBinding);
-      binding->app = g_object_ref (application);
-      binding->is_busy = FALSE;
-
-      /* fetch the initial value */
-      g_application_notify_busy_binding (object, pspec, binding);
-
-      closure = g_cclosure_new (G_CALLBACK (g_application_notify_busy_binding), binding,
-                                g_application_busy_binding_destroy);
+      g_critical ("%s: '%s' is not bound to the busy state of the application", G_STRFUNC, property);
+      return;
     }
 
-  /* unset a previous binding after fetching the new initial value, so
-   * that we don't switch to FALSE for a brief moment when both the
-   * old and the new property are set to TRUE
-   */
-  handler_id = g_signal_handler_find (object, G_SIGNAL_MATCH_ID | G_SIGNAL_MATCH_FUNC, notify_id,
-                                      0, NULL, g_application_notify_busy_binding, NULL);
-  if (handler_id > 0)
-    g_signal_handler_disconnect (object, handler_id);
-
-  if (closure)
-    g_signal_connect_closure_by_id (object, notify_id, g_quark_from_string (property), closure, FALSE);
+  g_signal_handler_disconnect (object, handler_id);
 }
 
 /* Epilogue {{{1 */

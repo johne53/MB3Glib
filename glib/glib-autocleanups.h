@@ -21,6 +21,17 @@
 #error "Only <glib.h> can be included directly."
 #endif
 
+static inline void
+g_autoptr_cleanup_generic_gfree (void *p)
+{ 
+  void **pp = (void**)p;
+  if (*pp)
+    g_free (*pp);
+}
+
+/* If adding a cleanup here, please also add a test case to
+ * glib/glib/autoptr.c
+ */
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GAsyncQueue, g_async_queue_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GBookmarkFile, g_bookmark_file_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GBytes, g_bytes_unref)
@@ -33,15 +44,17 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(GHmac, g_hmac_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GIOChannel, g_io_channel_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GKeyFile, g_key_file_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GList, g_list_free)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GArray, g_array_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GPtrArray, g_ptr_array_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GByteArray, g_byte_array_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GMainContext, g_main_context_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GMainLoop, g_main_loop_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GSource, g_source_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GMappedFile, g_mapped_file_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GMarkupParseContext, g_markup_parse_context_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC(gchar, g_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GNode, g_node_destroy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GOptionContext, g_option_context_free)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC(GOptionGroup, g_option_group_free)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GOptionGroup, g_option_group_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GPatternSpec, g_pattern_spec_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(GQueue, g_queue_free)
 G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(GQueue, g_queue_clear)
