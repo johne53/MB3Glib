@@ -2573,6 +2573,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gsimpleiostream.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gsimplepermission.c"
 				>
 			</File>
@@ -4156,6 +4160,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gsimpleactiongroup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gsimpleiostream.h"
 				>
 			</File>
 			<File
