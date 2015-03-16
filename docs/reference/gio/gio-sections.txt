@@ -1451,7 +1451,6 @@ GAppLaunchContextPrivate
 <SECTION>
 <FILE>gappinfomonitor</FILE>
 <TITLE>GAppInfoMonitor</TITLE>
-GAppInfoMonitor
 g_app_info_monitor_get
 <SUBSECTION Standard>
 GAppInfoMonitor
@@ -1556,6 +1555,7 @@ g_unix_mounts_get
 g_unix_mount_at
 g_unix_mounts_changed_since
 g_unix_mount_points_changed_since
+g_unix_mount_monitor_get
 g_unix_mount_monitor_new
 g_unix_mount_monitor_set_rate_limit
 g_unix_is_mount_path_system_internal
@@ -3386,7 +3386,6 @@ g_action_map_add_action
 g_action_map_remove_action
 
 <SUBSECTION Standard>
-GActionMapInterface
 G_TYPE_ACTION_MAP
 G_ACTION_MAP
 G_IS_ACTION_MAP
@@ -4232,6 +4231,7 @@ g_task_propagate_boolean
 g_task_propagate_int
 g_task_propagate_pointer
 g_task_had_error
+g_task_get_completed
 <SUBSECTION>
 g_task_run_in_thread
 g_task_run_in_thread_sync
@@ -4255,6 +4255,12 @@ g_task_get_type
 <FILE>gnetworking</FILE>
 <TITLE>gnetworking.h</TITLE>
 g_networking_init
+<SUBSECTION Private>
+CMSG_LEN
+CMSG_SPACE
+GLIB_ALIGN_TO_SIZEOF
+T_SRV
+ws2funcs
 </SECTION>
 
 <SECTION>

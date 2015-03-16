@@ -617,7 +617,7 @@ g_io_create_watch (GIOChannel   *channel,
 }
 
 /**
- * g_io_add_watch_full:
+ * g_io_add_watch_full: (rename-to g_io_add_watch)
  * @channel: a #GIOChannel
  * @priority: the priority of the #GIOChannel source
  * @condition: the condition to watch for
@@ -633,7 +633,6 @@ g_io_create_watch (GIOChannel   *channel,
  * You can do these steps manually if you need greater control.
  *
  * Returns: the event source id
- * Rename to: g_io_add_watch
  */
 guint 
 g_io_add_watch_full (GIOChannel    *channel,

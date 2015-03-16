@@ -186,7 +186,10 @@ g_list_free (GList *list)
  * g_list_free_1:
  * @list: a #GList element
  *
- * Frees one #GList element.
+ * Frees one #GList element, but does not update links from the next and
+ * previous elements in the list, so you should not call this function on an
+ * element that is currently part of a list.
+ *
  * It is usually used after g_list_remove_link().
  */
 /**
@@ -730,6 +733,10 @@ g_list_reverse (GList *list)
  *
  * Gets the element at the given position in a #GList.
  *
+ * This iterates over the list until it reaches the @n-th position. If you
+ * intend to iterate over every element, it is better to use a for-loop as
+ * described in the #GList introduction.
+ *
  * Returns: the element, or %NULL if the position is off 
  *     the end of the #GList
  */
@@ -769,6 +776,10 @@ g_list_nth_prev (GList *list,
  * @n: the position of the element
  *
  * Gets the data of the element at the given position.
+ *
+ * This iterates over the list until it reaches the @n-th position. If you
+ * intend to iterate over every element, it is better to use a for-loop as
+ * described in the #GList introduction.
  *
  * Returns: the element's data, or %NULL if the position 
  *     is off the end of the #GList

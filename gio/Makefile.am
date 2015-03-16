@@ -183,6 +183,8 @@ application_sources = \
 	$(NULL)
 
 local_sources = \
+	ghttpproxy.c			\
+	ghttpproxy.h			\
 	glocaldirectorymonitor.c 	\
 	glocaldirectorymonitor.h 	\
 	glocalfile.c 			\
@@ -314,6 +316,7 @@ win32_actual_sources = \
 	gwin32inputstream.c \
 	gwin32outputstream.c \
 	gwin32outputstream.h \
+	gwin32networking.h \
 	$(NULL)
 
 win32_more_sources_for_vcproj = \
@@ -350,6 +353,8 @@ libgio_2_0_la_SOURCES =		\
 	gbytesicon.c		\
 	gcancellable.c 		\
 	gcharsetconverter.c	\
+	gcontextspecificgroup.c	\
+	gcontextspecificgroup.h	\
 	gconverter.c		\
 	gconverterinputstream.c	\
 	gconverteroutputstream.c	\

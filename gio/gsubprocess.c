@@ -234,7 +234,7 @@ dupfd_cloexec (int parent_fd)
   return fd;
 }
 
-/**
+/*
  * Based on code derived from
  * gnome-terminal:src/terminal-screen.c:terminal_screen_child_setup(),
  * used under the LGPLv2+ with permission from author.
@@ -696,7 +696,7 @@ g_subprocess_new (GSubprocessFlags   flags,
 }
 
 /**
- * g_subprocess_newv:
+ * g_subprocess_newv: (rename-to g_subprocess_new)
  * @argv: (array zero-terminated=1) (element-type utf8): commandline arguments for the subprocess
  * @flags: flags that define the behaviour of the subprocess
  * @error: (allow-none): return location for an error, or %NULL
@@ -709,7 +709,6 @@ g_subprocess_new (GSubprocessFlags   flags,
  *   will be set)
  *
  * Since: 2.40
- * Rename to: g_subprocess_new
  */
 GSubprocess *
 g_subprocess_newv (const gchar * const  *argv,
