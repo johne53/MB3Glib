@@ -46,7 +46,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;.."
-				PreprocessorDefinitions="LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
+				PreprocessorDefinitions="LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;NET_IFINDEX=ULONG;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -143,7 +143,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;.."
-				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
+				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;NET_IFINDEX=ULONG;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
 				StringPooling="false"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
@@ -237,7 +237,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;.."
-				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
+				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;NET_IFINDEX=ULONG;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN=\&quot;GLib-GIO\&quot;;GIO_MODULE_DIR=\&quot;gio/modules\&quot;"
 				StringPooling="false"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="1"
@@ -589,6 +589,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gcontenttype-win32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gcontextspecificgroup.c"
 				>
 			</File>
 			<File
@@ -1446,6 +1450,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\ggtknotificationbackend.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\ghttpproxy.c"
 				>
 			</File>
 			<File
@@ -3799,6 +3807,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gcontextspecificgroup.h"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gcredentials.h"
 				>
 			</File>
@@ -3960,6 +3972,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gfileinfo-priv.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\ghttpproxy.h"
 				>
 			</File>
 			<File
@@ -4308,6 +4324,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gwin32mount.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gwin32networking.h"
 				>
 			</File>
 			<File
