@@ -128,8 +128,10 @@ void     g_thread_foreach      (GFunc             thread_func,
 #include <pthread.h>
 #endif
 
+#ifndef g_static_mutex_get_mutex /* Added by JE - 28-11-2012 */
 #define g_static_mutex_get_mutex g_static_mutex_get_mutex_impl
 #define G_STATIC_MUTEX_INIT { NULL }
+
 typedef struct
 {
   GMutex *mutex;
@@ -138,6 +140,7 @@ typedef struct
   pthread_mutex_t unused;
 #endif
 } GStaticMutex;
+#endif /* Added by JE - 28-11-2012 */
 
 #define g_static_mutex_lock(mutex) \
     g_mutex_lock (g_static_mutex_get_mutex (mutex))
