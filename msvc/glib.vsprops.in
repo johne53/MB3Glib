@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="glib"
+	>
+	<UserMacro
+		Name="DllPrefix"
+		Value="lib"
+	/>
+	<UserMacro
+		Name="DllSuffix"
+		Value="-2.0-@LT_CURRENT_MINUS_AGE@"
+	/>
+	<UserMacro
+		Name="GlibBuildRootFolder"
+		Value="@GlibBuildRootFolder@"
+	/>
+	<UserMacro
+		Name="GenericIncludeFolder"
+		Value="@GenericIncludeFolder@"
+	/>
+	<UserMacro
+		Name="GenericLibraryFolder"
+		Value="@GenericLibraryFolder@"
+	/>
+	<UserMacro
+		Name="GenericWin32LibraryFolder"
+		Value="@GenericWin32LibraryFolder@"
+	/>
+	<UserMacro
+		Name="GenericWin32BinaryFolder"
+		Value="@GenericWin32BinaryFolder@"
+	/>
+	<UserMacro
+		Name="Debug32TestSuiteFolder"
+		Value="@Debug32TestSuiteFolder@"
+	/>
+	<UserMacro
+		Name="Release32TestSuiteFolder"
+		Value="@Release32TestSuiteFolder@"
+	/>
+	<UserMacro
+		Name="Debug32TargetFolder"
+		Value="@Debug32TargetFolder@"
+	/>
+	<UserMacro
+		Name="Release32TargetFolder"
+		Value="@Release32TargetFolder@"
+	/>
+	<UserMacro
+		Name="TargetSxSFolder"
+		Value="@TargetSxSFolder@"
+	/>
+</VisualStudioPropertySheet>
