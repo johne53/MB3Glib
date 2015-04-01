@@ -6,7 +6,7 @@ require "../local-paths.lib";
 $glib_version = "2.44.01";
 $major = 2;
 $minor = 44;
-$micro = 01;
+$micro = 1;
 $binary_age = 4401;
 $interface_age = 0;
 $gettext_package = "glib20";
