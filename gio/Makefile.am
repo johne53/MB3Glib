@@ -185,8 +185,6 @@ application_sources = \
 local_sources = \
 	ghttpproxy.c			\
 	ghttpproxy.h			\
-	glocaldirectorymonitor.c 	\
-	glocaldirectorymonitor.h 	\
 	glocalfile.c 			\
 	glocalfile.h 			\
 	glocalfileenumerator.c 		\
@@ -227,13 +225,6 @@ if HAVE_KQUEUE
 SUBDIRS += kqueue
 platform_libadd += kqueue/libkqueue.la
 platform_deps += kqueue/libkqueue.la
-endif
-
-if HAVE_FEN
-AM_CPPFLAGS += -DHAVE_FEN
-SUBDIRS += fen
-platform_libadd += fen/libfen.la
-platform_deps += fen/libfen.la
 endif
 
 if OS_WIN32
@@ -322,11 +313,12 @@ win32_actual_sources = \
 win32_more_sources_for_vcproj = \
 	gwin32appinfo.c \
 	gregistrysettingsbackend.c \
-	win32/gwin32directorymonitor.c \
 	win32/gwinhttpfile.c \
 	win32/gwinhttpfileinputstream.c \
 	win32/gwinhttpfileoutputstream.c \
-	win32/gwinhttpvfs.c
+	win32/gwinhttpvfs.c \
+	win32/gwin32fsmonitorutils.c \
+	win32/gwin32filemonitor.c
 
 if OS_WIN32
 appinfo_sources += gwin32appinfo.c gwin32appinfo.h

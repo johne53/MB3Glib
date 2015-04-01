@@ -56,7 +56,6 @@
 #include "glocalfileinputstream.h"
 #include "glocalfileoutputstream.h"
 #include "glocalfileiostream.h"
-#include "glocaldirectorymonitor.h"
 #include "glocalfilemonitor.h"
 #include "gmountprivate.h"
 #include "gunixmounts.h"
@@ -302,6 +301,38 @@ _g_local_file_new (const char *filename)
   local = g_object_new (G_TYPE_LOCAL_FILE, NULL);
   local->filename = canonicalize_filename (filename);
   
+  return G_FILE (local);
+}
+
+/*< internal >
+ * g_local_file_new_from_dirname_and_basename:
+ * @dirname: an absolute, canonical directory name
+ * @basename: the name of a child inside @dirname
+ *
+ * Creates a #GFile from @dirname and @basename.
+ *
+ * This is more efficient than pasting the fields together for yourself
+ * and creating a #GFile from the result, and also more efficient than
+ * creating a #GFile for the dirname and using g_file_get_child().
+ *
+ * @dirname must be canonical, as per GLocalFile's opinion of what
+ * canonical means.  This means that you should only pass strings that
+ * were returned by _g_local_file_get_filename().
+ *
+ * Returns: a #GFile
+ */
+GFile *
+g_local_file_new_from_dirname_and_basename (const gchar *dirname,
+                                            const gchar *basename)
+{
+  GLocalFile *local;
+
+  g_return_val_if_fail (dirname != NULL, NULL);
+  g_return_val_if_fail (basename && basename[0] && !strchr (basename, '/'), NULL);
+
+  local = g_object_new (G_TYPE_LOCAL_FILE, NULL);
+  local->filename = g_build_filename (dirname, basename, NULL);
+
   return G_FILE (local);
 }
 
@@ -2419,8 +2450,8 @@ g_local_file_move (GFile                  *source,
 
 #ifdef G_OS_WIN32
 
-static gboolean
-is_remote (const gchar *filename)
+gboolean
+g_local_file_is_remote (const gchar *filename)
 {
   return FALSE;
 }
@@ -2476,8 +2507,8 @@ is_remote_fs (const gchar *filename)
   return FALSE;
 }
 
-static gboolean
-is_remote (const gchar *filename)
+gboolean
+g_local_file_is_remote (const gchar *filename)
 {
   static gboolean remote_home;
   static gsize initialized;
@@ -2504,8 +2535,9 @@ g_local_file_monitor_dir (GFile             *file,
 			  GCancellable      *cancellable,
 			  GError           **error)
 {
-  GLocalFile* local_file = G_LOCAL_FILE(file);
-  return _g_local_directory_monitor_new (local_file->filename, flags, NULL, is_remote (local_file->filename), TRUE, error);
+  GLocalFile *local_file = G_LOCAL_FILE (file);
+
+  return g_local_file_monitor_new_for_path (local_file->filename, TRUE, flags, error);
 }
 
 static GFileMonitor*
@@ -2514,30 +2546,10 @@ g_local_file_monitor_file (GFile             *file,
 			   GCancellable      *cancellable,
 			   GError           **error)
 {
-  GLocalFile* local_file = G_LOCAL_FILE(file);
-  return _g_local_file_monitor_new (local_file->filename, flags, NULL, is_remote (local_file->filename), TRUE, error);
-}
+  GLocalFile *local_file = G_LOCAL_FILE (file);
 
-GLocalDirectoryMonitor *
-g_local_directory_monitor_new_in_worker (const char         *pathname,
-                                         GFileMonitorFlags   flags,
-                                         GError            **error)
-{
-  return (gpointer) _g_local_directory_monitor_new (pathname, flags,
-                                                    GLIB_PRIVATE_CALL (g_get_worker_context) (),
-                                                    is_remote (pathname), FALSE, error);
+  return g_local_file_monitor_new_for_path (local_file->filename, FALSE, flags, error);
 }
-
-GLocalFileMonitor *
-g_local_file_monitor_new_in_worker (const char         *pathname,
-                                    GFileMonitorFlags   flags,
-                                    GError            **error)
-{
-  return (gpointer) _g_local_file_monitor_new (pathname, flags,
-                                               GLIB_PRIVATE_CALL (g_get_worker_context) (),
-                                               is_remote (pathname), FALSE, error);
-}
-
 
 /* Here is the GLocalFile implementation of g_file_measure_disk_usage().
  *

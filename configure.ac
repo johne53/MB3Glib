@@ -30,8 +30,8 @@ m4_define(glib_configure_ac)
 # <mclasen> on the unstable (ie master), interface age = 0
 
 m4_define([glib_major_version], [2])
-m4_define([glib_minor_version], [43])
-m4_define([glib_micro_version], [91])
+m4_define([glib_minor_version], [45])
+m4_define([glib_micro_version], [0])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -1676,22 +1676,6 @@ AC_CHECK_HEADERS([sys/event.h],
 ])
 
 AM_CONDITIONAL(HAVE_KQUEUE, [test "$kqueue_support" = "yes"])
-
-dnl *********************************
-dnl ** Check for Solaris FEN (GIO) **
-dnl *********************************
-fen_support=no
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#include <port.h> 
-#ifndef PORT_SOURCE_FILE 
-#error "Please upgrade to Nevada 72 or above to suppoert FEN" 
-#endif 
-int main() { return 0; } ]])],
-[
-	fen_support=yes
-],)
-
-AM_CONDITIONAL(HAVE_FEN, [test "$fen_support" = "yes"])
 
 dnl ****************************
 dnl *** Checks for FAM (GIO) ***
@@ -3616,7 +3600,6 @@ gio/gnetworking.h
 gio/xdgmime/Makefile
 gio/inotify/Makefile
 gio/kqueue/Makefile
-gio/fen/Makefile
 gio/fam/Makefile
 gio/win32/Makefile
 gio/tests/Makefile
