@@ -250,35 +250,12 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;for;f90"
 			>
 			<File
-				RelativePath="..\gio\win32\gwin32directorymonitor.c"
+				RelativePath="..\gio\win32\gwin32filemonitor.c"
 				>
-				<FileConfiguration
-					Name="Debug 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release 32 with Debugging Capability|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\gio\win32\gwin32fsmonitorutils.c"
+				>
 			</File>
 			<File
 				RelativePath="..\gio\gwin32inputstream.c"
@@ -418,7 +395,11 @@
 			Filter="h;hpp;hxx;hm;inl;fi;fd"
 			>
 			<File
-				RelativePath="..\gio\win32\gwin32directorymonitor.h"
+				RelativePath="..\gio\win32\gwin32filemonitor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\win32\gwin32fsmonitorutils.h"
 				>
 			</File>
 			<File

@@ -1814,37 +1814,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\gio\glocaldirectorymonitor.c"
-				>
-				<FileConfiguration
-					Name="Debug 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release 32|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release 32 with Debugging Capability|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\gio\glocalfile.c"
 				>
 				<FileConfiguration
@@ -4016,10 +3985,6 @@
 			</File>
 			<File
 				RelativePath="..\gio\gliststore.h"
-				>
-			</File>
-			<File
-				RelativePath="..\gio\glocaldirectorymonitor.h"
 				>
 			</File>
 			<File
