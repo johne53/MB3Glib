@@ -192,6 +192,9 @@ typedef struct
 
   gboolean      checked;
   GVariant     *serialised;
+
+  gboolean      summary_seen;
+  gboolean      description_seen;
 } KeyState;
 
 static KeyState *
@@ -208,6 +211,8 @@ key_state_new (const gchar *type_string,
   state->have_gettext_domain = gettext_domain != NULL;
   state->is_enum = is_enum;
   state->is_flags = is_flags;
+  state->summary_seen = FALSE;
+  state->description_seen = FALSE;
 
   if (strinfo)
     state->strinfo = g_string_new_len (strinfo->str, strinfo->len);
@@ -1058,6 +1063,8 @@ override_state_end (KeyState **key_state,
 /* Handling of toplevel state {{{1 */
 typedef struct
 {
+  gboolean     strict;                  /* TRUE if --strict was given */
+
   GHashTable  *schema_table;            /* string -> SchemaState */
   GHashTable  *flags_table;             /* string -> EnumState */
   GHashTable  *enum_table;              /* string -> EnumState */
@@ -1374,11 +1381,35 @@ start_element (GMarkupParseContext  *context,
           return;
         }
 
-      else if (strcmp (element_name, "summary") == 0 ||
-               strcmp (element_name, "description") == 0)
+      else if (strcmp (element_name, "summary") == 0)
         {
           if (NO_ATTRS ())
-            state->string = g_string_new (NULL);
+            {
+              if (state->key_state->summary_seen && state->strict)
+                g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                             _("Only one <%s> element allowed inside <%s>"),
+                             element_name, container);
+              else
+                state->string = g_string_new (NULL);
+
+              state->key_state->summary_seen = TRUE;
+            }
+          return;
+        }
+
+      else if (strcmp (element_name, "description") == 0)
+        {
+          if (NO_ATTRS ())
+            {
+              if (state->key_state->description_seen && state->strict)
+                g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                             _("Only one <%s> element allowed inside <%s>"),
+                             element_name, container);
+              else
+                state->string = g_string_new (NULL);
+
+            state->key_state->description_seen = TRUE;
+            }
           return;
         }
 
@@ -1697,6 +1728,8 @@ parse_gschema_files (gchar    **files,
   ParseState state = { 0, };
   const gchar *filename;
   GError *error = NULL;
+
+  state.strict = strict;
 
   state.enum_table = g_hash_table_new_full (g_str_hash, g_str_equal,
                                             g_free, enum_state_free);
