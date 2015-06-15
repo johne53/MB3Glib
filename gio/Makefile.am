@@ -265,6 +265,9 @@ unix_sources = \
 	ggtknotificationbackend.c \
 	$(NULL)
 
+if OS_COCOA
+unix_sources += gcocoanotificationbackend.c
+endif
 
 giounixincludedir=$(includedir)/gio-unix-2.0/gio
 giounixinclude_HEADERS = \
@@ -299,6 +302,8 @@ gdbus_daemon_sources = \
 
 win32_actual_sources = \
 	$(gdbus_daemon_sources) \
+	gwin32registrykey.c \
+	gwin32registrykey.h \
 	gcontenttype-win32.c \
 	gwin32mount.c \
 	gwin32mount.h \
@@ -400,6 +405,8 @@ libgio_2_0_la_SOURCES =		\
 	gmountoperation.c 	\
 	gnativevolumemonitor.c 	\
 	gnativevolumemonitor.h 	\
+	gnativesocketaddress.c	\
+	gnativesocketaddress.h	\
 	gnetworkaddress.c	\
 	gnetworking.c		\
 	gnetworkingprivate.h	\
@@ -520,7 +527,7 @@ libgio_2_0_la_LDFLAGS = $(GLIB_LINK_FLAGS) \
 if OS_COCOA
 # This is dumb.  The ObjC source file should be properly named .m
 libgio_2_0_la_CFLAGS += -xobjective-c
-libgio_2_0_la_LDFLAGS += -Wl,-framework,Foundation
+libgio_2_0_la_LDFLAGS += -Wl,-framework,Foundation -Wl,-framework,AppKit
 endif
 
 libgio_2_0_la_DEPENDENCIES = $(gio_win32_res) $(gio_def) $(platform_deps)
