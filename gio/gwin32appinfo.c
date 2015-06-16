@@ -35,6 +35,10 @@
 
 #include <windows.h>
 
+#ifndef LOAD_LIBRARY_AS_IMAGE_RESOURCE       /* This section added by JE - 16-06-2015 */
+#define LOAD_LIBRARY_AS_IMAGE_RESOURCE  0x00000020
+#endif  /* Note that LOAD_LIBRARY_AS_IMAGE_RESOURCE is not compatible with Windows XP */
+
 /* We need to watch 8 places:
  * 0) HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations
  *    (anything below that key)
