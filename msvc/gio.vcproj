@@ -2202,6 +2202,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gnativesocketaddress.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gnativevolumemonitor.c"
 				>
 				<FileConfiguration
@@ -3618,6 +3622,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gwin32registrykey.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gwin32volumemonitor.c"
 				>
 				<FileConfiguration
@@ -4036,6 +4044,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gnativesocketaddress.h"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gnativevolumemonitor.h"
 				>
 			</File>
@@ -4293,6 +4305,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gwin32networking.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gwin32registrykey.h"
 				>
 			</File>
 			<File
