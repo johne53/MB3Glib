@@ -3530,7 +3530,7 @@ g_win32_app_info_new_from_app (GWin32AppInfoApplication *app,
 
   new_info->supported_types[i] = NULL;
 
-  new_info->handler = g_object_ref (handler);
+  new_info->handler = handler ? g_object_ref (handler) : NULL;
 
   return G_APP_INFO (new_info);
 }
@@ -4670,4 +4670,10 @@ g_app_info_get_recommended_for_type (const gchar *content_type)
 {
   /* TODO: fix this once gcontenttype support is improved */
   return g_app_info_get_all_for_type (content_type);
+}
+
+void
+g_app_info_reset_type_associations (const char *content_type)
+{
+  /* nothing to do */
 }

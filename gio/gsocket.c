@@ -318,24 +318,6 @@ g_socket_details_from_fd (GSocket *socket)
   if (!g_socket_get_option (socket, SOL_SOCKET, SO_TYPE, &value, NULL))
     {
       errsv = get_socket_errno ();
-
-      switch (errsv)
-	{
-#ifdef ENOTSOCK
-	 case ENOTSOCK:
-#else
-#ifdef WSAENOTSOCK
-	 case WSAENOTSOCK:
-#endif
-#endif
-	 case EBADF:
-	  /* programmer error */
-	  g_error ("creating GSocket from fd %d: %s\n",
-		   fd, socket_strerror (errsv));
-	 default:
-	   break;
-	}
-
       goto err;
     }
 
@@ -1059,6 +1041,9 @@ g_socket_new (GSocketFamily     family,
  *
  * On success, the returned #GSocket takes ownership of @fd. On failure, the
  * caller must close @fd themselves.
+ *
+ * Since GLib 2.46, it is no longer a fatal error to call this on a non-socket
+ * descriptor.  Instead, a GError will be set with code %G_IO_ERROR_FAILED
  *
  * Returns: a #GSocket or %NULL on error.
  *     Free the returned object with g_object_unref().
@@ -4188,11 +4173,6 @@ g_socket_send_messages (GSocket        *socket,
       {
         gint ret;
 
-        if (socket->priv->blocking &&
-            !g_socket_condition_wait (socket,
-                                      G_IO_OUT, cancellable, error))
-          return -1;
-
         ret = sendmmsg (socket->priv->fd, msgvec + num_sent, num_messages - num_sent,
                         flags | G_SOCKET_DEFAULT_SEND_FLAGS);
 
@@ -4206,7 +4186,13 @@ g_socket_send_messages (GSocket        *socket,
             if (socket->priv->blocking &&
                 (errsv == EWOULDBLOCK ||
                  errsv == EAGAIN))
-              continue;
+              {
+                if (!g_socket_condition_wait (socket,
+                                              G_IO_OUT, cancellable, error))
+                  return -1;
+
+                continue;
+              }
 
             if (num_sent > 0 &&
                 (errsv == EWOULDBLOCK ||
@@ -4517,11 +4503,6 @@ g_socket_receive_message (GSocket                 *socket,
     /* do it */
     while (1)
       {
-	if (socket->priv->blocking &&
-	    !g_socket_condition_wait (socket,
-				      G_IO_IN, cancellable, error))
-	  return -1;
-
 	result = recvmsg (socket->priv->fd, &msg, msg.msg_flags);
 #ifdef MSG_CMSG_CLOEXEC	
 	if (result < 0 && get_socket_errno () == EINVAL)
@@ -4542,7 +4523,13 @@ g_socket_receive_message (GSocket                 *socket,
 	    if (socket->priv->blocking &&
 		(errsv == EWOULDBLOCK ||
 		 errsv == EAGAIN))
-	      continue;
+	      {
+		if (!g_socket_condition_wait (socket,
+		                              G_IO_IN, cancellable, error))
+		  return -1;
+
+		continue;
+	      }
 
 	    g_set_error (error, G_IO_ERROR,
 			 socket_io_error_from_errno (errsv),

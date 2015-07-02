@@ -827,6 +827,7 @@ g_thread_pool_stop_unused_threads
 g_thread_pool_set_sort_function
 g_thread_pool_set_max_idle_time
 g_thread_pool_get_max_idle_time
+g_thread_pool_move_to_front
 </SECTION>
 
 <SECTION>
@@ -839,6 +840,8 @@ g_async_queue_ref
 g_async_queue_unref
 g_async_queue_push
 g_async_queue_push_sorted
+g_async_queue_push_front
+g_async_queue_remove
 g_async_queue_pop
 g_async_queue_try_pop
 g_async_queue_timeout_pop
@@ -852,6 +855,8 @@ g_async_queue_ref_unlocked
 g_async_queue_unref_and_unlock
 g_async_queue_push_unlocked
 g_async_queue_push_sorted_unlocked
+g_async_queue_push_front_unlocked
+g_async_queue_remove_unlocked
 g_async_queue_pop_unlocked
 g_async_queue_try_pop_unlocked
 g_async_queue_timeout_pop_unlocked
