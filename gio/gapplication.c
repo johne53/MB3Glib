@@ -1279,7 +1279,7 @@ g_application_handle_local_options_accumulator (GSignalInvocationHint *ihint,
   value = g_value_get_int (handler_return);
   g_value_set_int (return_accu, value);
 
-  return value >= 0;
+  return value < 0;
 }
 
 static void
@@ -1457,8 +1457,8 @@ g_application_class_init (GApplicationClass *class)
    *
    * In the event that the application is marked
    * %G_APPLICATION_HANDLES_COMMAND_LINE the "normal processing" will
-   * send the @option dictionary to the primary instance where it can be
-   * read with g_application_command_line_get_options().  The signal
+   * send the @options dictionary to the primary instance where it can be
+   * read with g_application_command_line_get_options_dict().  The signal
    * handler can modify the dictionary before returning, and the
    * modified dictionary will be sent.
    *
