@@ -1262,8 +1262,7 @@ test_bounds (void)
   tmp = g_strjoinv (".", array);
   g_strfreev (array);
 
-  g_assert_cmpint (strlen (tmp), ==, 4095);
-  g_assert (memcmp (tmp, string, 4095) == 0);
+  g_assert_cmpmem (tmp, strlen (tmp), string, 4095);
   g_free (tmp);
 
   tmp = g_strconcat (string, string, string, NULL);
@@ -1321,7 +1320,9 @@ test_strerror (void)
   gint i;
   const gchar *str;
 
-  for (i = 1; i < 100; i++)
+  setlocale (LC_ALL, "C");
+
+  for (i = 1; i < 200; i++)
     {
       str = g_strerror (i);
       g_assert (str != NULL);

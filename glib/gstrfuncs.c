@@ -84,6 +84,13 @@
  * certain number of columns, then \%Ns is not a correct solution
  * anyway, since it fails to take wide characters (see g_unichar_iswide())
  * into account.
+ *
+ * Note also that there are various printf() parameters which are platform
+ * dependent. GLib provides platform independent macros for these parameters
+ * which should be used instead. A common example is %G_GUINT64_FORMAT, which
+ * should be used instead of `%llu` or similar parameters for formatting
+ * 64-bit integers. These macros are all named `G_*_FORMAT`; see
+ * [Basic Types][glib-Basic-Types].
  */
 
 /**
@@ -1236,23 +1243,40 @@ g_ascii_strtoll (const gchar *nptr,
  * strerror(), because it returns a string in UTF-8 encoding, and since
  * not all platforms support the strerror() function.
  *
+ * Note that the string may be translated according to the current locale.
+ *
  * Returns: a UTF-8 string describing the error code. If the error code
- *     is unknown, it returns "unknown error (<code>)".
+ *     is unknown, it returns a string like "unknown error (<code>)".
  */
 const gchar *
 g_strerror (gint errnum)
 {
+  gchar buf[1024];
   gchar *msg;
   gchar *tofree = NULL;
   const gchar *ret;
   gint saved_errno = errno;
+  GError *error = NULL;
 
-  msg = strerror (errnum);
+  /* Since we are building with _GNU_SOURCE, we get the
+   * GNU variant of strerror_r (with glibc).
+   */
+#ifdef G_OS_WIN32
+  strerror_s (buf, sizeof (buf), errnum);
+  msg = buf;
+#else
+  msg = strerror_r (errnum, buf, sizeof (buf));
+#endif
   if (!g_get_charset (NULL))
-    msg = tofree = g_locale_to_utf8 (msg, -1, NULL, NULL, NULL);
+    {
+      msg = tofree = g_locale_to_utf8 (msg, -1, NULL, NULL, &error);
+      if (error)
+        g_print ("%s\n", error->message);
+    }
 
   ret = g_intern_string (msg);
   g_free (tofree);
+
   errno = saved_errno;
   return ret;
 }

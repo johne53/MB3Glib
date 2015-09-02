@@ -3386,7 +3386,7 @@ watch_keys (void)
 static void
 g_win32_appinfo_init (void)
 {
-  static gboolean initialized = FALSE;
+  static gsize initialized;
 
   if (g_once_init_enter (&initialized))
     {

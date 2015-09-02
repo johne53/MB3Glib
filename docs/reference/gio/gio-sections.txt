@@ -256,6 +256,7 @@ G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN
 G_FILE_ATTRIBUTE_STANDARD_IS_BACKUP
 G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK
 G_FILE_ATTRIBUTE_STANDARD_IS_VIRTUAL
+G_FILE_ATTRIBUTE_STANDARD_IS_VOLATILE
 G_FILE_ATTRIBUTE_STANDARD_NAME
 G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
 G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME
@@ -2876,6 +2877,7 @@ GDBusInterfaceGetPropertyFunc
 GDBusInterfaceSetPropertyFunc
 g_dbus_connection_register_object
 g_dbus_connection_unregister_object
+g_dbus_connection_register_object_with_closures
 GDBusSubtreeVTable
 GDBusSubtreeEnumerateFunc
 GDBusSubtreeIntrospectFunc
@@ -4441,6 +4443,7 @@ g_list_store_append
 g_list_store_remove
 g_list_store_remove_all
 g_list_store_splice
+g_list_store_sort
 <SUBSECTION Standard>
 G_TYPE_LIST_STORE
 <SUBSECTION Private>

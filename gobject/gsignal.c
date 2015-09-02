@@ -97,6 +97,32 @@
  * Specification of no detail argument for signal handlers (omission of the
  * detail part of the signal specification upon connection) serves as a
  * wildcard and matches any detail argument passed in to emission.
+ *
+ * ## Memory management of signal handlers # {#signal-memory-management}
+ *
+ * If you are connecting handlers to signals and using a #GObject instance as
+ * your signal handler user data, you should remember to pair calls to
+ * g_signal_connect() with calls to g_signal_handler_disconnect() or
+ * g_signal_handlers_disconnect_by_func(). While signal handlers are
+ * automatically disconnected when the object emitting the signal is finalised,
+ * they are not automatically disconnected when the signal handler user data is
+ * destroyed. If this user data is a #GObject instance, using it from a
+ * signal handler after it has been finalised is an error.
+ *
+ * There are two strategies for managing such user data. The first is to
+ * disconnect the signal handler (using g_signal_handler_disconnect() or
+ * g_signal_handlers_disconnect_by_func()) when the user data (object) is
+ * finalised; this has to be implemented manually. For non-threaded programs,
+ * g_signal_connect_object() can be used to implement this automatically.
+ * Currently, however, it is unsafe to use in threaded programs.
+ *
+ * The second is to hold a strong reference on the user data until after the
+ * signal is disconnected for other reasons. This can be implemented
+ * automatically using g_signal_connect_data().
+ *
+ * The first approach is recommended, as the second approach can result in
+ * effective memory leaks of the user data if the signal handler is never
+ * disconnected for some reason.
  */
 
 
@@ -127,6 +153,7 @@ static inline HandlerList*	handler_list_ensure	(guint		  signal_id,
 static inline HandlerList*	handler_list_lookup	(guint		  signal_id,
 							 gpointer	  instance);
 static inline Handler*		handler_new		(guint            signal_id,
+							 gpointer         instance,
                                                          gboolean	  after);
 static	      void		handler_insert		(guint		  signal_id,
 							 gpointer	  instance,
@@ -255,6 +282,7 @@ struct _Handler
   guint         after : 1;
   guint         has_invalid_closure_notify : 1;
   GClosure     *closure;
+  gpointer      instance;
 };
 struct _HandlerMatch
 {
@@ -424,7 +452,10 @@ handler_hash (gconstpointer key)
 static gboolean
 handler_equal (gconstpointer a, gconstpointer b)
 {
-  return ((Handler*)a)->sequential_number == ((Handler*)b)->sequential_number;
+  Handler *ha = (Handler *)a;
+  Handler *hb = (Handler *)b;
+  return (ha->sequential_number == hb->sequential_number) &&
+      (ha->instance  == hb->instance);
 }
 
 static Handler*
@@ -439,7 +470,9 @@ handler_lookup (gpointer  instance,
     {
       Handler key;
       key.sequential_number = handler_id;
-      return (Handler *)g_hash_table_lookup (g_handlers, &key);
+      key.instance = instance;
+      return g_hash_table_lookup (g_handlers, &key);
+
     }
 
   hlbsa = g_hash_table_lookup (g_handler_list_bsa_ht, instance);
@@ -579,7 +612,7 @@ handlers_find (gpointer         instance,
 }
 
 static inline Handler*
-handler_new (guint signal_id, gboolean after)
+handler_new (guint signal_id, gpointer instance, gboolean after)
 {
   Handler *handler = g_slice_new (Handler);
 #ifndef G_DISABLE_CHECKS
@@ -592,6 +625,7 @@ handler_new (guint signal_id, gboolean after)
   handler->next = NULL;
   handler->detail = 0;
   handler->signal_id = signal_id;
+  handler->instance = instance;
   handler->ref_count = 1;
   handler->block_count = 0;
   handler->after = after != FALSE;
@@ -631,6 +665,7 @@ handler_unref_R (guint    signal_id,
       else
         {
           hlist = handler_list_lookup (signal_id, instance);
+          g_assert (hlist != NULL);
           hlist->handlers = handler->next;
         }
 
@@ -2295,7 +2330,7 @@ g_signal_connect_closure_by_id (gpointer  instance,
 	g_warning ("%s: signal id '%u' is invalid for instance '%p'", G_STRLOC, signal_id, instance);
       else
 	{
-	  Handler *handler = handler_new (signal_id, after);
+	  Handler *handler = handler_new (signal_id, instance, after);
 	  
 	  handler_seq_no = handler->sequential_number;
 	  handler->detail = detail;
@@ -2359,7 +2394,7 @@ g_signal_connect_closure (gpointer     instance,
                    G_STRLOC, detailed_signal, instance, g_type_name (itype));
       else
 	{
-	  Handler *handler = handler_new (signal_id, after);
+	  Handler *handler = handler_new (signal_id, instance, after);
 
 	  handler_seq_no = handler->sequential_number;
 	  handler->detail = detail;
@@ -2460,7 +2495,7 @@ g_signal_connect_data (gpointer       instance,
                    G_STRLOC, detailed_signal, instance, g_type_name (itype));
       else
 	{
-	  Handler *handler = handler_new (signal_id, after);
+	  Handler *handler = handler_new (signal_id, instance, after);
 
 	  handler_seq_no = handler->sequential_number;
 	  handler->detail = detail;

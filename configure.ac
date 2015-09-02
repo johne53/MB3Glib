@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [45])
-m4_define([glib_micro_version], [4])
+m4_define([glib_micro_version], [7])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -800,7 +800,7 @@ AC_HEADER_MAJOR
 AC_CHECK_HEADERS([xlocale.h])
 
 # check for structure fields
-AC_CHECK_MEMBERS([struct stat.st_mtimensec, struct stat.st_mtim.tv_nsec, struct stat.st_atimensec, struct stat.st_atim.tv_nsec, struct stat.st_ctimensec, struct stat.st_ctim.tv_nsec])
+AC_CHECK_MEMBERS([struct stat.st_mtimensec, struct stat.st_mtim.tv_nsec, struct stat.st_atimensec, struct stat.st_atim.tv_nsec, struct stat.st_ctimensec, struct stat.st_ctim.tv_nsec, struct stat.st_birthtime, struct stat.st_birthtimensec, struct stat.st_birthtim, struct stat.st_birthtim.tv_nsec])
 AC_CHECK_MEMBERS([struct stat.st_blksize, struct stat.st_blocks, struct statfs.f_fstypename, struct statfs.f_bavail],,, [#include <sys/types.h>
 #include <sys/stat.h>
 #ifdef G_OS_UNIX
@@ -2537,29 +2537,9 @@ int error = EILSEQ;
 ], have_eilseq=yes, have_eilseq=no);
 AC_MSG_RESULT($have_eilseq)
 
-dnl ******************************************************************
-dnl *** If we are cross-compiling, look for glib-genmarshal and    ***
-dnl *** glib-compile-schemas in PATH                               ***
-dnl ******************************************************************
-
+dnl Add a conditional we can use when cross-compiling, so we avoid running
+dnl binaries
 AM_CONDITIONAL(CROSS_COMPILING, test $cross_compiling = yes)
-
-AS_IF([ test $cross_compiling = yes ], [
-  AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal, no)
-  if test x$GLIB_GENMARSHAL = xno; then
-    AC_MSG_ERROR(Could not find a glib-genmarshal in your PATH)
-  fi
-
-  AC_PATH_PROG(GLIB_COMPILE_SCHEMAS, glib-compile-schemas, no)
-  if test x$GLIB_COMPILE_SCHEMAS = xno; then
-    AC_MSG_ERROR(Could not find a glib-compile-schemas in your PATH)
-  fi
-
-  AC_PATH_PROG(GLIB_COMPILE_RESOURCES, glib-compile-resources, no)
-  if test x$GLIB_COMPILE_RESOURCES = xno; then
-    AC_MSG_ERROR(Could not find a glib-compile-resources in your PATH)
-  fi
-])
 
 dnl **************************
 dnl *** Checks for gtk-doc ***
