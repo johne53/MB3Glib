@@ -7,11 +7,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\gio\glib-compile-schemas.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\gio\gvdb\gvdb-builder.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+#include "glib-compile-schemas.vs10.sourcefiles.filters"
   </ItemGroup>
 </Project>

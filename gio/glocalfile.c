@@ -1705,13 +1705,17 @@ static char *
 find_topdir_for (const char *file)
 {
   char *dir;
+  char *mountpoint = NULL;
   dev_t dir_dev;
 
   dir = get_parent (file, &dir_dev);
   if (dir == NULL)
     return NULL;
 
-  return find_mountpoint_for (dir, dir_dev);
+  mountpoint = find_mountpoint_for (dir, dir_dev);
+  g_free (dir);
+
+  return mountpoint;
 }
 
 static char *
@@ -2682,7 +2686,7 @@ g_local_file_measure_size_of_file (gint           parent_fd,
         (!g_path_is_absolute (filename) || len > g_path_skip_root (filename) - filename))
       wfilename[len] = '\0';
 
-    retval = _wstat32i64 (wfilename, &buf);
+    retval = _wstati64 (wfilename, &buf);
     save_errno = errno;
 
     g_free (wfilename);

@@ -3099,7 +3099,7 @@ link_handlers_to_registered_apps (void)
         }
     }
 
-  g_debug ("%u undefhandled extensions\n", unhandled_exts);
+  g_debug ("%" G_GSIZE_FORMAT "undefhandled extensions\n", unhandled_exts);
   unhandled_exts= 0;
   g_hash_table_iter_init (&sup_iter, extensions);
   while (g_hash_table_iter_next (&sup_iter,
@@ -3113,7 +3113,7 @@ link_handlers_to_registered_apps (void)
           unhandled_exts += 1;
         }
     }
-  g_debug ("%u undefhandled extensions\n", unhandled_exts);
+  g_debug ("%" G_GSIZE_FORMAT "undefhandled extensions\n", unhandled_exts);
 }
 
 static void

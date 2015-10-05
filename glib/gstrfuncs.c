@@ -1238,12 +1238,14 @@ g_ascii_strtoll (const gchar *nptr,
  * @errnum: the system error number. See the standard C %errno
  *     documentation
  *
- * Returns a string corresponding to the given error code, e.g.
- * "no such process". You should use this function in preference to
- * strerror(), because it returns a string in UTF-8 encoding, and since
- * not all platforms support the strerror() function.
+ * Returns a string corresponding to the given error code, e.g. "no
+ * such process". Unlike strerror(), this always returns a string in
+ * UTF-8 encoding, and the pointer is guaranteed to remain valid for
+ * the lifetime of the process.
  *
  * Note that the string may be translated according to the current locale.
+ *
+ * The value of %errno will not be changed by this function.
  *
  * Returns: a UTF-8 string describing the error code. If the error code
  *     is unknown, it returns a string like "unknown error (<code>)".
@@ -1251,34 +1253,53 @@ g_ascii_strtoll (const gchar *nptr,
 const gchar *
 g_strerror (gint errnum)
 {
-  gchar buf[1024];
-  gchar *msg;
-  gchar *tofree = NULL;
-  const gchar *ret;
+  static GHashTable *errors;
+  G_LOCK_DEFINE_STATIC (errors);
+  const gchar *msg;
   gint saved_errno = errno;
-  GError *error = NULL;
 
-  /* Since we are building with _GNU_SOURCE, we get the
-   * GNU variant of strerror_r (with glibc).
-   */
-#ifdef G_OS_WIN32
-  strerror_s (buf, sizeof (buf), errnum);
-  msg = buf;
-#else
-  msg = strerror_r (errnum, buf, sizeof (buf));
-#endif
-  if (!g_get_charset (NULL))
+  G_LOCK (errors);
+  if (errors)
+    msg = g_hash_table_lookup (errors, GINT_TO_POINTER (errnum));
+  else
     {
-      msg = tofree = g_locale_to_utf8 (msg, -1, NULL, NULL, &error);
-      if (error)
-        g_print ("%s\n", error->message);
+      errors = g_hash_table_new (NULL, NULL);
+      msg = NULL;
     }
 
-  ret = g_intern_string (msg);
-  g_free (tofree);
+  if (!msg)
+    {
+      gchar buf[1024];
+      GError *error = NULL;
+
+#if defined(G_OS_WIN32)
+      strerror_s (buf, sizeof (buf), errnum);
+      msg = buf;
+#elif defined(HAVE_STRERROR_R)
+      /* Match the condition in strerror_r(3) for glibc */
+#  if defined(__GLIBC__) && !((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE)
+      msg = strerror_r (errnum, buf, sizeof (buf));
+#  else
+      strerror_r (errnum, buf, sizeof (buf));
+      msg = buf;
+#  endif /* HAVE_STRERROR_R */
+#else
+      g_strlcpy (buf, strerror (errnum), sizeof (buf));
+      msg = buf;
+#endif
+      if (!g_get_charset (NULL))
+        {
+          msg = g_locale_to_utf8 (msg, -1, NULL, NULL, &error);
+          if (error)
+            g_print ("%s\n", error->message);
+        }
+
+      g_hash_table_insert (errors, GINT_TO_POINTER (errnum), (char *) msg);
+    }
+  G_UNLOCK (errors);
 
   errno = saved_errno;
-  return ret;
+  return msg;
 }
 
 /**
@@ -2436,6 +2457,13 @@ g_strsplit_set (const gchar *string,
 
   return result;
 }
+
+/**
+ * GStrv:
+ *
+ * A typedef alias for gchar**. This is mostly useful when used together with
+ * g_auto().
+ */
 
 /**
  * g_strfreev:

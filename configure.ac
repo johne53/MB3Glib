@@ -30,8 +30,8 @@ m4_define(glib_configure_ac)
 # <mclasen> on the unstable (ie master), interface age = 0
 
 m4_define([glib_major_version], [2])
-m4_define([glib_minor_version], [45])
-m4_define([glib_micro_version], [7])
+m4_define([glib_minor_version], [47])
+m4_define([glib_micro_version], [0])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -525,7 +525,7 @@ AM_CONDITIONAL(OS_WIN32_AND_DLL_COMPILATION, [test x$glib_native_win32 = xyes -a
 # Checks for library functions.
 AC_FUNC_ALLOCA
 AC_CHECK_FUNCS(mmap posix_memalign memalign valloc fsync pipe2 issetugid)
-AC_CHECK_FUNCS(timegm gmtime_r)
+AC_CHECK_FUNCS(timegm gmtime_r strerror_r)
 
 AC_CACHE_CHECK([for __libc_enable_secure], glib_cv_have_libc_enable_secure,
   [AC_TRY_LINK([#include <unistd.h>
@@ -1029,7 +1029,7 @@ if $glib_failed ; then
   AC_MSG_ERROR([Could not determine values for MSG_* constants])
 fi
 
-AC_CHECK_FUNCS(getprotobyname_r endservent if_nametoindex if_indextoname sendmmsg)
+AC_CHECK_FUNCS(getprotobyname_r endservent if_nametoindex if_indextoname sendmmsg recvmmsg)
 
 AS_IF([test $glib_native_win32 = yes], [
   # <wspiapi.h> in the Windows SDK and in mingw-w64 has wrappers for
@@ -3565,9 +3565,12 @@ build/Makefile
 build/win32/Makefile
 build/win32/dirent/Makefile
 build/win32/vs9/Makefile
+build/win32/vs9/glib-gen-srcs.vsprops
 build/win32/vs10/Makefile
+build/win32/vs10/glib-gen-srcs.props
 build/win32/vs11/Makefile
 build/win32/vs12/Makefile
+build/win32/vs14/Makefile
 glib/Makefile
 glib/glib.stp
 glib/libcharset/Makefile
