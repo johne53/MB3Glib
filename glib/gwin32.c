@@ -39,6 +39,7 @@
 
 #define STRICT			/* Strict typing, please */
 #include <windows.h>
+#include <winternl.h>   /* Added by JE - 26-12-2015 */
 #undef STRICT
 #ifndef G_WITH_CYGWIN
 #include <direct.h>
