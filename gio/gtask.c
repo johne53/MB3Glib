@@ -198,7 +198,7 @@
  *       g_object_unref (task);
  *     }
  *
- *     static void
+ *     static gboolean
  *     decorator_ready (gpointer user_data)
  *     {
  *       GTask *task = user_data;
@@ -207,6 +207,8 @@
  *       cake_decorate_async (bd->cake, bd->frosting, bd->message,
  *                            g_task_get_cancellable (task),
  *                            decorated_cb, task);
+ *
+ *       return G_SOURCE_REMOVE;
  *     }
  *
  *     static void
@@ -243,8 +245,7 @@
  *           source = cake_decorator_wait_source_new (cake);
  *           // Attach @source to @task's GMainContext and have it call
  *           // decorator_ready() when it is ready.
- *           g_task_attach_source (task, source,
- *                                 G_CALLBACK (decorator_ready));
+ *           g_task_attach_source (task, source, decorator_ready);
  *           g_source_unref (source);
  *         }
  *     }
@@ -559,6 +560,7 @@ struct _GTask {
   gboolean thread_cancelled;
   gboolean synchronous;
   gboolean thread_complete;
+  gboolean blocking_other_task;
 
   GError *error;
   union {
@@ -592,6 +594,7 @@ G_DEFINE_TYPE_WITH_CODE (GTask, g_task, G_TYPE_OBJECT,
 
 static GThreadPool *task_pool;
 static GMutex task_pool_mutex;
+static GPrivate task_private = G_PRIVATE_INIT (NULL);
 static GSource *task_pool_manager;
 static guint64 task_wait_time;
 static gint tasks_running;
@@ -1241,6 +1244,7 @@ task_pool_manager_timeout (gpointer user_data)
 static void
 g_task_thread_setup (void)
 {
+  g_private_set (&task_private, GUINT_TO_POINTER (TRUE));
   g_mutex_lock (&task_pool_mutex);
   tasks_running++;
 
@@ -1270,6 +1274,7 @@ g_task_thread_cleanup (void)
 
   tasks_running--;
   g_mutex_unlock (&task_pool_mutex);
+  g_private_set (&task_private, GUINT_TO_POINTER (FALSE));
 }
 
 static void
@@ -1359,6 +1364,8 @@ g_task_start_task_thread (GTask           *task,
                              task_thread_cancelled_disconnect_notify, 0);
     }
 
+  if (g_private_get (&task_private))
+    task->blocking_other_task = TRUE;
   g_thread_pool_push (task_pool, g_object_ref (task), NULL);
 }
 
@@ -1848,6 +1855,14 @@ g_task_compare_priority (gconstpointer a,
   const GTask *ta = a;
   const GTask *tb = b;
   gboolean a_cancelled, b_cancelled;
+
+  /* Tasks that are causing other tasks to block have higher
+   * priority.
+   */
+  if (ta->blocking_other_task && !tb->blocking_other_task)
+    return -1;
+  else if (tb->blocking_other_task && !ta->blocking_other_task)
+    return 1;
 
   /* Let already-cancelled tasks finish right away */
   a_cancelled = (ta->check_cancellable &&

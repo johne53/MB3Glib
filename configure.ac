@@ -31,8 +31,8 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [47])
-m4_define([glib_micro_version], [0])
-m4_define([glib_interface_age], [0])
+m4_define([glib_micro_version], [1])
+m4_define([glib_interface_age], [1])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
 m4_define([glib_version],
@@ -3429,8 +3429,6 @@ if test "x${enable_Bsymbolic}" = "xyes"; then
   GLIB_LINK_FLAGS=-Wl,-Bsymbolic-functions
 fi
 
-AC_SUBST(GLIB_LINK_FLAGS)
-
 dnl
 dnl Check for -z,nodelete linker flag: the type system assumes that
 dnl libgobject stays loaded for the lifetime of the process.
@@ -3461,10 +3459,10 @@ AC_ARG_ENABLE([znodelete],
                LDFLAGS="${SAVED_LDFLAGS}" LIBS="${SAVED_LIBS}"])
 
 if test "x${enable_znodelete}" = "xyes"; then
-  GOBJECT_LINK_FLAGS=-Wl,-z,nodelete
+  GLIB_LINK_FLAGS="$GLIB_LINK_FLAGS -Wl,-z,nodelete"
 fi
 
-AC_SUBST(GOBJECT_LINK_FLAGS)
+AC_SUBST(GLIB_LINK_FLAGS)
 
 dnl
 dnl Check for -fvisibility=hidden to determine if we can do GNU-style

@@ -574,6 +574,8 @@ test_boolean (void)
     "key2=false\n"
     "key3=1\n"
     "key4=0\n"
+    "key5= true\n"
+    "key6=true \n"
     "[invalid]\n"
     "key1=t\n"
     "key2=f\n"
@@ -586,6 +588,8 @@ test_boolean (void)
   check_boolean_value (keyfile, "valid", "key2", FALSE);
   check_boolean_value (keyfile, "valid", "key3", TRUE);
   check_boolean_value (keyfile, "valid", "key4", FALSE);
+  check_boolean_value (keyfile, "valid", "key5", TRUE);
+  check_boolean_value (keyfile, "valid", "key6", TRUE);
 
   g_key_file_get_boolean (keyfile, "invalid", "key1", &error);
   check_error (&error, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_INVALID_VALUE);
@@ -620,6 +624,8 @@ test_number (void)
     "key4=2324431\n"
     "key5=-2324431\n"
     "key6=000111\n"
+    "key7= 1\n"
+    "key8=1 \n"
     "dkey1=000111\n"
     "dkey2=145.45\n"
     "dkey3=-3453.7\n"
@@ -641,6 +647,8 @@ test_number (void)
   check_integer_value (keyfile, "valid", "key4", 2324431);
   check_integer_value (keyfile, "valid", "key5", -2324431);
   check_integer_value (keyfile, "valid", "key6", 111);
+  check_integer_value (keyfile, "valid", "key7", 1);
+  check_integer_value (keyfile, "valid", "key8", 1);
   check_double_value (keyfile, "valid", "dkey1", 111.0);
   check_double_value (keyfile, "valid", "dkey2", 145.45);
   check_double_value (keyfile, "valid", "dkey3", -3453.7);
