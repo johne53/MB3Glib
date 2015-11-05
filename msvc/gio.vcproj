@@ -693,6 +693,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gdatagrambased.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gdatainputstream.c"
 				>
 				<FileConfiguration
@@ -3789,6 +3793,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gcredentials.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdatagrambased.h"
 				>
 			</File>
 			<File

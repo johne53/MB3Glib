@@ -431,6 +431,14 @@
 				RelativePath="..\glib\gnulib\vasnprintf.h"
 				>
 			</File>
+			<File
+				RelativePath="..\glib\gnulib\verify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\glib\gnulib\xsize.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
