@@ -19,7 +19,7 @@
  *
  * Author: Alexander Larsson <alexl@redhat.com>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 /* Prologue {{{1 */
 
 #include "config.h"
@@ -2495,3 +2495,5 @@ found:
 
 /* Epilogue {{{1 */
 /* vim:set foldmethod=marker: */
+
+#endif /* _MSC_VER */

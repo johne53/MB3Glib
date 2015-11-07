@@ -2798,6 +2798,7 @@ wait_for_child (GPid pid,
  * and is not always reliable due to problems inherent in
  * fork-without-exec. Use g_test_trap_subprocess() instead.
  */
+gboolean trap_fork_reported = FALSE; // Added by JE - 07-10-2010
 gboolean
 g_test_trap_fork (guint64        usec_timeout,
                   GTestTrapFlags test_trap_flags)
@@ -2846,8 +2847,16 @@ g_test_trap_fork (guint64        usec_timeout,
       return FALSE;
     }
 #else
+{
+	if (!trap_fork_reported)
+	{
+		trap_fork_reported = TRUE;
+		g_message ("Not implemented (in Win32): g_test_trap_fork");
+	}
+}
+/* The above changed by JE - 07-10-2010. Was formerly...
   g_message ("Not implemented: g_test_trap_fork");
-
+*/
   return FALSE;
 #endif
 }
