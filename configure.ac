@@ -31,8 +31,8 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [46])
-m4_define([glib_micro_version], [1])
-m4_define([glib_interface_age], [1])
+m4_define([glib_micro_version], [2])
+m4_define([glib_interface_age], [2])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
 m4_define([glib_version],
@@ -3605,7 +3605,6 @@ docs/reference/glib/version.xml
 docs/reference/gobject/Makefile
 docs/reference/gobject/version.xml
 docs/reference/gio/Makefile
-docs/reference/gio/gdbus-object-manager-example/Makefile
 docs/reference/gio/version.xml
 tests/Makefile
 tests/gobject/Makefile
