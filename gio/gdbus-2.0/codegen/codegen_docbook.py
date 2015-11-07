@@ -22,10 +22,10 @@
 import sys
 import re
 
-from . import config
-from . import utils
-from . import dbustypes
-from . import parser
+import config
+import utils
+import dbustypes
+from parse import parser
 
 # ----------------------------------------------------------------------------------------------------
 
