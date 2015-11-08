@@ -3,11 +3,11 @@
 
 require "../local-paths.lib";
 
-$glib_version = "2.46.1";
+$glib_version = "2.46.2";
 $major = 2;
 $minor = 46;
-$micro = 1;
-$binary_age = 4601;
+$micro = 2;
+$binary_age = 4602;
 $interface_age = 0;
 $gettext_package = "glib20";
 $current_minus_age = 0;
