@@ -27,7 +27,8 @@
  */
 
 #include "config.h"
-#include "glibconfig.h"
+
+#include "gutils.h"
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -49,12 +50,6 @@
 #ifdef HAVE_CRT_EXTERNS_H 
 #include <crt_externs.h> /* for _NSGetEnviron */
 #endif
-
-/* implement gutils's inline functions
- */
-#define	G_IMPLEMENT_INLINES 1
-#define	__G_UTILS_C__
-#include "gutils.h"
 
 #include "glib-init.h"
 #include "glib-private.h"
@@ -483,6 +478,10 @@ g_find_program_in_path (const gchar *program)
   return NULL;
 }
 
+/* The functions below are defined this way for compatibility reasons.
+ * See the note in gutils.h.
+ */
+
 /**
  * g_bit_nth_lsf:
  * @mask: a #gulong containing flags
@@ -496,6 +495,12 @@ g_find_program_in_path (const gchar *program)
  * Returns: the index of the first bit set which is higher than @nth_bit, or -1
  *    if no higher bits are set
  */
+gint
+(g_bit_nth_lsf) (gulong mask,
+                 gint   nth_bit)
+{
+  return g_bit_nth_lsf_impl (mask, nth_bit);
+}
 
 /**
  * g_bit_nth_msf:
@@ -511,6 +516,13 @@ g_find_program_in_path (const gchar *program)
  * Returns: the index of the first bit set which is lower than @nth_bit, or -1
  *    if no lower bits are set
  */
+gint
+(g_bit_nth_msf) (gulong mask,
+                 gint   nth_bit)
+{
+  return g_bit_nth_msf_impl (mask, nth_bit);
+}
+
 
 /**
  * g_bit_storage:
@@ -521,6 +533,11 @@ g_find_program_in_path (const gchar *program)
  *
  * Returns: the number of bits used to hold @number
  */
+guint
+(g_bit_storage) (gulong number)
+{
+  return g_bit_storage_impl (number);
+}
 
 G_LOCK_DEFINE_STATIC (g_utils_global);
 
@@ -2018,7 +2035,7 @@ g_get_system_config_dirs (void)
 
 /**
  * g_nullify_pointer:
- * @nullify_location: the memory address of the pointer.
+ * @nullify_location: (not nullable): the memory address of the pointer.
  *
  * Set the pointer at the specified location to %NULL.
  **/

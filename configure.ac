@@ -31,8 +31,8 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [47])
-m4_define([glib_micro_version], [1])
-m4_define([glib_interface_age], [1])
+m4_define([glib_micro_version], [2])
+m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
 m4_define([glib_version],
@@ -622,78 +622,6 @@ AC_CACHE_CHECK([for growing stack pointer],glib_cv_stack_grows,[
 	glib_cv_stack_grows=no
         ,)
 ])
-
-dnl AC_C_INLINE is useless to us since it bails out too early, we need to
-dnl truely know which ones of `inline', `__inline' and `__inline__' are
-dnl actually supported.
-AC_CACHE_CHECK([for __inline],glib_cv_has__inline,[
-        AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-	__inline int foo () { return 0; }
-	int main () { return foo (); }
-	]])],
-	glib_cv_has__inline=yes
-        ,
-	glib_cv_has__inline=no
-        ,)
-])
-case x$glib_cv_has__inline in
-xyes) AC_DEFINE(G_HAVE___INLINE,1,[Have __inline keyword])
-esac
-AC_CACHE_CHECK([for __inline__],glib_cv_has__inline__,[
-        AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-	__inline__ int foo () { return 0; }
-	int main () { return foo (); }
-	]])],
-	glib_cv_has__inline__=yes
-        ,
-	glib_cv_has__inline__=no
-        ,)
-])
-case x$glib_cv_has__inline__ in
-xyes) AC_DEFINE(G_HAVE___INLINE__,1,[Have __inline__ keyword])
-esac
-AC_CACHE_CHECK([for inline], glib_cv_hasinline,[
-        AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-	#undef inline
-	inline int foo () { return 0; }
-	int main () { return foo (); }
-	]])],
-	glib_cv_hasinline=yes
-        ,
-	glib_cv_hasinline=no
-        ,)
-])
-case x$glib_cv_hasinline in
-xyes) AC_DEFINE(G_HAVE_INLINE,1,[Have inline keyword])
-esac
-
-# if we can use inline functions in headers
-AC_MSG_CHECKING(if inline functions in headers work)
-AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#if defined (G_HAVE_INLINE) && defined (__GNUC__) && defined (__STRICT_ANSI__)
-#  undef inline
-#  define inline __inline__
-#elif !defined (G_HAVE_INLINE)
-#  undef inline
-#  if defined (G_HAVE___INLINE__)
-#    define inline __inline__
-#  elif defined (G_HAVE___INLINE)
-#    define inline __inline
-#  endif
-#endif
-
-int glib_test_func2 (int);
-
-static inline int
-glib_test_func1 (void) {
-  return glib_test_func2 (1);
-}
-
-int
-main (void) {
-  int i = 1;
-}]])],[g_can_inline=yes],[g_can_inline=no])
-AC_MSG_RESULT($g_can_inline)
 
 # check for flavours of varargs macros
 AC_MSG_CHECKING(for ISO C99 varargs macros in C)
@@ -2906,26 +2834,6 @@ $glib_static_compilation
 
 $glib_vacopy
 
-#ifdef	__cplusplus
-#define	G_HAVE_INLINE	1
-#else	/* !__cplusplus */
-$glib_inline
-#endif	/* !__cplusplus */
-
-#ifdef	__cplusplus
-#define G_CAN_INLINE	1
-_______EOF
-
-	if test x$g_can_inline = xyes ; then
-		cat >>$outfile <<_______EOF
-#else	/* !__cplusplus */
-#define G_CAN_INLINE	1
-_______EOF
-	fi
-
-	cat >>$outfile <<_______EOF
-#endif
-
 _______EOF
 
 	if test x$g_have_iso_c_varargs = xyes ; then
@@ -3272,23 +3180,10 @@ if test x$glib_cv_va_val_copy = xno; then
 #define G_VA_COPY_AS_ARRAY 1"
 fi
 
-if test x$glib_cv_hasinline = xyes; then
-    glib_inline='#define G_HAVE_INLINE 1'
-fi
-if test x$glib_cv_has__inline = xyes; then
-    glib_inline="\$glib_inline
-#define G_HAVE___INLINE 1"
-fi
-if test x$glib_cv_has__inline__ = xyes; then
-    glib_inline="\$glib_inline
-#define G_HAVE___INLINE__ 1"
-fi
-
 g_have_gnuc_varargs=$g_have_gnuc_varargs
 g_have_iso_c_varargs=$g_have_iso_c_varargs
 g_have_iso_cxx_varargs=$g_have_iso_cxx_varargs
 
-g_can_inline=$g_can_inline
 g_have_gnuc_visibility=$g_have_gnuc_visibility
 g_have_sunstudio_visibility=$g_have_sunstudio_visibility
 
@@ -3611,7 +3506,6 @@ docs/reference/glib/version.xml
 docs/reference/gobject/Makefile
 docs/reference/gobject/version.xml
 docs/reference/gio/Makefile
-docs/reference/gio/gdbus-object-manager-example/Makefile
 docs/reference/gio/version.xml
 tests/Makefile
 tests/gobject/Makefile
