@@ -26,7 +26,8 @@
 #ifndef __G_DATASETPRIVATE_H__
 #define __G_DATASETPRIVATE_H__
 
-#include <gatomic.h>
+#include "gatomic.h" /* Changed by JE - 28-11-2012. Was formerly. . .
+#include <gatomic.h> */
 
 G_BEGIN_DECLS
 

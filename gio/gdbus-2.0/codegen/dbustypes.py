@@ -19,7 +19,7 @@
 #
 # Author: David Zeuthen <davidz@redhat.com>
 
-from . import utils
+import utils
 
 class Annotation:
     def __init__(self, key, value):

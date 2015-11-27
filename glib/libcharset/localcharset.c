@@ -19,7 +19,9 @@
 
 /* Written by Bruno Haible <bruno@clisp.org>.  */
 
+#ifdef HAVE_CONFIG_H /* Added by JE - 25-02-2013 */
 #include "config.h"
+#endif
 
 /* Specification.  */
 #include "localcharset.h"

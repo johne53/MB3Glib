@@ -1322,6 +1322,7 @@ g_variant_serialised_n_children (GVariantSerialised serialised)
 
                  )
   g_assert_not_reached ();
+  return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
 }
 
 /* < private >
@@ -1438,6 +1439,7 @@ g_variant_serialiser_needed_size (GVariantTypeInfo         *type_info,
 
                  )
   g_assert_not_reached ();
+  return 0; /* Keeps MSVC happy. Added by JE - 02-12-2012 */
 }
 
 /* Byteswapping {{{2 */

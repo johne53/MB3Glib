@@ -30,6 +30,7 @@
  * interfaces, thus you have to use the `gio-unix-2.0.pc` pkg-config
  * file when using it.
  */
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 
 /**
  * GUnixFDList:
@@ -398,3 +399,5 @@ g_unix_fd_list_get_length (GUnixFDList *list)
 
   return list->priv->nfd;
 }
+
+#endif /* _MSC_VER */

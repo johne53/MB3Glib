@@ -568,8 +568,13 @@ log_warning_error_tests (void)
   g_warning ("harmless warning with parameters: %d %s %#x", 42, "Boo", 12345);
   g_test_assert_expected_messages ();
 
+#ifdef __GNUC__
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
                          "*g_print*assertion*failed*");
+#else   /* This section (and __GNUC__ test) added by JE - 16-06-2013 */
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL,
+                         "*assertion*failed*");
+#endif
   g_print (NULL);
   g_test_assert_expected_messages ();
 }

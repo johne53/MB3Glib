@@ -11,7 +11,7 @@
  *
  * Authors: Ryan Lortie <desrt@desrt.ca>
  */
-
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 #include "config.h"
 
 #include "gunixconnection.h"
@@ -697,3 +697,5 @@ g_unix_connection_receive_credentials_finish (GUnixConnection *connection,
 
   return g_task_propagate_pointer (G_TASK (result), error);
 }
+
+#endif /* _MSC_VER */
