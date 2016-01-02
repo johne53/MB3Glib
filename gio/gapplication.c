@@ -2238,6 +2238,9 @@ g_application_open (GApplication  *application,
  * This function sets the prgname (g_set_prgname()), if not already set,
  * to the basename of argv[0].
  *
+ * Much like g_main_loop_run(), this function will acquire the main context
+ * for the duration that the application is running.
+ *
  * Since 2.40, applications that are not explicitly flagged as services
  * or launchers (ie: neither %G_APPLICATION_IS_SERVICE or
  * %G_APPLICATION_IS_LAUNCHER are given as flags) will check (from the
@@ -2266,13 +2269,42 @@ g_application_run (GApplication  *application,
 {
   gchar **arguments;
   int status;
+  GMainContext *context;
+  gboolean acquired_context;
 
   g_return_val_if_fail (G_IS_APPLICATION (application), 1);
   g_return_val_if_fail (argc == 0 || argv != NULL, 1);
   g_return_val_if_fail (!application->priv->must_quit_now, 1);
 
 #ifdef G_OS_WIN32
-  arguments = g_win32_get_command_line ();
+  {
+    gint new_argc = 0;
+
+    arguments = g_win32_get_command_line ();
+
+    /*
+     * CommandLineToArgvW(), which is called by g_win32_get_command_line(),
+     * pulls in the whole command line that is used to call the program.  This is
+     * fine in cases where the program is a .exe program, but in the cases where the
+     * program is a called via a script, such as PyGObject's gtk-demo.py, which is normally
+     * called using 'python gtk-demo.py' on Windows, the program name (argv[0])
+     * returned by g_win32_get_command_line() will not be the argv[0] that ->local_command_line()
+     * would expect, causing the program to fail with "This application can not open files."
+     */
+    new_argc = g_strv_length (arguments);
+
+    if (new_argc > argc)
+      {
+        gint i;
+
+        for (i = 0; i < new_argc - argc; i++)
+          g_free (arguments[i]);
+
+        memmove (&arguments[0],
+                 &arguments[new_argc - argc],
+                 sizeof (arguments[0]) * (argc + 1));
+      }
+  }
 #else
   {
     gint i;
@@ -2292,6 +2324,10 @@ g_application_run (GApplication  *application,
       g_set_prgname (prgname);
       g_free (prgname);
     }
+
+  context = g_main_context_default ();
+  acquired_context = g_main_context_acquire (context);
+  g_return_val_if_fail (acquired_context, 0);
 
   if (!G_APPLICATION_GET_CLASS (application)
         ->local_command_line (application, &arguments, &status))
@@ -2324,7 +2360,7 @@ g_application_run (GApplication  *application,
       if (application->priv->must_quit_now)
         break;
 
-      g_main_context_iteration (NULL, TRUE);
+      g_main_context_iteration (context, TRUE);
       status = 0;
     }
 
@@ -2339,13 +2375,19 @@ g_application_run (GApplication  *application,
     }
 
   if (application->priv->impl)
-    g_application_impl_flush (application->priv->impl);
+    {
+      g_application_impl_flush (application->priv->impl);
+      g_application_impl_destroy (application->priv->impl);
+      application->priv->impl = NULL;
+    }
 
   g_settings_sync ();
 
   if (!application->priv->must_quit_now)
-    while (g_main_context_iteration (NULL, FALSE))
+    while (g_main_context_iteration (context, FALSE))
       ;
+
+  g_main_context_release (context);
 
   return status;
 }
