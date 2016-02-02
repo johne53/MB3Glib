@@ -468,6 +468,9 @@ libgio_2_0_la_SOURCES =		\
 	gtlsinteraction.c	\
 	gtlspassword.c		\
 	gtlsserverconnection.c	\
+	gdtlsconnection.c	\
+	gdtlsclientconnection.c	\
+	gdtlsserverconnection.c	\
 	gunionvolumemonitor.c 	\
 	gunionvolumemonitor.h 	\
 	gvfs.c 			\
@@ -632,6 +635,9 @@ gio_headers =			\
 	gtlsinteraction.h	\
 	gtlspassword.h		\
 	gtlsserverconnection.h	\
+	gdtlsconnection.h	\
+	gdtlsclientconnection.h	\
+	gdtlsserverconnection.h	\
 	gvfs.h 			\
 	gvolume.h 		\
 	gvolumemonitor.h 	\
@@ -821,6 +827,12 @@ dist-hook: \
 	for f in $$files; do \
 	  if test -f $$f; then d=.; else d=$(srcdir); fi; \
 	  cp $$d/$$f $(distdir) || exit 1; done
+
+if HAVE_GLIB_RUNTIME_LIBDIR
+ABS_GLIB_RUNTIME_LIBDIR = $(realpath $(libdir)/$(GLIB_RUNTIME_LIBDIR))
+else
+ABS_GLIB_RUNTIME_LIBDIR = $(libdir)
+endif
 
 if HAVE_GLIB_RUNTIME_LIBDIR
 install-data-hook:

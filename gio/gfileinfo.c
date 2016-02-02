@@ -365,8 +365,8 @@ g_file_info_new (void)
  * @src_info: source to copy attributes from.
  * @dest_info: destination to copy attributes to.
  *
- * Copies all of the [GFileAttribute][gio-GFileAttribute]
- * from @src_info to @dest_info.
+ * First clears all of the [GFileAttribute][gio-GFileAttribute] of @dest_info,
+ * and then copies all of the file attributes from @src_info to @dest_info.
  **/
 void
 g_file_info_copy_into (GFileInfo *src_info,
@@ -616,7 +616,8 @@ g_file_info_has_namespace (GFileInfo  *info,
 /**
  * g_file_info_list_attributes:
  * @info: a #GFileInfo.
- * @name_space: a file attribute key's namespace.
+ * @name_space: (nullable): a file attribute key's namespace, or %NULL to list
+ *   all attributes.
  *
  * Lists the file info structure's attributes.
  *
