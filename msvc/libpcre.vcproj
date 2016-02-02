@@ -655,6 +655,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\glib\pcre\pcre_version.c"
+				>
+			</File>
+			<File
 				RelativePath="..\glib\pcre\pcre_xclass.c"
 				>
 				<FileConfiguration
