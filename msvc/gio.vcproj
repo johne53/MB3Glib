@@ -945,6 +945,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\gdtlsclientconnection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsconnection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsserverconnection.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gdummyfile.c"
 				>
 				<FileConfiguration
@@ -3925,6 +3937,18 @@
 			</File>
 			<File
 				RelativePath="..\gio\gdesktopappinfo.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsclientconnection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsconnection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsserverconnection.h"
 				>
 			</File>
 			<File
