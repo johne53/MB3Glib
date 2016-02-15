@@ -62,9 +62,8 @@
  *     allow [A-Za-z\-] so no escaping is needed. No attempt is made to solve
  *     clashes between keys differing only in case.
  *
- *   - RegCreateKeyA is used - Windows can also handle UTF16LE strings.
- *     GSettings doesn't pay any attention to encoding, so by using ANSI we
- *     hopefully avoid passing any invalid Unicode.
+ *   - RegCreateKeyW is used - We should always make the UTF-8 -> UTF-16
+ *     conversion ourselves to avoid problems when the system language changes.
  *
  *   - The Windows registry has the following limitations: a key may not exceed
  *     255 characters, an entry's value may not exceed 16,383 characters, and
@@ -91,7 +90,6 @@
 #include "config.h"
 
 #include "gregistrysettingsbackend.h"
-#include "gsimplepermission.h"
 #include "gsettingsbackend.h"
 #include "giomodule.h"
 
@@ -159,7 +157,8 @@ G_DECLARE_FINAL_TYPE (GRegistryBackend, g_registry_backend, G, REGISTRY_BACKEND,
 struct _GRegistryBackend {
   GSettingsBackend parent_instance;
 
-  char *base_path;
+  gchar *base_path;
+  gunichar2 *base_pathw;
 
   /* A stored copy of the whole tree being watched. When we receive a change notification
    * we have to check against this to see what has changed ... every time ...*/
@@ -591,21 +590,20 @@ registry_cache_get_node_for_key_recursive (GNode    *node,
   child = registry_cache_find_immediate_child (node, component);
   if (child == NULL && create_if_not_found)
     {
-      item = g_slice_new (RegistryCacheItem);
-      item->name = g_strdup (component);
-      item->value.type = REG_NONE;
-      item->value.ptr = NULL;
-      item->ref_count = n_parent_watches;
-      child = g_node_new (item);
-      g_node_append (node, child);
-      trace ("\tget node for key recursive: new %x = %s.\n", node, item->name);
+      RegistryValue null_value = { REG_NONE, {0} };
+
+      child = registry_cache_add_item (node, component,
+                                       null_value, n_parent_watches);
+
+      trace ("\tget node for key recursive: new %x = %s.\n", node, component);
     }
 
   /* We are done if there are no more path components. Allow for a trailing /. */
-  if (child==NULL || c == NULL || *(c + 1) == 0)
+  if (child == NULL || c == NULL || *(c + 1) == 0)
     return child;
 
   trace ("get node for key recursive: next: %s.\n", c + 1);
+
   return registry_cache_get_node_for_key_recursive (child, c + 1,
                                                     create_if_not_found,
                                                     n_parent_watches);
@@ -629,26 +627,29 @@ registry_cache_get_node_for_key (GNode       *root,
   /* Ignore preceding / */
   component = g_strdup (key_name);
   c = strchr (component, '/');
+
+  if (c == NULL)
+    {
+      g_free (component);
+      return root;
+    }
+
   if (c != NULL)
     *c = 0;
 
   child = registry_cache_find_immediate_child (root, component);
   if (child == NULL && create_if_not_found)
     {
+      RegistryValue null_value = { REG_NONE, {0} };
+
       /* Reference count is set to 0, tree should be referenced by the caller */
-      RegistryCacheItem *item = g_slice_new (RegistryCacheItem);
-      item->value.type = REG_NONE;
-      item->value.ptr = NULL;
-      item->name = g_strdup (component);
-      item->ref_count = 0;
-      trace ("get_node_for_key: New node for component '%s'\n", item->name);
-      child = g_node_new (item);
-      g_node_append (root, child);
+      child = registry_cache_add_item (root, component,
+                                       null_value, 0);
+
+      trace ("get_node_for_key: New node for component '%s'\n", component);
     }
 
-  if (c == NULL)
-    result = root;
-  else if (*(c + 1) == 0)
+  if (*(c + 1) == 0)
     result = child;
   else if (child != NULL)
     result = registry_cache_get_node_for_key_recursive (child, c + 1,
@@ -771,25 +772,30 @@ registry_read (HKEY           hpath,
                const gchar   *value_name,
                RegistryValue *p_value)
 {
-  LONG      result;
-  DWORD     value_data_size;
+  LONG result;
+  DWORD value_data_size;
   gpointer *buffer;
+  gunichar2 *value_namew;
 
   g_return_val_if_fail (p_value != NULL, FALSE);
 
   p_value->type = REG_NONE;
   p_value->ptr = NULL;
 
-  result = RegQueryValueExA (hpath, value_name, 0, &p_value->type, NULL, &value_data_size);
+  value_namew = g_utf8_to_utf16 (value_name, -1, NULL, NULL, NULL);
+
+  result = RegQueryValueExW (hpath, value_namew, 0, &p_value->type, NULL, &value_data_size);
   if (result != ERROR_SUCCESS)
     {
       handle_read_error (result, path_name, value_name);
+      g_free (value_namew);
       return FALSE;
     }
 
   if (p_value->type == REG_SZ && value_data_size == 0)
     {
       p_value->ptr = g_strdup ("");
+      g_free (value_namew);
       return TRUE;
     }
 
@@ -799,11 +805,24 @@ registry_read (HKEY           hpath,
   else
     buffer = p_value->ptr = g_malloc (value_data_size);
 
-  result = RegQueryValueExA (hpath, value_name, 0, NULL, (LPBYTE)buffer, &value_data_size);
+  result = RegQueryValueExW (hpath, value_namew, 0, NULL, (LPBYTE)buffer, &value_data_size);
+  g_free (value_namew);
+
   if (result != ERROR_SUCCESS)
     {
       handle_read_error (result, path_name, value_name);
+
+      if (p_value->type != REG_DWORD)
+        g_free (buffer);
+
       return FALSE;
+    }
+
+  if (p_value->type == REG_SZ)
+    {
+      gchar *valueu8 = g_utf16_to_utf8 (p_value->ptr, -1, NULL, NULL, NULL);
+      g_free (p_value->ptr);
+      p_value->ptr = valueu8;
     }
 
   return TRUE;
@@ -911,9 +930,12 @@ g_registry_backend_write_one (const char *key_name,
   HKEY hroot;
   HKEY hpath;
   gchar *path_name;
+  gunichar2 *path_namew;
   gchar *value_name = NULL;
+  gunichar2 *value_namew;
   DWORD value_data_size;
   LPVOID value_data;
+  gunichar2 *value_dataw;
   LONG result;
   GNode *node;
   gboolean changed;
@@ -993,18 +1015,46 @@ g_registry_backend_write_one (const char *key_name,
 
   trace ("Set key: %s / %s\n", path_name, value_name);
 
+  path_namew = g_utf8_to_utf16 (path_name, -1, NULL, NULL, NULL);
+
   /* Store the value in the registry */
-  result = RegCreateKeyExA (hroot, path_name, 0, NULL, 0, KEY_WRITE, NULL, &hpath, NULL);
+  result = RegCreateKeyExW (hroot, path_namew, 0, NULL, 0, KEY_WRITE, NULL, &hpath, NULL);
   if (result != ERROR_SUCCESS)
     {
       g_message_win32_error (result, "gregistrybackend: opening key %s failed",
                              path_name + 1);
       registry_value_free (value);
+      g_free (path_namew);
       g_free (path_name);
       return FALSE;
     }
 
-  result = RegSetValueExA (hpath, value_name, 0, value.type, value_data, value_data_size);
+  g_free (path_namew);
+
+  value_namew = g_utf8_to_utf16 (value_name, -1, NULL, NULL, NULL);
+
+  value_dataw = NULL;
+
+  switch (type_string[0])
+    {
+    case 'b':
+    case 'y':
+    case 'n':
+    case 'q':
+    case 'i':
+    case 'u':
+    case 'x':
+    case 't':
+      break;
+    default:
+      value_dataw = g_utf8_to_utf16 (value_data, -1, NULL, NULL, NULL);
+      value_data = value_dataw;
+      value_data_size = (DWORD)((wcslen (value_data) + 1) * sizeof (gunichar2));
+      break;
+    }
+
+  result = RegSetValueExW (hpath, value_namew, 0, value.type, value_data, value_data_size);
+
   if (result != ERROR_SUCCESS)
     g_message_win32_error (result, "gregistrybackend: setting value %s\\%s\\%s failed.\n",
                            self->base_path, path_name, value_name);
@@ -1016,6 +1066,8 @@ g_registry_backend_write_one (const char *key_name,
 
   RegCloseKey (hpath);
   g_free (path_name);
+  g_free (value_namew);
+  g_free (value_dataw);
 
   return FALSE;
 }
@@ -1035,7 +1087,7 @@ g_registry_backend_write (GSettingsBackend *backend,
   HKEY hroot;
   RegistryWrite action;
 
-  result = RegCreateKeyExA (HKEY_CURRENT_USER, self->base_path, 0, NULL, 0,
+  result = RegCreateKeyExW (HKEY_CURRENT_USER, self->base_pathw, 0, NULL, 0,
                             KEY_WRITE, NULL, &hroot, NULL);
   if (result != ERROR_SUCCESS)
     {
@@ -1063,7 +1115,7 @@ g_registry_backend_write_tree (GSettingsBackend *backend,
   HKEY hroot;
   RegistryWrite action;
 
-  result = RegCreateKeyExA (HKEY_CURRENT_USER, self->base_path, 0, NULL, 0,
+  result = RegCreateKeyExW (HKEY_CURRENT_USER, self->base_pathw, 0, NULL, 0,
                             KEY_WRITE, NULL, &hroot, NULL);
   if (result != ERROR_SUCCESS)
     {
@@ -1088,7 +1140,10 @@ g_registry_backend_reset (GSettingsBackend *backend,
                           gpointer          origin_tag)
 {
   GRegistryBackend *self = G_REGISTRY_BACKEND (backend);
-  gchar *path_name, *value_name = NULL;
+  gchar *path_name;
+  gunichar2 *path_namew;
+  gchar *value_name = NULL;
+  gunichar2 *value_namew;
   GNode *cache_node;
   LONG result;
   HKEY hpath;
@@ -1102,8 +1157,11 @@ g_registry_backend_reset (GSettingsBackend *backend,
 
   /* Remove from the registry */
   path_name = parse_key (key_name, self->base_path, &value_name);
+  path_namew = g_utf8_to_utf16 (path_name, -1, NULL, NULL, NULL);
 
-  result = RegOpenKeyExA (HKEY_CURRENT_USER, path_name, 0, KEY_SET_VALUE, &hpath);
+  result = RegOpenKeyExW (HKEY_CURRENT_USER, path_namew, 0, KEY_SET_VALUE, &hpath);
+  g_free (path_namew);
+
   if (result != ERROR_SUCCESS)
     {
       g_message_win32_error (result, "Registry: resetting key '%s'", path_name);
@@ -1111,7 +1169,10 @@ g_registry_backend_reset (GSettingsBackend *backend,
       return;
     }
 
-  result = RegDeleteValueA (hpath, value_name);
+  value_namew = g_utf8_to_utf16 (value_name, -1, NULL, NULL, NULL);
+
+  result = RegDeleteValueW (hpath, value_namew);
+  g_free (value_namew);
   RegCloseKey (hpath);
 
   if (result != ERROR_SUCCESS)
@@ -1126,19 +1187,41 @@ g_registry_backend_reset (GSettingsBackend *backend,
   g_settings_backend_changed (backend, key_name, origin_tag);
 }
 
-/* Not implemented and probably beyond the scope of this backend */
 static gboolean
 g_registry_backend_get_writable (GSettingsBackend *backend,
                                  const gchar      *key_name)
 {
-  return TRUE;
-}
+  GRegistryBackend *self = G_REGISTRY_BACKEND (backend);
+  gchar *path_name;
+  gunichar2 *path_namew;
+  gchar *value_name;
+  HKEY hpath;
+  LONG result;
 
-static GPermission *
-g_registry_backend_get_permission (GSettingsBackend *backend,
-                                   const gchar      *key_name)
-{
-  return g_simple_permission_new (TRUE);
+  path_name = parse_key (key_name, self->base_path, &value_name);
+  path_namew = g_utf8_to_utf16 (path_name, -1, NULL, NULL, NULL);
+
+  /* Note: we create the key if it wasn't created yet, but it is not much
+   * of a problem since at the end of the day we have to create it anyway
+   * to read or to write from it
+   */
+  result = RegCreateKeyExW (HKEY_CURRENT_USER, path_namew, 0, NULL, 0,
+                            KEY_WRITE, NULL, &hpath, NULL);
+  g_free (path_namew);
+
+  if (result != ERROR_SUCCESS)
+    {
+      trace ("Error opening/creating key to check writability: %s.\n",
+             path_name);
+      g_free (path_name);
+
+      return FALSE;
+    }
+
+  g_free (path_name);
+  RegCloseKey (hpath);
+
+  return TRUE;
 }
 
 /********************************************************************************
@@ -1196,14 +1279,63 @@ registry_cache_destroy_tree (GNode            *node,
   g_node_destroy (node);
 }
 
+/* One of these is sent down the pipe when something happens in the registry. */
+typedef struct
+{
+  GRegistryBackend *self;
+  gchar *prefix;          /* prefix is a gsettings path, all items are subkeys of this. */
+  GPtrArray *items;       /* each item is a subkey below prefix that has changed. */
+} RegistryEvent;
+
+typedef struct
+{
+  RegistryEvent *event;
+  gchar *current_key_name;
+} DeletedItemData;
+
+static void
+mark_all_subkeys_as_changed (GNode    *node,
+                             gpointer  data)
+{
+  RegistryCacheItem *item = node->data;
+  DeletedItemData *item_data = data;
+
+  if (item_data->current_key_name == NULL)
+    item_data->current_key_name = g_strdup (item->name);
+  else
+    {
+      gchar *name;
+
+      name = g_build_path ("/", item_data->current_key_name, item->name, NULL);
+      g_free (item_data->current_key_name);
+      item_data->current_key_name = name;
+    }
+
+  /* Iterate until we find an item that is a value */
+  if (item->value.type == REG_NONE)
+    g_node_children_foreach (node, G_TRAVERSE_ALL,
+                             mark_all_subkeys_as_changed, data);
+  else
+    g_ptr_array_add (item_data->event->items, item_data->current_key_name);
+}
+
 static void
 registry_cache_remove_deleted (GNode    *node,
                                gpointer  data)
 {
   RegistryCacheItem *item = node->data;
+  RegistryEvent *event = data;
 
   if (!item->readable)
-    registry_cache_destroy_tree (node, data);
+    {
+      DeletedItemData item_data;
+
+      item_data.event = event;
+      item_data.current_key_name = NULL;
+
+      mark_all_subkeys_as_changed (node, &item_data);
+      registry_cache_destroy_tree (node, event->self->watch);
+    }
 }
 
 /* Update cache from registry, and optionally report on the changes.
@@ -1226,15 +1358,17 @@ registry_cache_update (GRegistryBackend *self,
                        const gchar      *prefix,
                        const gchar      *partial_key_name,
                        GNode            *cache_node,
-                       int               n_watches, 
-                       GPtrArray        *changes)
+                       int               n_watches,
+                       RegistryEvent    *event)
 {
-  gchar buffer[MAX_KEY_NAME_LENGTH + 1];
+  gunichar2 bufferw[MAX_KEY_NAME_LENGTH + 1];
+  gchar *buffer;
   gchar *key_name;
   gint i;
   LONG result;
+  RegistryCacheItem *item;
 
-  RegistryCacheItem *item = cache_node->data;
+  item = cache_node->data;
 
   if (item->subscription_count > 0)
     n_watches++;
@@ -1256,18 +1390,23 @@ registry_cache_update (GRegistryBackend *self,
   i = 0;
   while (1)
     {
-      DWORD buffer_size = MAX_KEY_NAME_LENGTH;
+      DWORD bufferw_size = MAX_KEY_NAME_LENGTH + 1;
       HKEY  hsubpath;
 
-      result = RegEnumKeyEx (hpath, i++, buffer, &buffer_size, NULL, NULL, NULL, NULL);
+      result = RegEnumKeyExW (hpath, i++, bufferw, &bufferw_size, NULL, NULL, NULL, NULL);
       if (result != ERROR_SUCCESS)
         break;
 
-      result = RegOpenKeyEx (hpath, buffer, 0, KEY_READ, &hsubpath);
+      result = RegOpenKeyExW (hpath, bufferw, 0, KEY_READ, &hsubpath);
       if (result == ERROR_SUCCESS)
         {
-          GNode             *subkey_node;
+          GNode *subkey_node;
           RegistryCacheItem *child_item;
+          gchar *new_partial_key_name;
+
+          buffer = g_utf16_to_utf8 (bufferw, -1, NULL, NULL, NULL);
+          if (buffer == NULL)
+            continue;
 
           subkey_node = registry_cache_find_immediate_child (cache_node, buffer);
           if (subkey_node == NULL)
@@ -1277,11 +1416,15 @@ registry_cache_update (GRegistryBackend *self,
                                                      null_value, n_watches);
             }
 
-          registry_cache_update (self, hsubpath, prefix, buffer, subkey_node,
-                                 n_watches, changes);
+          new_partial_key_name = g_build_path ("/", partial_key_name, buffer, NULL);
+          registry_cache_update (self, hsubpath, prefix, new_partial_key_name,
+                                 subkey_node, n_watches, event);
+          g_free (new_partial_key_name);
+
           child_item = subkey_node->data;
           child_item->readable = TRUE;
 
+          g_free (buffer);
           RegCloseKey (hsubpath);
         }
     }
@@ -1293,24 +1436,32 @@ registry_cache_update (GRegistryBackend *self,
   i = 0;
   while (1)
     {
-      DWORD buffer_size = MAX_KEY_NAME_LENGTH;
+      DWORD bufferw_size = MAX_KEY_NAME_LENGTH + 1;
       GNode *cache_child_node;
       RegistryCacheItem *child_item;
       RegistryValue value;
       gboolean changed = FALSE;
 
-      result = RegEnumValue (hpath, i++, buffer, &buffer_size, NULL, NULL, NULL, NULL);
+      result = RegEnumValueW (hpath, i++, bufferw, &bufferw_size, NULL, NULL, NULL, NULL);
       if (result != ERROR_SUCCESS)
         break;
 
-      if (buffer[0]==0)
-        /* This is the key's 'default' value, for which we have no use. */
-        continue;
+      buffer = g_utf16_to_utf8 (bufferw, -1, NULL, NULL, NULL);
+
+      if (buffer == NULL || buffer[0] == 0)
+        {
+          /* This is the key's 'default' value, for which we have no use. */
+          g_free (buffer);
+          continue;
+        }
 
       cache_child_node = registry_cache_find_immediate_child (cache_node, buffer);
 
       if (!registry_read (hpath, key_name, buffer, &value))
-        continue;
+        {
+          g_free (buffer);
+          continue;
+        }
 
       trace ("\tgot value %s for %s, node %x\n",
              registry_value_dump (value), buffer, cache_child_node);
@@ -1336,15 +1487,19 @@ registry_cache_update (GRegistryBackend *self,
 
       child_item = cache_child_node->data;
       child_item->readable = TRUE;
-      if (changed == TRUE && changes != NULL)
+      if (changed && event != NULL)
         {
           gchar *item;
+
           if (partial_key_name == NULL)
             item = g_strdup (buffer);
           else
             item = g_build_path ("/", partial_key_name, buffer, NULL);
-          g_ptr_array_add (changes, item);
+
+          g_ptr_array_add (event->items, item);
         }
+
+      g_free (buffer);
     }
 
   if (result != ERROR_NO_MORE_ITEMS)
@@ -1352,9 +1507,10 @@ registry_cache_update (GRegistryBackend *self,
 
   /* Any nodes now left unreadable must have been deleted, remove them from cache */
   g_node_children_foreach (cache_node, G_TRAVERSE_ALL,
-                           registry_cache_remove_deleted, self->watch);
+                           registry_cache_remove_deleted, event);
 
   trace ("registry cache update complete.\n");
+
   g_free (key_name);
 }
 
@@ -1371,14 +1527,6 @@ registry_watch_key (HKEY   hpath,
                                   REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET,
                                   event, TRUE);
 }
-
-/* One of these is sent down the pipe when something happens in the registry. */
-typedef struct
-{
-  GRegistryBackend *self;
-  gchar *prefix;          /* prefix is a gsettings path, all items are subkeys of this. */
-  GPtrArray *items;       /* each item is a subkey below prefix that has changed. */
-} RegistryEvent;
 
 /* This handler runs in the main thread to emit the changed signals */
 static gboolean
@@ -1648,24 +1796,21 @@ watch_thread_function (LPVOID parameter)
            * likely to block (only when changing notification subscriptions).
            */
           event = g_slice_new (RegistryEvent);
-
-          event->self = G_REGISTRY_BACKEND (self->owner);
-          g_object_ref (self->owner);
-
+          event->self = g_object_ref (self->owner);
+          event->prefix = g_strdup (prefix);
           event->items = g_ptr_array_new_with_free_func (g_free);
 
           EnterCriticalSection (G_REGISTRY_BACKEND (self->owner)->cache_lock);
           registry_cache_update (G_REGISTRY_BACKEND (self->owner), hpath,
-                                 prefix, NULL, cache_node, 0, event->items);
+                                 prefix, NULL, cache_node, 0, event);
           LeaveCriticalSection (G_REGISTRY_BACKEND (self->owner)->cache_lock);
 
           if (event->items->len > 0)
-            {
-              event->prefix = g_strdup (prefix);
-              g_idle_add ((GSourceFunc) watch_handler, event);
-            }
+            g_idle_add ((GSourceFunc) watch_handler, event);
           else
             {
+              g_object_unref (event->self);
+              g_free (event->prefix);
               g_ptr_array_free (event->items, TRUE);
               g_slice_free (RegistryEvent, event);
             }
@@ -1877,7 +2022,9 @@ g_registry_backend_subscribe (GSettingsBackend *backend,
                               const char       *key_name)
 {
   GRegistryBackend *self = G_REGISTRY_BACKEND (backend);
-  gchar *path_name, *value_name = NULL;
+  gchar *path_name;
+  gunichar2 *path_namew;
+  gchar *value_name = NULL;
   HKEY hpath;
   HANDLE event;
   LONG result;
@@ -1903,11 +2050,14 @@ g_registry_backend_subscribe (GSettingsBackend *backend,
 
   trace ("Subscribing to %s [registry %s / %s] - watch %x\n", key_name, path_name, value_name, self->watch);
 
+  path_namew = g_utf8_to_utf16 (path_name, -1, NULL, NULL, NULL);
+  g_free (path_name);
+
   /* Give the caller the benefit of the doubt if the key doesn't exist and create it. The caller
    * is almost certainly a new g_settings with this path as base path. */
-  result = RegCreateKeyExA (HKEY_CURRENT_USER, path_name, 0, NULL, 0, KEY_READ, NULL, &hpath,
+  result = RegCreateKeyExW (HKEY_CURRENT_USER, path_namew, 0, NULL, 0, KEY_READ, NULL, &hpath,
                             NULL);
-  g_free (path_name);
+  g_free (path_namew);
 
   if (result != ERROR_SUCCESS)
     {
@@ -1970,6 +2120,7 @@ g_registry_backend_finalize (GObject *object)
   g_slice_free (CRITICAL_SECTION, self->cache_lock);
 
   g_free (self->base_path);
+  g_free (self->base_pathw);
 }
 
 static void
@@ -1985,7 +2136,6 @@ g_registry_backend_class_init (GRegistryBackendClass *class)
   backend_class->write_tree = g_registry_backend_write_tree;
   backend_class->reset = g_registry_backend_reset;
   backend_class->get_writable = g_registry_backend_get_writable;
-  backend_class->get_permission = g_registry_backend_get_permission;
   backend_class->subscribe = g_registry_backend_subscribe;
   backend_class->unsubscribe = g_registry_backend_unsubscribe;
 }
@@ -1994,7 +2144,9 @@ static void
 g_registry_backend_init (GRegistryBackend *self)
 {
   RegistryCacheItem *item;
+
   self->base_path = g_strdup_printf ("Software\\GSettings");
+  self->base_pathw = g_utf8_to_utf16 (self->base_path, -1, NULL, NULL, NULL);
 
   item = g_slice_new (RegistryCacheItem);
   item->value.type = REG_NONE;
