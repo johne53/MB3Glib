@@ -1454,7 +1454,7 @@ typedef enum
  *     launching process to the primary instance. Set this flag if your
  *     application is expected to behave differently depending on certain
  *     environment variables. For instance, an editor might be expected
- *     to use the <envar>GIT_COMMITTER_NAME</envar> environment variable
+ *     to use the `GIT_COMMITTER_NAME` environment variable
  *     when editing a git commit message. The environment is available
  *     to the #GApplication::command-line signal handler, via
  *     g_application_command_line_getenv().
@@ -1464,6 +1464,9 @@ typedef enum
  *     owner of the application ID nor does it check if an existing
  *     owner already exists.  Everything occurs in the local process.
  *     Since: 2.30.
+ * @G_APPLICATION_CAN_OVERRIDE_APP_ID: Allow users to override the
+ *     application ID from the command line with `--gapplication-app-id`.
+ *     Since: 2.48
  *
  * Flags used to define the behaviour of a #GApplication.
  *
@@ -1479,7 +1482,9 @@ typedef enum
   G_APPLICATION_HANDLES_COMMAND_LINE = (1 << 3),
   G_APPLICATION_SEND_ENVIRONMENT    =  (1 << 4),
 
-  G_APPLICATION_NON_UNIQUE =           (1 << 5)
+  G_APPLICATION_NON_UNIQUE =           (1 << 5),
+
+  G_APPLICATION_CAN_OVERRIDE_APP_ID =  (1 << 6)
 } GApplicationFlags;
 
 /**

@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [47])
-m4_define([glib_micro_version], [5])
+m4_define([glib_micro_version], [6])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -3386,9 +3386,9 @@ build/Makefile
 build/win32/Makefile
 build/win32/dirent/Makefile
 build/win32/vs9/Makefile
-build/win32/vs9/glib-gen-srcs.vsprops
+build/win32/vs9/glib-version-paths.vsprops
 build/win32/vs10/Makefile
-build/win32/vs10/glib-gen-srcs.props
+build/win32/vs10/glib-version-paths.props
 build/win32/vs11/Makefile
 build/win32/vs12/Makefile
 build/win32/vs14/Makefile

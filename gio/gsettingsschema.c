@@ -950,7 +950,7 @@ g_settings_schema_get_value (GSettingsSchema *schema,
 {
   GSettingsSchema *s = schema;
   GVariantIter *iter;
-  GVariant *value;
+  GVariant *value = NULL;
 
   g_return_val_if_fail (schema != NULL, NULL);
 
@@ -1145,7 +1145,7 @@ g_settings_schema_list (GSettingsSchema *schema,
 
             child_table = NULL;
 
-            for (source = schema_sources; source; source = source->parent)
+            for (source = schema->source; source; source = source->parent)
               if ((child_table = gvdb_table_get_table (source->table, g_variant_get_string (child_schema, NULL))))
                 break;
 
