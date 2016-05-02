@@ -693,6 +693,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gdatagrambased.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gdatainputstream.c"
 				>
 				<FileConfiguration
@@ -939,6 +943,18 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsclientconnection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsconnection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsserverconnection.c"
+				>
 			</File>
 			<File
 				RelativePath="..\gio\gdummyfile.c"
@@ -3792,6 +3808,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\gio\gdatagrambased.h"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\gdbusactiongroup-private.h"
 				>
 			</File>
@@ -3917,6 +3937,18 @@
 			</File>
 			<File
 				RelativePath="..\gio\gdesktopappinfo.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsclientconnection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsconnection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\gdtlsserverconnection.h"
 				>
 			</File>
 			<File
