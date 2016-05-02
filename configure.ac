@@ -30,7 +30,7 @@ m4_define(glib_configure_ac)
 # <mclasen> on the unstable (ie master), interface age = 0
 
 m4_define([glib_major_version], [2])
-m4_define([glib_minor_version], [48])
+m4_define([glib_minor_version], [49])
 m4_define([glib_micro_version], [0])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
@@ -709,7 +709,7 @@ AC_CHECK_HEADERS([sys/param.h sys/resource.h mach/mach_time.h])
 AC_CHECK_HEADERS([sys/select.h stdint.h inttypes.h sched.h malloc.h])
 AC_CHECK_HEADERS([sys/vfs.h sys/vmount.h sys/statfs.h sys/statvfs.h sys/filio.h])
 AC_CHECK_HEADERS([mntent.h sys/mnttab.h sys/vfstab.h sys/mntctl.h fstab.h])
-AC_CHECK_HEADERS([linux/magic.h sys/prctl.h])
+AC_CHECK_HEADERS([linux/magic.h])
 
 # Some versions of MSC lack these
 AC_CHECK_HEADERS([dirent.h sys/time.h])
@@ -2094,6 +2094,16 @@ AS_IF([ test x"$have_threads" = xposix], [
             [AC_MSG_RESULT(yes)
              AC_DEFINE(HAVE_PTHREAD_SETNAME_NP_WITHOUT_TID,1,
                 [Have function pthread_setname_np(const char*)])],
+            [AC_MSG_RESULT(no)])
+        dnl Sets thread names on Solaris 11.3 & higher
+        AC_MSG_CHECKING(for pthread_setname_np(pthread_t, const char*))
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM(
+                [#include <pthread.h>],
+                [pthread_setname_np(pthread_self(), "example")])],
+            [AC_MSG_RESULT(yes)
+             AC_DEFINE(HAVE_PTHREAD_SETNAME_NP_WITH_TID,1,
+                [Have function pthread_setname_np(pthread_t, const char*)])],
             [AC_MSG_RESULT(no)])
         CPPFLAGS="$glib_save_CPPFLAGS"
 ])
