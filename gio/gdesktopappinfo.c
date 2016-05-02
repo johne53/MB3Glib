@@ -20,6 +20,7 @@
  *         Ryan Lortie <desrt@desrt.ca>
  */
 
+#ifndef _MSC_VER /* Added by JE - 13-06-2010 */
 /* Prelude {{{1 */
 
 #include "config.h"
@@ -4574,3 +4575,5 @@ g_desktop_app_info_launch_action (GDesktopAppInfo   *info,
 /* Epilogue {{{1 */
 
 /* vim:set foldmethod=marker: */
+
+#endif /* _MSC_VER */
