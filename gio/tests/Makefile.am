@@ -534,6 +534,10 @@ endif
 
 glib_compile_resources=$(top_builddir)/gio/glib-compile-resources
 
+test-generated.txt: test1.txt
+	$(AM_V_GEN) echo "Generated" > $@ && \
+	  cat $< >> $@
+
 resources.o: test_resources2.h
 test_resources.c: test2.gresource.xml Makefile $(shell $(glib_compile_resources) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/test2.gresource.xml)
 	$(AM_V_GEN) $(glib_compile_resources) --target=$@ --sourcedir=$(srcdir) --generate-source --c-name _g_test1 $<
@@ -544,11 +548,11 @@ test_resources2.h test_resources2.c: test3.gresource.xml Makefile $(shell $(glib
 plugin_resources.c: test4.gresource.xml Makefile $(shell $(glib_compile_resources) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/test4.gresource.xml)
 	$(AM_V_GEN) $(glib_compile_resources) --target=$@ --sourcedir=$(srcdir) --generate-source --c-name _g_plugin $<
 
-test.gresource: test.gresource.xml Makefile $(shell $(glib_compile_resources) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/test.gresource.xml)
-	$(AM_V_GEN) $(glib_compile_resources) --target=$@ --sourcedir=$(srcdir) $<
+test.gresource: test.gresource.xml Makefile $(shell $(glib_compile_resources) --sourcedir=. --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/test.gresource.xml)
+	$(AM_V_GEN) $(glib_compile_resources) --target=$@ --sourcedir=. --sourcedir=$(srcdir) $<
 
 EXTRA_DIST += test.gresource.xml test1.txt test2.gresource.xml test2.txt test3.gresource.xml test3.txt test4.gresource.xml
-CLEANFILES += test_resources.c test_resources2.[ch] plugin_resources.c test.gresource
+CLEANFILES += test-generated.txt test_resources.c test_resources2.[ch] plugin_resources.c test.gresource
 endif # !CROSS_COMPILING
 
 BUILT_SOURCES += giotypefuncs.c

@@ -552,7 +552,7 @@ g_application_command_line_get_stdin (GApplicationCommandLine *cmdline)
  * The return value should not be modified or freed and is valid for as
  * long as @cmdline exists.
  *
- * Returns: the current directory, or %NULL
+ * Returns: (type filename): the current directory, or %NULL
  *
  * Since: 2.28
  **/

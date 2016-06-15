@@ -240,7 +240,7 @@ g_app_info_get_description (GAppInfo *appinfo)
  * 
  * Gets the executable's name for the installed application.
  *
- * Returns: a string containing the @appinfo's application 
+ * Returns: (type filename): a string containing the @appinfo's application
  * binaries name
  **/
 const char *
@@ -263,7 +263,7 @@ g_app_info_get_executable (GAppInfo *appinfo)
  * Gets the commandline with which the application will be
  * started.  
  *
- * Returns: a string containing the @appinfo's commandline, 
+ * Returns: (type filename): a string containing the @appinfo's commandline,
  *     or %NULL if this information is not available
  *
  * Since: 2.20
@@ -339,7 +339,8 @@ g_app_info_set_as_last_used_for_type (GAppInfo    *appinfo,
 /**
  * g_app_info_set_as_default_for_extension:
  * @appinfo: a #GAppInfo.
- * @extension: a string containing the file extension (without the dot).
+ * @extension: (type filename): a string containing the file extension
+ *     (without the dot).
  * @error: a #GError.
  * 
  * Sets the application as the default handler for the given file extension.

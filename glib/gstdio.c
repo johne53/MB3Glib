@@ -58,7 +58,8 @@
 
 /**
  * g_access:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @mode: as in access()
  *
  * A wrapper for the POSIX access() function. This function is used to
@@ -113,7 +114,8 @@ g_access (const gchar *filename,
 
 /**
  * g_chmod:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @mode: as in chmod()
  *
  * A wrapper for the POSIX chmod() function. The chmod() function is
@@ -159,7 +161,8 @@ g_chmod (const gchar *filename,
 }
 /**
  * g_open:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @flags: as in open()
  * @mode: as in open()
  *
@@ -329,7 +332,8 @@ g_open (const gchar *filename,
 
 /**
  * g_creat:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @mode: as in creat()
  *
  * A wrapper for the POSIX creat() function. The creat() function is
@@ -418,8 +422,9 @@ g_creat (const gchar *filename,
 
 /**
  * g_rename:
- * @oldfilename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @newfilename: a pathname in the GLib file name encoding
+ * @oldfilename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
+ * @newfilename: (type filename): a pathname in the GLib file name encoding
  *
  * A wrapper for the POSIX rename() function. The rename() function 
  * renames a file, moving it between directories if required.
@@ -490,7 +495,8 @@ g_rename (const gchar *oldfilename,
 
 /**
  * g_mkdir: 
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @mode: permissions to use for the newly created directory
  *
  * A wrapper for the POSIX mkdir() function. The mkdir() function 
@@ -533,7 +539,8 @@ g_mkdir (const gchar *filename,
 
 /**
  * g_chdir: 
- * @path: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @path: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  *
  * A wrapper for the POSIX chdir() function. The function changes the
  * current directory of the process to @path.
@@ -580,7 +587,8 @@ g_chdir (const gchar *path)
  */
 /**
  * g_stat: 
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @buf: a pointer to a stat struct, which will be filled with the file
  *     information
  *
@@ -647,7 +655,8 @@ g_stat (const gchar *filename,
 
 /**
  * g_lstat: 
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @buf: a pointer to a stat struct, which will be filled with the file
  *     information
  *
@@ -678,7 +687,8 @@ g_lstat (const gchar *filename,
 
 /**
  * g_unlink:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  *
  * A wrapper for the POSIX unlink() function. The unlink() function 
  * deletes a name from the filesystem. If this was the last link to the 
@@ -722,7 +732,8 @@ g_unlink (const gchar *filename)
 
 /**
  * g_remove:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  *
  * A wrapper for the POSIX remove() function. The remove() function
  * deletes a name from the filesystem.
@@ -776,7 +787,8 @@ g_remove (const gchar *filename)
 
 /**
  * g_rmdir:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  *
  * A wrapper for the POSIX rmdir() function. The rmdir() function
  * deletes a directory from the filesystem.
@@ -817,7 +829,8 @@ g_rmdir (const gchar *filename)
 
 /**
  * g_fopen:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @mode: a string describing the mode in which the file should be opened
  *
  * A wrapper for the stdio fopen() function. The fopen() function
@@ -946,7 +959,8 @@ out:
 
 /**
  * g_freopen:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @mode: a string describing the mode in which the file should be  opened
  * @stream: (allow-none): an existing stream which will be reused, or %NULL
  *
@@ -1001,7 +1015,8 @@ g_freopen (const gchar *filename,
 
 /**
  * g_utime:
- * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
+ * @filename: (type filename): a pathname in the GLib file name encoding
+ *     (UTF-8 on Windows)
  * @utb: a pointer to a struct utimbuf.
  *
  * A wrapper for the POSIX utime() function. The utime() function
