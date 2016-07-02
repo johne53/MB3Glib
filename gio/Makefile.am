@@ -391,6 +391,8 @@ libgio_2_0_la_SOURCES =		\
 	ginetsocketaddress.c	\
 	ginitable.c		\
 	ginputstream.c 		\
+	gio_probes.d		\
+	gio_trace.h		\
 	gioenums.h		\
 	gioerror.c 		\
 	giomodule.c 		\
@@ -756,6 +758,37 @@ itsdir = $(datadir)/gettext/its
 dist_its_DATA = gschema.loc gschema.its
 
 # ------------------------------------------------------------------------
+# SystemTap and dtrace
+
+if ENABLE_DTRACE
+gio_probes.h: gio_probes.d
+	$(AM_V_GEN) $(DTRACE) -C -h -s $< -o $@.tmp
+	@$(SED) -e "s,define STAP_HAS_SEMAPHORES 1,undef STAP_HAS_SEMAPHORES," < $@.tmp > $@ && rm -f $@.tmp
+
+gio_probes.lo: gio_probes.d
+	$(AM_V_GEN) $(LIBTOOL) --mode=compile $(AM_V_lt) --tag=CC $(DTRACE) -G -s $< -o $@
+
+BUILT_SOURCES += gio_probes.h gio_probes.lo
+CLEANFILES += gio_probes.h gio_probes.h.tmp
+libgio_2_0_la_LIBADD += gio_probes.lo
+endif
+
+tapsetdir   = @ABS_TAPSET_DIR@
+EXTRA_DIST += gio.stp.in
+
+if ENABLE_SYSTEMTAP
+tapset_DATA = libgio-2.0.so.0.@LT_CURRENT@.@LT_REVISION@.stp
+CLEANFILES += $(tapset_DATA)
+
+$(tapset_DATA): gio.stp.in Makefile
+	$(AM_V_GEN)$(SED) \
+		-e 's|[@]ABS_GLIB_RUNTIME_LIBDIR[@]|$(ABS_GLIB_RUNTIME_LIBDIR)|g' \
+		-e 's|[@]LT_CURRENT[@]|$(LT_CURRENT)|g' \
+		-e 's|[@]LT_REVISION[@]|$(LT_REVISION)|g' \
+		$< > $@
+endif
+
+# ------------------------------------------------------------------------
 # gdbus(1) tool
 
 bin_PROGRAMS += gdbus
@@ -800,10 +833,40 @@ gresource_LDADD = libgio-2.0.la				\
 
 # ------------------------------------------------------------------------
 # ------ MSVC Project File Generation ------
+# ------------------------------------------------------------------------
+#
 MSVCPROJS = gio glib-compile-resources glib-compile-schemas
 
 gio_FILES = $(libgio_2_0_la_SOURCES) $(win32_actual_sources) $(win32_more_sources_for_vcproj)
 gio_EXCLUDES = gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c|gnetworkmonitornm.c
+
+# gio tool
+
+bin_PROGRAMS += gio
+gio_SOURCES = \
+	gio-tool.c					\
+	gio-tool.h					\
+	gio-tool-cat.c					\
+	gio-tool-copy.c					\
+	gio-tool-info.c					\
+	gio-tool-list.c					\
+	gio-tool-mime.c					\
+	gio-tool-mkdir.c				\
+	gio-tool-monitor.c				\
+	gio-tool-mount.c				\
+	gio-tool-move.c					\
+	gio-tool-open.c					\
+	gio-tool-rename.c				\
+	gio-tool-remove.c				\
+	gio-tool-save.c					\
+	gio-tool-set.c					\
+	gio-tool-trash.c				\
+	gio-tool-tree.c					\
+	$(NULL)
+gio_LDADD = libgio-2.0.la 				\
+	$(top_builddir)/gobject/libgobject-2.0.la	\
+	$(top_builddir)/glib/libglib-2.0.la		\
+	$(NULL)
 
 gio_HEADERS_DIR = $(includedir)/glib-2.0/gio
 gio_HEADERS_INST = $(gioinclude_HEADERS) $(nodist_gioinclude_HEADERS)

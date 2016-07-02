@@ -362,30 +362,26 @@ libglib_2_0_la_LDFLAGS = $(GLIB_LINK_FLAGS) \
 INSTALL_PROGS=
 
 if ENABLE_DTRACE
-DTCOMPILE = $(patsubst -W%,,$(LTCOMPILE))
-DTCFLAGS = $(patsubst -W%,,$(CFLAGS))
-
 glib_probes.h: glib_probes.d
 	$(AM_V_GEN) $(DTRACE) -C -h -s $< -o $@.tmp
 	@$(SED) -e "s,define STAP_HAS_SEMAPHORES 1,undef STAP_HAS_SEMAPHORES," < $@.tmp > $@ && rm -f $@.tmp
 
 glib_probes.lo: glib_probes.d
-	$(AM_V_GEN) env CC="$(DTCOMPILE)" CFLAGS="$(DTCFLAGS)" $(DTRACE) -G -s $< -o $@
+	$(AM_V_GEN) $(LIBTOOL) --mode=compile $(AM_V_lt) --tag=CC $(DTRACE) -G -s $< -o $@
 
 BUILT_SOURCES += glib_probes.h glib_probes.lo
 CLEANFILES += glib_probes.h glib_probes.h.tmp
 libglib_2_0_la_LIBADD += glib_probes.lo
 endif
 
-tapset_in_files = glib.stp.in
 tapsetdir   = @ABS_TAPSET_DIR@
-EXTRA_DIST += $(tapset_in_files)
+EXTRA_DIST += glib.stp.in
 
 if ENABLE_SYSTEMTAP
-tapset_DATA = $(tapset_in_files:.stp.in=.stp)
-CLEANFILES += $(tapset_in_files:.stp.in=.stp)
+tapset_DATA = libglib-2.0.so.0.@LT_CURRENT@.@LT_REVISION@.stp
+CLEANFILES += $(tapset_DATA)
 
-$(tapset_DATA): %.stp: %.stp.in Makefile
+$(tapset_DATA): glib.stp.in Makefile
 	$(AM_V_GEN)$(SED) \
 		-e 's|[@]ABS_GLIB_RUNTIME_LIBDIR[@]|$(ABS_GLIB_RUNTIME_LIBDIR)|g' \
 		-e 's|[@]LT_CURRENT[@]|$(LT_CURRENT)|g' \
