@@ -105,7 +105,7 @@ settings_headers = \
 	gsettingsschema.h		\
 	gsettings.h
 
-settings_sources = \
+settings_base_sources = \
 	gvdb/gvdb-format.h		\
 	gvdb/gvdb-reader.h		\
 	gvdb/gvdb-reader.c		\
@@ -123,15 +123,21 @@ settings_sources = \
 	gsettings-mapping.c		\
 	gsettings.c
 
+settings_sources = $(settings_base_sources)
+
 if OS_WIN32
-settings_sources += \
+win32_settings_sources = \
 	gregistrysettingsbackend.h	\
 	gregistrysettingsbackend.c
+
+settings_sources += $(win32_settings_sources)
 endif
 
 if OS_COCOA
-settings_sources += \
+cocoa_settings_sources = \
 	gnextstepsettingsbackend.c
+
+settings_sources += $(cocoa_settings_sources)
 endif
 
 application_headers = \
@@ -240,7 +246,7 @@ SUBDIRS += fam
 endif
 
 if OS_UNIX
-appinfo_sources += gdesktopappinfo.c
+unix_appinfo_sources = gdesktopappinfo.c
 platform_libadd += xdgmime/libxdgmime.la
 platform_deps += xdgmime/libxdgmime.la
 unix_sources = \
@@ -263,7 +269,15 @@ unix_sources = \
 	gcontenttypeprivate.h 	\
 	gfdonotificationbackend.c \
 	ggtknotificationbackend.c \
+	gportalnotificationbackend.c \
+	gdocumentportal.c	\
+	gdocumentportal.h	\
+	gportalsupport.c	\
+	gportalsupport.h	\
+	$(portal_sources)	\
 	$(NULL)
+
+appinfo_sources += $(unix_appinfo_sources)
 
 if OS_COCOA
 unix_sources += gcocoanotificationbackend.c
@@ -326,9 +340,10 @@ win32_more_sources_for_vcproj = \
 	win32/gwin32filemonitor.c
 
 if OS_WIN32
-appinfo_sources += gwin32appinfo.c gwin32appinfo.h
+win32_appinfo_sources = gwin32appinfo.c gwin32appinfo.h
 platform_libadd += -lshlwapi -lws2_32 -ldnsapi -liphlpapi
 win32_sources = $(win32_actual_sources)
+appinfo_sources += $(win32_appinfo_sources)
 
 giowin32includedir=$(includedir)/gio-win32-2.0/gio
 giowin32include_HEADERS = \
@@ -338,7 +353,38 @@ giowin32include_HEADERS = \
 
 endif
 
-libgio_2_0_la_SOURCES =		\
+xdp_dbus_built_sources = xdp-dbus.c xdp-dbus.h
+BUILT_SOURCES += $(xdp_dbus_built_sources)
+CLEANFILES += $(xdp_dbus_built_sources)
+
+portal_interfaces = \
+	org.freedesktop.portal.Documents.xml \
+	org.freedesktop.portal.NetworkMonitor.xml \
+	org.freedesktop.portal.ProxyResolver.xml \
+	$(NULL)
+
+EXTRA_DIST += $(portal_interfaces)
+
+$(xdp_dbus_built_sources) : $(portal_interfaces)
+	$(AM_V_GEN) UNINSTALLED_GLIB_SRCDIR=$(top_srcdir) 		\
+		UNINSTALLED_GLIB_BUILDDIR=$(top_builddir) 		\
+		$(PYTHON) $(srcdir)/gdbus-2.0/codegen/gdbus-codegen.in 	\
+		--interface-prefix org.freedesktop.portal.      	\
+		--c-namespace GXdp					\
+		--generate-c-code $(builddir)/xdp-dbus			\
+		--annotate "org.freedesktop.portal.Documents.Add()" "org.gtk.GDBus.C.UnixFD" "true" \
+		--annotate "org.freedesktop.portal.Documents.AddNamed()" "org.gtk.GDBus.C.UnixFD" "true" \
+		$^
+
+portal_sources = \
+	gnetworkmonitorportal.c 	\
+	gnetworkmonitorportal.h		\
+	gproxyresolverportal.c		\
+	gproxyresolverportal.h		\
+	$(xdp_dbus_built_sources)	\
+	$(NULL)
+
+gio_base_sources =		\
 	gappinfo.c 		\
 	gappinfoprivate.h	\
 	gasynchelper.c 		\
@@ -484,14 +530,18 @@ libgio_2_0_la_SOURCES =		\
 	gioenumtypes.h		\
 	gioenumtypes.c		\
 	glistmodel.c 		\
-	gliststore.c 		\
+	gliststore.c		\
+	$(application_sources) 	\
+	$(gdbus_sources) 	\
+	$(local_sources) 	\
+	$(NULL)
+
+libgio_2_0_la_SOURCES =		\
+	$(gio_base_sources)	\
 	$(appinfo_sources) 	\
 	$(unix_sources) 	\
 	$(win32_sources) 	\
-	$(application_sources) 	\
 	$(settings_sources) 	\
-	$(gdbus_sources) 	\
-	$(local_sources) 	\
 	$(NULL)
 
 EXTRA_DIST += strinfo.c
@@ -832,14 +882,6 @@ gresource_LDADD = libgio-2.0.la				\
 	$(LIBELF_LIBS)
 
 # ------------------------------------------------------------------------
-# ------ MSVC Project File Generation ------
-# ------------------------------------------------------------------------
-#
-MSVCPROJS = gio glib-compile-resources glib-compile-schemas
-
-gio_FILES = $(libgio_2_0_la_SOURCES) $(win32_actual_sources) $(win32_more_sources_for_vcproj)
-gio_EXCLUDES = gunix*.c|gdesktopappinfo.c|gnetworkmonitornetlink.c|gcontenttype.c|gnetworkmonitornm.c
-
 # gio tool
 
 bin_PROGRAMS += gio
@@ -867,6 +909,21 @@ gio_LDADD = libgio-2.0.la 				\
 	$(top_builddir)/gobject/libgobject-2.0.la	\
 	$(top_builddir)/glib/libglib-2.0.la		\
 	$(NULL)
+
+# ------------------------------------------------------------------------
+# ------ MSVC Project File Generation ------
+# ------------------------------------------------------------------------
+#
+MSVCPROJS = gio glib-compile-resources glib-compile-schemas
+
+gio_FILES =	\
+	$(gio_base_sources)			\
+	$(win32_actual_sources)			\
+	$(win32_more_sources_for_vcproj)	\
+	$(settings_base_sources)		\
+	$(win32_settings_sources)
+
+gio_EXCLUDES = dummy
 
 gio_HEADERS_DIR = $(includedir)/glib-2.0/gio
 gio_HEADERS_INST = $(gioinclude_HEADERS) $(nodist_gioinclude_HEADERS)
