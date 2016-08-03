@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [49])
-m4_define([glib_micro_version], [3])
+m4_define([glib_micro_version], [4])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -1729,6 +1729,33 @@ AS_IF([ test $have_libelf = maybe ], [
 if test x$have_libelf = xyes; then
   AC_DEFINE(HAVE_LIBELF, 1, [Define if libelf is available])
 fi
+
+dnl ************************
+dnl *** check for libmount ***
+dnl ************************
+AC_ARG_ENABLE(libmount,
+              [AS_HELP_STRING([--enable-libmount],
+                              [build with libmount support [default=no]])],,
+              [enable_libmount=no])
+
+AS_IF([ test "x$enable_libmount" = "xyes"],[
+PKG_CHECK_MODULES([LIBMOUNT], [mount >= 2.28], [have_libmount=yes], [have_libmount=maybe])
+AS_IF([ test $have_libmount = maybe ], [
+  glib_save_LIBS=$LIBS
+  AC_CHECK_HEADER([libmount/libmount.h], [:], [have_libmount=no])
+  LIBS=$glib_save_LIBS
+
+  if test $have_libmount != no; then
+    LIBMOUNT_LIBS=-lmount
+    have_libmount=yes
+  fi
+])
+])
+
+if test x$have_libmount = xyes; then
+  AC_DEFINE(HAVE_LIBMOUNT, 1, [Define if libmount is available])
+fi
+AM_CONDITIONAL(HAVE_LIBMOUNT, [test x$have_libmount = xyes])
 
 dnl ****************************************
 dnl *** platform dependent source checks ***

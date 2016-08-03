@@ -730,6 +730,9 @@ g_settings_class_init (GSettingsClass *class)
    * This signal supports detailed connections.  You can connect to the
    * detailed signal "changed::x" in order to only receive callbacks
    * when key "x" changes.
+   *
+   * Note that @settings only emits this signal if you have read @key at
+   * least once while a signal handler was already connected for @key.
    */
   g_settings_signals[SIGNAL_CHANGED] =
     g_signal_new (I_("changed"), G_TYPE_SETTINGS,
@@ -2337,6 +2340,9 @@ g_settings_reset (GSettings *settings,
                   const gchar *key)
 {
   gchar *path;
+
+  g_return_if_fail (G_IS_SETTINGS (settings));
+  g_return_if_fail (key != NULL);
 
   path = g_strconcat (settings->priv->path, key, NULL);
   g_settings_backend_reset (settings->priv->backend, path, NULL);

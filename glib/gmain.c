@@ -1837,7 +1837,8 @@ g_source_set_ready_time (GSource *source,
     {
       /* Quite likely that we need to change the timeout on the poll */
       if (!SOURCE_BLOCKED (source))
-        g_wakeup_signal (context->wakeup);
+        if (context->owner && context->owner != G_THREAD_SELF)
+          g_wakeup_signal (context->wakeup);
       UNLOCK_CONTEXT (context);
     }
 }
@@ -3694,10 +3695,17 @@ g_main_context_check (GMainContext *context,
 
   TRACE (GLIB_MAIN_CONTEXT_BEFORE_CHECK (context, max_priority, fds, n_fds));
 
-  if (context->wake_up_rec.revents)
+  for (i = 0; i < n_fds; i++)
     {
-      TRACE (GLIB_MAIN_CONTEXT_WAKEUP_ACKNOWLEDGE (context));
-      g_wakeup_acknowledge (context->wakeup);
+      if (fds[i].fd == context->wake_up_rec.fd)
+        {
+          if (fds[i].revents)
+            {
+              TRACE (GLIB_MAIN_CONTEXT_WAKEUP_ACKNOWLEDGE (context));
+              g_wakeup_acknowledge (context->wakeup);
+            }
+          break;
+        }
     }
 
   /* If the set of poll file descriptors changed, bail out
@@ -4342,7 +4350,8 @@ g_main_context_add_poll_unlocked (GMainContext *context,
   context->poll_changed = TRUE;
 
   /* Now wake up the main loop if it is waiting in the poll() */
-  g_wakeup_signal (context->wakeup);
+  if (context->owner && context->owner != G_THREAD_SELF)
+    g_wakeup_signal (context->wakeup);
 }
 
 /**
@@ -4402,7 +4411,8 @@ g_main_context_remove_poll_unlocked (GMainContext *context,
   context->poll_changed = TRUE;
   
   /* Now wake up the main loop if it is waiting in the poll() */
-  g_wakeup_signal (context->wakeup);
+  if (context->owner && context->owner != G_THREAD_SELF)
+    g_wakeup_signal (context->wakeup);
 }
 
 /**

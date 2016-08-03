@@ -1075,7 +1075,7 @@ parse_args (gint    *argc_p,
                   "  -m {undefined|no-undefined}    Execute tests according to mode\n"
                   "  -p TESTPATH                    Only start test cases matching TESTPATH\n"
                   "  -s TESTPATH                    Skip all tests matching TESTPATH\n"
-                  "  -seed=SEEDSTRING               Start tests with random seed SEEDSTRING\n"
+                  "  --seed=SEEDSTRING              Start tests with random seed SEEDSTRING\n"
                   "  --debug-log                    debug test logging output\n"
                   "  -q, --quiet                    Run tests quietly\n"
                   "  --verbose                      Run tests verbosely\n",
@@ -1128,7 +1128,7 @@ parse_args (gint    *argc_p,
  *   `quick`: Quick tests, should run really quickly and give good coverage.
  *
  *   `undefined`: Tests for undefined behaviour, may provoke programming errors
- *   under g_test_trap_subprocess() or g_test_expect_messages() to check
+ *   under g_test_trap_subprocess() or g_test_expect_message() to check
  *   that appropriate assertions or warnings are given
  *
  *   `no-undefined`: Avoid tests for undefined behaviour
