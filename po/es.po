@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: glib.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=glib&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-07-18 14:45+0000\n"
-"PO-Revision-Date: 2016-07-18 10:16+0200\n"
+"POT-Creation-Date: 2016-08-25 18:43+0000\n"
+"PO-Revision-Date: 2016-08-29 13:59+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español; Castellano <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -47,7 +47,7 @@ msgstr "Omitir el ID de la aplicación"
 
 #: ../gio/gapplication-tool.c:45 ../gio/gapplication-tool.c:46
 #: ../gio/gio-tool.c:209 ../gio/gresource-tool.c:488
-#: ../gio/gsettings-tool.c:512
+#: ../gio/gsettings-tool.c:520
 msgid "Print help"
 msgstr "Imprimir ayuda"
 
@@ -60,7 +60,7 @@ msgstr "[COMANDO]"
 msgid "Print version"
 msgstr "Imprimir versión"
 
-#: ../gio/gapplication-tool.c:50 ../gio/gsettings-tool.c:518
+#: ../gio/gapplication-tool.c:50 ../gio/gsettings-tool.c:526
 msgid "Print version information and exit"
 msgstr "Mostrar información de la versión y salir"
 
@@ -124,9 +124,9 @@ msgid "Application identifier in D-Bus format (eg: org.example.viewer)"
 msgstr ""
 "Identificador de la aplicación en formato D-Bus (ej. org.example.viewer)"
 
-#: ../gio/gapplication-tool.c:72 ../gio/glib-compile-resources.c:622
-#: ../gio/glib-compile-resources.c:653 ../gio/gresource-tool.c:495
-#: ../gio/gresource-tool.c:561
+#: ../gio/gapplication-tool.c:72 ../gio/glib-compile-resources.c:620
+#: ../gio/glib-compile-resources.c:626 ../gio/glib-compile-resources.c:652
+#: ../gio/gresource-tool.c:495 ../gio/gresource-tool.c:561
 msgid "FILE"
 msgstr "ARCHIVO"
 
@@ -152,7 +152,7 @@ msgstr ""
 "Parámetro opcionales para la invocación de la acción, en formato GVariant"
 
 #: ../gio/gapplication-tool.c:96 ../gio/gresource-tool.c:526
-#: ../gio/gsettings-tool.c:598
+#: ../gio/gsettings-tool.c:612
 #, c-format
 msgid ""
 "Unknown command %s\n"
@@ -166,7 +166,7 @@ msgid "Usage:\n"
 msgstr "Uso:\n"
 
 #: ../gio/gapplication-tool.c:114 ../gio/gresource-tool.c:551
-#: ../gio/gsettings-tool.c:632
+#: ../gio/gsettings-tool.c:647
 msgid "Arguments:\n"
 msgstr "Argumentos:\n"
 
@@ -315,14 +315,14 @@ msgid "Not enough space in destination"
 msgstr "No hay suficiente espacio en el destino"
 
 #: ../gio/gcharsetconverter.c:342 ../gio/gdatainputstream.c:848
-#: ../gio/gdatainputstream.c:1257 ../glib/gconvert.c:438 ../glib/gconvert.c:845
-#: ../glib/giochannel.c:1556 ../glib/giochannel.c:1598
+#: ../gio/gdatainputstream.c:1257 ../glib/gconvert.c:438
+#: ../glib/gconvert.c:845 ../glib/giochannel.c:1556 ../glib/giochannel.c:1598
 #: ../glib/giochannel.c:2442 ../glib/gutf8.c:855 ../glib/gutf8.c:1308
 msgid "Invalid byte sequence in conversion input"
 msgstr "Hay una secuencia de bytes no válida en la entrada de conversión"
 
-#: ../gio/gcharsetconverter.c:347 ../glib/gconvert.c:446 ../glib/gconvert.c:770
-#: ../glib/giochannel.c:1563 ../glib/giochannel.c:2454
+#: ../gio/gcharsetconverter.c:347 ../glib/gconvert.c:446
+#: ../glib/gconvert.c:770 ../glib/giochannel.c:1563 ../glib/giochannel.c:2454
 #, c-format
 msgid "Error during conversion: %s"
 msgstr "Falló durante la conversión: %s"
@@ -1760,7 +1760,7 @@ msgstr "El destino %s no es una carpeta"
 
 #: ../gio/gio-tool-copy.c:187 ../gio/gio-tool-move.c:181
 #, c-format
-msgid "%s: overwrite '%s' ? "
+msgid "%s: overwrite '%s'? "
 msgstr "%s: ¿sobrescribir «%s» ? "
 
 #: ../gio/gio-tool-info.c:34
@@ -1779,7 +1779,8 @@ msgstr "Los atributos que obtener"
 msgid "ATTRIBUTES"
 msgstr "ATRIBUTOS"
 
-#: ../gio/gio-tool-info.c:37 ../gio/gio-tool-list.c:38 ../gio/gio-tool-set.c:34
+#: ../gio/gio-tool-info.c:37 ../gio/gio-tool-list.c:38
+#: ../gio/gio-tool-set.c:34
 msgid "Don't follow symbolic links"
 msgstr "No seguir enlaces simbólicos"
 
@@ -1859,7 +1860,7 @@ msgstr ""
 "o simplemente por su espacio de nombres, ej. unix o con «*», que obtiene "
 "todos los atributos"
 
-#: ../gio/gio-tool-info.c:307
+#: ../gio/gio-tool-info.c:307 ../gio/gio-tool-mkdir.c:74
 msgid "No locations given"
 msgstr "No se han proporcionado ubicaciones"
 
@@ -1979,10 +1980,6 @@ msgstr ""
 "gio mkdir es similar a la utilidad «mkdir» tradicional, pero usando\n"
 "ubicaciones GIO en lugar de archivos locales: por ejemplo, puede\n"
 "usar algo como smb://servidor/recurso/archivo.txt como ubicación."
-
-#: ../gio/gio-tool-mkdir.c:74
-msgid "No locations gives"
-msgstr "No se han indicado las ubicaciones"
 
 #: ../gio/gio-tool-monitor.c:37
 msgid "Monitor a directory (default: depends on type)"
@@ -2325,16 +2322,16 @@ msgstr "Error al leer el archivo %s: %s"
 msgid "Error compressing file %s"
 msgstr "Error al comprimir el archivo %s"
 
-#: ../gio/glib-compile-resources.c:470 ../gio/glib-compile-schemas.c:1603
+#: ../gio/glib-compile-resources.c:469 ../gio/glib-compile-schemas.c:1603
 #, c-format
 msgid "text may not appear inside <%s>"
 msgstr "El texto no debe aparecer dentro de <%s>"
 
-#: ../gio/glib-compile-resources.c:622
+#: ../gio/glib-compile-resources.c:620
 msgid "name of the output file"
 msgstr "nombre del archivo de salida"
 
-#: ../gio/glib-compile-resources.c:623
+#: ../gio/glib-compile-resources.c:621
 msgid ""
 "The directories where files are to be read from (default to current "
 "directory)"
@@ -2342,45 +2339,49 @@ msgstr ""
 "La carpeta de la que se tienen que leer los archivos (la predeterminada es "
 "la carpeta actual)"
 
-#: ../gio/glib-compile-resources.c:623 ../gio/glib-compile-schemas.c:2036
+#: ../gio/glib-compile-resources.c:621 ../gio/glib-compile-schemas.c:2036
 #: ../gio/glib-compile-schemas.c:2065
 msgid "DIRECTORY"
 msgstr "CARPETA"
 
-#: ../gio/glib-compile-resources.c:624
+#: ../gio/glib-compile-resources.c:622
 msgid ""
 "Generate output in the format selected for by the target filename extension"
 msgstr ""
 "Generar salida en el formato seleccionado por la extensión del nombre del "
 "archivo objetivo"
 
-#: ../gio/glib-compile-resources.c:625
+#: ../gio/glib-compile-resources.c:623
 msgid "Generate source header"
 msgstr "Generar cabecera fuente"
 
-#: ../gio/glib-compile-resources.c:626
+#: ../gio/glib-compile-resources.c:624
 msgid "Generate sourcecode used to link in the resource file into your code"
 msgstr ""
 "Generar el código fuente usado para enlazar el archivo del recurso en su "
 "código fuente"
 
-#: ../gio/glib-compile-resources.c:627
+#: ../gio/glib-compile-resources.c:625
 msgid "Generate dependency list"
 msgstr "Generar lista de dependencias"
 
-#: ../gio/glib-compile-resources.c:628
+#: ../gio/glib-compile-resources.c:626
+msgid "name of the dependency file to generate"
+msgstr "nombre del archivo de dependencias que generar"
+
+#: ../gio/glib-compile-resources.c:627
 msgid "Don't automatically create and register resource"
 msgstr "No crear y registrar automáticamente un recurso"
 
-#: ../gio/glib-compile-resources.c:629
+#: ../gio/glib-compile-resources.c:628
 msgid "Don't export functions; declare them G_GNUC_INTERNAL"
 msgstr "No exportar funciones; declararlas como G_GNUC_INTERNAL"
 
-#: ../gio/glib-compile-resources.c:630
+#: ../gio/glib-compile-resources.c:629
 msgid "C identifier name used for the generated source code"
 msgstr "Nombre del identificador C usado para el código fuente generado"
 
-#: ../gio/glib-compile-resources.c:656
+#: ../gio/glib-compile-resources.c:655
 msgid ""
 "Compile a resource specification into a resource file.\n"
 "Resource specification files have the extension .gresource.xml,\n"
@@ -2391,7 +2392,7 @@ msgstr ""
 "gresource.xml,\n"
 "y el archivo del recurso debe tener la extensión se llama .gresource."
 
-#: ../gio/glib-compile-resources.c:672
+#: ../gio/glib-compile-resources.c:671
 #, c-format
 msgid "You should give exactly one file name\n"
 msgstr "Deberá proporcionar exactamente un nombre de archivo\n"
@@ -3215,7 +3216,7 @@ msgstr ""
 msgid "  SECTION   An (optional) elf section name\n"
 msgstr "  SECCIÓN   El nombre de sección (opcional) de un elf\n"
 
-#: ../gio/gresource-tool.c:559 ../gio/gsettings-tool.c:639
+#: ../gio/gresource-tool.c:559 ../gio/gsettings-tool.c:654
 msgid "  COMMAND   The (optional) command to explain\n"
 msgstr "  COMANDO   El comando (opcional) que explicar\n"
 
@@ -3249,7 +3250,7 @@ msgid "  PATH      A resource path\n"
 msgstr "  RUTA      La ruta de un recurso\n"
 
 #: ../gio/gsettings-tool.c:51 ../gio/gsettings-tool.c:72
-#: ../gio/gsettings-tool.c:830
+#: ../gio/gsettings-tool.c:851
 #, c-format
 msgid "No such schema '%s'\n"
 msgstr "No existe el esquema «%s»\n"
@@ -3284,38 +3285,38 @@ msgstr "La ruta debe terminar con una barra (/)\n"
 msgid "Path must not contain two adjacent slashes (//)\n"
 msgstr "La ruta no debe contener dos barras adyacentes (//)\n"
 
-#: ../gio/gsettings-tool.c:481
+#: ../gio/gsettings-tool.c:489
 #, c-format
 msgid "The provided value is outside of the valid range\n"
 msgstr "El valor proporcionado está fuera del rango válido\n"
 
-#: ../gio/gsettings-tool.c:488
+#: ../gio/gsettings-tool.c:496
 #, c-format
 msgid "The key is not writable\n"
 msgstr "No se puede escribir la clave\n"
 
-#: ../gio/gsettings-tool.c:524
+#: ../gio/gsettings-tool.c:532
 msgid "List the installed (non-relocatable) schemas"
 msgstr "Listar los esquemas instalados (no reubicables)"
 
-#: ../gio/gsettings-tool.c:530
+#: ../gio/gsettings-tool.c:538
 msgid "List the installed relocatable schemas"
 msgstr "Listar los esquemas reubicables instalados"
 
-#: ../gio/gsettings-tool.c:536
+#: ../gio/gsettings-tool.c:544
 msgid "List the keys in SCHEMA"
 msgstr "Listar las claves en el ESQUEMA"
 
-#: ../gio/gsettings-tool.c:537 ../gio/gsettings-tool.c:543
-#: ../gio/gsettings-tool.c:580
+#: ../gio/gsettings-tool.c:545 ../gio/gsettings-tool.c:551
+#: ../gio/gsettings-tool.c:594
 msgid "SCHEMA[:PATH]"
 msgstr "ESQUEMA[:RUTA]"
 
-#: ../gio/gsettings-tool.c:542
+#: ../gio/gsettings-tool.c:550
 msgid "List the children of SCHEMA"
 msgstr "Listar los hijos del ESQUEMA"
 
-#: ../gio/gsettings-tool.c:548
+#: ../gio/gsettings-tool.c:556
 msgid ""
 "List keys and values, recursively\n"
 "If no SCHEMA is given, list all keys\n"
@@ -3323,45 +3324,51 @@ msgstr ""
 "Listar las claves y valores recursivamente\n"
 "Si no se proporciona un ESQUEMA, listar todas las claves\n"
 
-#: ../gio/gsettings-tool.c:550
+#: ../gio/gsettings-tool.c:558
 msgid "[SCHEMA[:PATH]]"
 msgstr "[ESQUEMA[:RUTA]]"
 
-#: ../gio/gsettings-tool.c:555
+#: ../gio/gsettings-tool.c:563
 msgid "Get the value of KEY"
 msgstr "Obtener el valor de la CLAVE"
 
-#: ../gio/gsettings-tool.c:556 ../gio/gsettings-tool.c:562
-#: ../gio/gsettings-tool.c:574 ../gio/gsettings-tool.c:586
+#: ../gio/gsettings-tool.c:564 ../gio/gsettings-tool.c:570
+#: ../gio/gsettings-tool.c:576 ../gio/gsettings-tool.c:588
+#: ../gio/gsettings-tool.c:600
 msgid "SCHEMA[:PATH] KEY"
 msgstr "ESQUEMA[:RUTA] CLAVE"
 
-#: ../gio/gsettings-tool.c:561
+#: ../gio/gsettings-tool.c:569
 msgid "Query the range of valid values for KEY"
 msgstr "Consultar el rango de valores válidos para la CLAVE"
 
-#: ../gio/gsettings-tool.c:567
+#: ../gio/gsettings-tool.c:575
+#| msgid "Query the range of valid values for KEY"
+msgid "Query the description for KEY"
+msgstr "Consultar la descripción para la CLAVE"
+
+#: ../gio/gsettings-tool.c:581
 msgid "Set the value of KEY to VALUE"
 msgstr "Establecer el valor de la CLAVE a VALOR"
 
-#: ../gio/gsettings-tool.c:568
+#: ../gio/gsettings-tool.c:582
 msgid "SCHEMA[:PATH] KEY VALUE"
 msgstr "ESQUEMA[:RUTA] CLAVE VALOR"
 
-#: ../gio/gsettings-tool.c:573
+#: ../gio/gsettings-tool.c:587
 msgid "Reset KEY to its default value"
 msgstr "Restablecer la CLAVE a su valor predeterminado"
 
-#: ../gio/gsettings-tool.c:579
+#: ../gio/gsettings-tool.c:593
 msgid "Reset all keys in SCHEMA to their defaults"
 msgstr ""
 "Restablecer todas las claves en un ESQUEMA a sus valores predeterminados"
 
-#: ../gio/gsettings-tool.c:585
+#: ../gio/gsettings-tool.c:599
 msgid "Check if KEY is writable"
 msgstr "Comprobar si la CLAVE se puede escribir"
 
-#: ../gio/gsettings-tool.c:591
+#: ../gio/gsettings-tool.c:605
 msgid ""
 "Monitor KEY for changes.\n"
 "If no KEY is specified, monitor all keys in SCHEMA.\n"
@@ -3371,11 +3378,33 @@ msgstr ""
 "Si no se especifica una CLAVE, monitorizar todas las claves en el ESQUEMA.\n"
 "Use ^C para detener la monitorización.\n"
 
-#: ../gio/gsettings-tool.c:594
+#: ../gio/gsettings-tool.c:608
 msgid "SCHEMA[:PATH] [KEY]"
 msgstr "ESQUEMA[:RUTA] [CLAVE]"
 
-#: ../gio/gsettings-tool.c:606
+#: ../gio/gsettings-tool.c:620
+#| msgid ""
+#| "Usage:\n"
+#| "  gsettings --version\n"
+#| "  gsettings [--schemadir SCHEMADIR] COMMAND [ARGS...]\n"
+#| "\n"
+#| "Commands:\n"
+#| "  help                      Show this information\n"
+#| "  list-schemas              List installed schemas\n"
+#| "  list-relocatable-schemas  List relocatable schemas\n"
+#| "  list-keys                 List keys in a schema\n"
+#| "  list-children             List children of a schema\n"
+#| "  list-recursively          List keys and values, recursively\n"
+#| "  range                     Queries the range of a key\n"
+#| "  get                       Get the value of a key\n"
+#| "  set                       Set the value of a key\n"
+#| "  reset                     Reset the value of a key\n"
+#| "  reset-recursively         Reset all values in a given schema\n"
+#| "  writable                  Check if a key is writable\n"
+#| "  monitor                   Watch for changes\n"
+#| "\n"
+#| "Use 'gsettings help COMMAND' to get detailed help.\n"
+#| "\n"
 msgid ""
 "Usage:\n"
 "  gsettings --version\n"
@@ -3389,6 +3418,7 @@ msgid ""
 "  list-children             List children of a schema\n"
 "  list-recursively          List keys and values, recursively\n"
 "  range                     Queries the range of a key\n"
+"  describe                  Queries the description of a key\n"
 "  get                       Get the value of a key\n"
 "  set                       Set the value of a key\n"
 "  reset                     Reset the value of a key\n"
@@ -3411,6 +3441,7 @@ msgstr ""
 "  list-children             Listar los hijos de un esquema\n"
 "  list-recursively          Listar claves y valores recursivamente\n"
 "  range                     Consultar el rango de una clave\n"
+"  describe                  Consultar la descripción de la clave\n"
 "  get                       Obtener el valor de una clave\n"
 "  set                       Establecer el valor de una clave\n"
 "  reset                     Restablecer el valor de una clave\n"
@@ -3422,7 +3453,7 @@ msgstr ""
 "Use «gsettings help COMANDO» para obtener una ayuda detallada.\n"
 "\n"
 
-#: ../gio/gsettings-tool.c:629
+#: ../gio/gsettings-tool.c:644
 #, c-format
 msgid ""
 "Usage:\n"
@@ -3437,11 +3468,11 @@ msgstr ""
 "%s\n"
 "\n"
 
-#: ../gio/gsettings-tool.c:635
+#: ../gio/gsettings-tool.c:650
 msgid "  SCHEMADIR A directory to search for additional schemas\n"
 msgstr "  CARPETA_ESQUEMA: una carpeta para buscar esquemas adicionales\n"
 
-#: ../gio/gsettings-tool.c:643
+#: ../gio/gsettings-tool.c:658
 msgid ""
 "  SCHEMA    The name of the schema\n"
 "  PATH      The path, for relocatable schemas\n"
@@ -3449,34 +3480,34 @@ msgstr ""
 "  SCHEMA      El nombre del esquema\n"
 "  RUTA        La ruta, para esquemas reubicables\n"
 
-#: ../gio/gsettings-tool.c:648
+#: ../gio/gsettings-tool.c:663
 msgid "  KEY       The (optional) key within the schema\n"
 msgstr "  CLAVE      La clave (opcional) para el esquema\n"
 
-#: ../gio/gsettings-tool.c:652
+#: ../gio/gsettings-tool.c:667
 msgid "  KEY       The key within the schema\n"
 msgstr "  CLAVE      La clave para el esquema\n"
 
-#: ../gio/gsettings-tool.c:656
+#: ../gio/gsettings-tool.c:671
 msgid "  VALUE     The value to set\n"
 msgstr "  VALOR     El valor para establecer\n"
 
-#: ../gio/gsettings-tool.c:711
+#: ../gio/gsettings-tool.c:726
 #, c-format
 msgid "Could not load schemas from %s: %s\n"
 msgstr "No se pudieron cargar los esquemas de %s: %s\n"
 
-#: ../gio/gsettings-tool.c:723
+#: ../gio/gsettings-tool.c:738
 #, c-format
 msgid "No schemas installed\n"
 msgstr "No hay esquemas instalados\n"
 
-#: ../gio/gsettings-tool.c:788
+#: ../gio/gsettings-tool.c:809
 #, c-format
 msgid "Empty schema name given\n"
 msgstr "Se proporcionó un nombre de esquema vacío\n"
 
-#: ../gio/gsettings-tool.c:843
+#: ../gio/gsettings-tool.c:864
 #, c-format
 msgid "No such key '%s'\n"
 msgstr "No existe la clave «%s»\n"
@@ -3888,7 +3919,7 @@ msgstr "Error al leer del descriptor del archivo: %s"
 msgid "Error closing file descriptor: %s"
 msgstr "Error al cerrar el descriptor del archivo: %s"
 
-#: ../gio/gunixmounts.c:2099 ../gio/gunixmounts.c:2152
+#: ../gio/gunixmounts.c:2329 ../gio/gunixmounts.c:2382
 msgid "Filesystem root"
 msgstr "Sistema de archivos raíz"
 
@@ -5125,7 +5156,7 @@ msgstr "el nombre es demasiado largo en (*MARK), (*PRUNE), (*SKIP), o (*THEN)"
 msgid "character value in \\u.... sequence is too large"
 msgstr "el valor del carácter en la secuencia \\u{…} es demasiado largo"
 
-#: ../glib/gregex.c:746 ../glib/gregex.c:1973
+#: ../glib/gregex.c:746 ../glib/gregex.c:1977
 #, c-format
 msgid "Error while matching regular expression %s: %s"
 msgstr "Error al coincidir con la expresión regular %s: %s"
@@ -5153,43 +5184,43 @@ msgstr "Error al optimizar la expresión regular %s: %s"
 msgid "Error while compiling regular expression %s at char %d: %s"
 msgstr "Error al compilar la expresión regular %s en el carácter %d: %s"
 
-#: ../glib/gregex.c:2409
+#: ../glib/gregex.c:2413
 msgid "hexadecimal digit or '}' expected"
 msgstr "se esperaba un dígito hexadecimal o «}»"
 
-#: ../glib/gregex.c:2425
+#: ../glib/gregex.c:2429
 msgid "hexadecimal digit expected"
 msgstr "se esperaba un dígito hexadecimal"
 
-#: ../glib/gregex.c:2465
+#: ../glib/gregex.c:2469
 msgid "missing '<' in symbolic reference"
 msgstr "falta «<» en la referencia simbólica"
 
-#: ../glib/gregex.c:2474
+#: ../glib/gregex.c:2478
 msgid "unfinished symbolic reference"
 msgstr "referencia de símbolo sin terminar"
 
-#: ../glib/gregex.c:2481
+#: ../glib/gregex.c:2485
 msgid "zero-length symbolic reference"
 msgstr "referencia simbólica de longitud cero"
 
-#: ../glib/gregex.c:2492
+#: ../glib/gregex.c:2496
 msgid "digit expected"
 msgstr "se esperaba un dígito"
 
-#: ../glib/gregex.c:2510
+#: ../glib/gregex.c:2514
 msgid "illegal symbolic reference"
 msgstr "referencia simbólica ilegal"
 
-#: ../glib/gregex.c:2572
+#: ../glib/gregex.c:2576
 msgid "stray final '\\'"
 msgstr "«\\» al final de la cadena"
 
-#: ../glib/gregex.c:2576
+#: ../glib/gregex.c:2580
 msgid "unknown escape sequence"
 msgstr "secuencia de escape desconocida"
 
-#: ../glib/gregex.c:2586
+#: ../glib/gregex.c:2590
 #, c-format
 msgid "Error while parsing replacement text \"%s\" at char %lu: %s"
 msgstr "Error al analizar el texto de reemplazo «%s» en el carácter %lu: %s"
@@ -5448,6 +5479,9 @@ msgstr[1] "%s bytes"
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KB"
+
+#~ msgid "No locations gives"
+#~ msgstr "No se han indicado las ubicaciones"
 
 #~ msgid "Error renaming file: %s"
 #~ msgstr "Error al renombrar el archivo: %s"
