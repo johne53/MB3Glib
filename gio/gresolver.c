@@ -72,10 +72,13 @@ struct _GResolverPrivate {
  *
  * The object that handles DNS resolution. Use g_resolver_get_default()
  * to get the default resolver.
+ *
+ * This is an abstract type; subclasses of it implement different resolvers for
+ * different platforms and situations.
  */
-G_DEFINE_TYPE_WITH_CODE (GResolver, g_resolver, G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (GResolver)
-			 g_networking_init ();)
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (GResolver, g_resolver, G_TYPE_OBJECT,
+                                  G_ADD_PRIVATE (GResolver)
+                                  g_networking_init ();)
 
 static GList *
 srv_records_to_targets (GList *records)
@@ -327,7 +330,7 @@ handle_ip_address (const char  *hostname,
 #endif
     {
       g_set_error (error, G_RESOLVER_ERROR, G_RESOLVER_ERROR_NOT_FOUND,
-                   _("Error resolving '%s': %s"),
+                   _("Error resolving “%s”: %s"),
                    hostname, gai_strerror (EAI_NONAME));
       return TRUE;
     }

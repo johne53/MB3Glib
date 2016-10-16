@@ -245,7 +245,7 @@ end_element (GMarkupParseContext  *context,
 	  if (real_file == NULL && state->collect_data)
 	    {
 		g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-			     _("Failed to locate '%s' in any source directory"), file);
+			     _("Failed to locate “%s” in any source directory"), file);
 		return;
 	    }
 	}
@@ -256,7 +256,7 @@ end_element (GMarkupParseContext  *context,
 	  if (!exists && state->collect_data)
 	    {
 	      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-			   _("Failed to locate '%s' in current directory"), file);
+			   _("Failed to locate “%s” in current directory"), file);
 	      return;
 	    }
 	}
@@ -287,7 +287,7 @@ end_element (GMarkupParseContext  *context,
               else
                 {
                   g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                               _("Unknown processing option \"%s\""), options[i]);
+                               _("Unknown processing option “%s”"), options[i]);
                   g_strfreev (options);
                   goto cleanup;
                 }
@@ -603,6 +603,7 @@ main (int argc, char **argv)
   GHashTable *table;
   GHashTable *files;
   gchar *srcfile;
+  gboolean show_version_and_exit = FALSE;
   gchar *target = NULL;
   gchar *binary_target = NULL;
   gboolean generate_automatic = FALSE;
@@ -617,6 +618,7 @@ main (int argc, char **argv)
   const char *linkage = "extern";
   GOptionContext *context;
   GOptionEntry entries[] = {
+    { "version", 0, 0, G_OPTION_ARG_NONE, &show_version_and_exit, N_("Show program version and exit"), NULL },
     { "target", 0, 0, G_OPTION_ARG_FILENAME, &target, N_("name of the output file"), N_("FILE") },
     { "sourcedir", 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &sourcedirs, N_("The directories where files are to be read from (default to current directory)"), N_("DIRECTORY") },
     { "generate", 0, 0, G_OPTION_ARG_NONE, &generate_automatic, N_("Generate output in the format selected for by the target filename extension"), NULL },
@@ -624,8 +626,8 @@ main (int argc, char **argv)
     { "generate-source", 0, 0, G_OPTION_ARG_NONE, &generate_source, N_("Generate sourcecode used to link in the resource file into your code"), NULL },
     { "generate-dependencies", 0, 0, G_OPTION_ARG_NONE, &generate_dependencies, N_("Generate dependency list"), NULL },
     { "dependency-file", 0, 0, G_OPTION_ARG_FILENAME, &dependency_file, N_("name of the dependency file to generate"), N_("FILE") },
-    { "manual-register", 0, 0, G_OPTION_ARG_NONE, &manual_register, N_("Don't automatically create and register resource"), NULL },
-    { "internal", 0, 0, G_OPTION_ARG_NONE, &internal, N_("Don't export functions; declare them G_GNUC_INTERNAL"), NULL },
+    { "manual-register", 0, 0, G_OPTION_ARG_NONE, &manual_register, N_("Don’t automatically create and register resource"), NULL },
+    { "internal", 0, 0, G_OPTION_ARG_NONE, &internal, N_("Don’t export functions; declare them G_GNUC_INTERNAL"), NULL },
     { "c-name", 0, 0, G_OPTION_ARG_STRING, &c_name, N_("C identifier name used for the generated source code"), NULL },
     { NULL }
   };
@@ -665,6 +667,12 @@ main (int argc, char **argv)
     }
 
   g_option_context_free (context);
+
+  if (show_version_and_exit)
+    {
+      g_print (PACKAGE_VERSION "\n");
+      return 0;
+    }
 
   if (argc != 2)
     {
