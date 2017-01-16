@@ -14,9 +14,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -1912,6 +1911,7 @@ g_regex_match_all_full (const GRegex      *regex,
   gboolean done;
   pcre *pcre_re;
   pcre_extra *extra;
+  gboolean retval;
 
   g_return_val_if_fail (regex != NULL, FALSE);
   g_return_val_if_fail (string != NULL, FALSE);
@@ -1985,13 +1985,14 @@ g_regex_match_all_full (const GRegex      *regex,
 
   /* set info->pos to -1 so that a call to g_match_info_next() fails. */
   info->pos = -1;
+  retval = info->matches >= 0;
 
   if (match_info != NULL)
     *match_info = info;
   else
     g_match_info_free (info);
 
-  return info->matches >= 0;
+  return retval;
 }
 
 /**
@@ -2293,7 +2294,6 @@ g_regex_split_full (const GRegex      *regex,
     {
       g_propagate_error (error, tmp_error);
       g_list_free_full (list, g_free);
-      match_info->pos = -1;
       return NULL;
     }
 
