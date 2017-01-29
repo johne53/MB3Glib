@@ -1349,7 +1349,7 @@ wrap_g_open (const gchar *filename,
 }
 
 /**
- * g_mkdtemp_full:
+ * g_mkdtemp_full: (skip)
  * @tmpl: (type filename): template directory name
  * @mode: permissions to create the temporary directory with
  *
@@ -1358,12 +1358,16 @@ wrap_g_open (const gchar *filename,
  *
  * The parameter is a string that should follow the rules for
  * mkdtemp() templates, i.e. contain the string "XXXXXX".
- * g_mkdtemp() is slightly more flexible than mkdtemp() in that the
+ * g_mkdtemp_full() is slightly more flexible than mkdtemp() in that the
  * sequence does not have to occur at the very end of the template
  * and you can pass a @mode. The X string will be modified to form
  * the name of a directory that didn't exist. The string should be
  * in the GLib file name encoding. Most importantly, on Windows it
  * should be in UTF-8.
+ *
+ * If you are going to be creating a temporary directory inside the
+ * directory returned by g_get_tmp_dir(), you might want to use
+ * g_dir_make_tmp() instead.
  *
  * Returns: (nullable) (type filename): A pointer to @tmpl, which has been
  *     modified to hold the directory name. In case of errors, %NULL is
@@ -1382,7 +1386,7 @@ g_mkdtemp_full (gchar *tmpl,
 }
 
 /**
- * g_mkdtemp:
+ * g_mkdtemp: (skip)
  * @tmpl: (type filename): template directory name
  *
  * Creates a temporary directory. See the mkdtemp() documentation
@@ -1391,11 +1395,15 @@ g_mkdtemp_full (gchar *tmpl,
  * The parameter is a string that should follow the rules for
  * mkdtemp() templates, i.e. contain the string "XXXXXX".
  * g_mkdtemp() is slightly more flexible than mkdtemp() in that the
- * sequence does not have to occur at the very end of the template
- * and you can pass a @mode and additional @flags. The X string will
- * be modified to form the name of a directory that didn't exist.
+ * sequence does not have to occur at the very end of the template.
+ * The X string will be modified to form the name of a directory that
+ * didn't exist.
  * The string should be in the GLib file name encoding. Most importantly,
  * on Windows it should be in UTF-8.
+ *
+ * If you are going to be creating a temporary directory inside the
+ * directory returned by g_get_tmp_dir(), you might want to use
+ * g_dir_make_tmp() instead.
  *
  * Returns: (nullable) (type filename): A pointer to @tmpl, which has been
  *     modified to hold the directory name.  In case of errors, %NULL is
@@ -1410,7 +1418,7 @@ g_mkdtemp (gchar *tmpl)
 }
 
 /**
- * g_mkstemp_full:
+ * g_mkstemp_full: (skip)
  * @tmpl: (type filename): template filename
  * @flags: flags to pass to an open() call in addition to O_EXCL
  *     and O_CREAT, which are passed automatically
@@ -1446,7 +1454,7 @@ g_mkstemp_full (gchar *tmpl,
 }
 
 /**
- * g_mkstemp:
+ * g_mkstemp: (skip)
  * @tmpl: (type filename): template filename
  *
  * Opens a temporary file. See the mkstemp() documentation
