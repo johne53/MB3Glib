@@ -838,7 +838,7 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  * G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT:
  *
  * A key in the "trash" namespace.  When requested against
- * "trash:///" returns the number of (toplevel) items in the trash folder.
+ * `trash:///` returns the number of (toplevel) items in the trash folder.
  * Corresponding #GFileAttributeType is %G_FILE_ATTRIBUTE_TYPE_UINT32.
  **/
 #define G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT "trash::item-count"     /* uint32 */
@@ -847,7 +847,7 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  * G_FILE_ATTRIBUTE_TRASH_ORIG_PATH:
  *
  * A key in the "trash" namespace.  When requested against
- * items in "trash:///", will return the original path to the file before it
+ * items in `trash:///`, will return the original path to the file before it
  * was trashed. Corresponding #GFileAttributeType is
  * %G_FILE_ATTRIBUTE_TYPE_BYTE_STRING.
  *
@@ -859,13 +859,24 @@ typedef struct _GFileInfoClass   GFileInfoClass;
  * G_FILE_ATTRIBUTE_TRASH_DELETION_DATE:
  *
  * A key in the "trash" namespace.  When requested against
- * items in "trash:///", will return the date and time when the file
+ * items in `trash:///`, will return the date and time when the file
  * was trashed. The format of the returned string is YYYY-MM-DDThh:mm:ss.
  * Corresponding #GFileAttributeType is %G_FILE_ATTRIBUTE_TYPE_STRING.
  *
  * Since: 2.24
  **/
 #define G_FILE_ATTRIBUTE_TRASH_DELETION_DATE "trash::deletion-date"  /* string */
+
+/**
+ * G_FILE_ATTRIBUTE_RECENT_MODIFIED:
+ *
+ * A key in the "recent" namespace for getting time, when the metadata for the
+ * file in `recent:///` was last changed. Corresponding #GFileAttributeType is
+ * %G_FILE_ATTRIBUTE_TYPE_INT64.
+ *
+ * Since: 2.52
+ **/
+#define G_FILE_ATTRIBUTE_RECENT_MODIFIED "recent::modified"          /* int64 (time_t) */
 
 GLIB_AVAILABLE_IN_ALL
 GType              g_file_info_get_type                  (void) G_GNUC_CONST;
