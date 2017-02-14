@@ -591,6 +591,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\glib\guuid.c"
+				>
+			</File>
+			<File
 				RelativePath="..\glib\gvariant-core.c"
 				>
 			</File>
@@ -785,6 +789,10 @@
 			</File>
 			<File
 				RelativePath="..\glib\gutils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\glib\guuid.h"
 				>
 			</File>
 			<File
