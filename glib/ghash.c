@@ -663,7 +663,9 @@ g_hash_table_maybe_resize (GHashTable *hash_table)
  * and g_str_equal() functions are provided for the most common types
  * of keys. If @key_equal_func is %NULL, keys are compared directly in
  * a similar fashion to g_direct_equal(), but without the overhead of
- * a function call.
+ * a function call. @key_equal_func is called with the key from the hash table
+ * as its first parameter, and the user-provided key to check against as
+ * its second.
  *
  * Returns: a new #GHashTable
  */
@@ -695,7 +697,7 @@ g_hash_table_new (GHashFunc  hash_func,
  * recursively remove further items from the hash table. This is only
  * permissible if the application still holds a reference to the hash table.
  * This means that you may need to ensure that the hash table is empty by
- * calling g_hash_table_remove_all before releasing the last reference using
+ * calling g_hash_table_remove_all() before releasing the last reference using
  * g_hash_table_unref().
  *
  * Returns: a new #GHashTable

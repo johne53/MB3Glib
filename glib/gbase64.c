@@ -192,6 +192,8 @@ g_base64_encode_step (const guchar *in,
  * be written to it. It will need up to 4 bytes, or up to 5 bytes if
  * line-breaking is enabled.
  *
+ * The @out array will not be automatically nul-terminated.
+ *
  * Returns: The number of bytes of output that was written
  *
  * Since: 2.12
@@ -220,6 +222,7 @@ g_base64_encode_close (gboolean  break_lines,
       goto skip;
     case 1:
       outptr[2] = '=';
+      c2 = 0;  /* saved state here is not relevant */
     skip:
       outptr [0] = base64_alphabet [ c1 >> 2 ];
       outptr [1] = base64_alphabet [ c2 >> 4 | ( (c1&0x3) << 4 )];

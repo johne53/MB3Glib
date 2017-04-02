@@ -1809,6 +1809,9 @@ g_source_get_priority (GSource *source)
  * for both sources is reached during the same main context iteration
  * then the order of dispatch is undefined.
  *
+ * It is a no-op to call this function on a #GSource which has already been
+ * destroyed with g_source_destroy().
+ *
  * This API is only intended to be used by implementations of #GSource.
  * Do not call this API on a #GSource that you did not create.
  *
@@ -3062,6 +3065,12 @@ g_main_current_source (void)
  *   return FALSE;
  * }
  * ]|
+ *
+ * Calls to this function from a thread other than the one acquired by the
+ * #GMainContext the #GSource is attached to are typically redundant, as the
+ * source could be destroyed immediately after this function returns. However,
+ * once a source is destroyed it cannot be un-destroyed, so this function can be
+ * used for opportunistic checks from any thread.
  *
  * Returns: %TRUE if the source has been destroyed
  *
