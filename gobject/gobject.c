@@ -1616,8 +1616,6 @@ g_object_new (GType	   object_type,
   GObject *object;
   va_list var_args;
   
-  g_return_val_if_fail (G_TYPE_IS_OBJECT (object_type), NULL);
-  
   /* short circuit for calls supplying no properties */
   if (!first_property_name)
     return g_object_new_with_properties (object_type, 0, NULL, NULL);
@@ -4234,7 +4232,7 @@ g_object_compat_control (gsize           what,
     }
 }
 
-G_DEFINE_TYPE (GInitiallyUnowned, g_initially_unowned, G_TYPE_OBJECT);
+G_DEFINE_TYPE (GInitiallyUnowned, g_initially_unowned, G_TYPE_OBJECT)
 
 static void
 g_initially_unowned_init (GInitiallyUnowned *object)

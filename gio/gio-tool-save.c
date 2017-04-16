@@ -105,7 +105,7 @@ save (GFile *file)
 	      if (written == -1)
 		{
 		  save_res = FALSE;
-		  g_printerr ("gio: Error writing to stream: %s\n", error->message);
+                  print_error ("%s", error->message);
 		  g_error_free (error);
 		  goto out;
 		}
@@ -116,7 +116,7 @@ save (GFile *file)
       else if (res < 0)
 	{
 	  save_res = FALSE;
-          g_printerr ("gio: Error reading from standard input\n");
+          print_error ("%s", _("Error reading from standard input"));
 	  break;
 	}
       else if (res == 0)
@@ -129,7 +129,7 @@ save (GFile *file)
   if (!close_res)
     {
       save_res = FALSE;
-      g_printerr ("gio: Error closing: %s\n", error->message);
+      print_error ("%s", error->message);
       g_error_free (error);
     }
 
@@ -171,6 +171,7 @@ handle_save (int argc, char *argv[], gboolean do_help)
   if (do_help)
     {
       show_help (context, NULL);
+      g_option_context_free (context);
       return 0;
     }
 
@@ -178,18 +179,21 @@ handle_save (int argc, char *argv[], gboolean do_help)
     {
       show_help (context, error->message);
       g_error_free (error);
+      g_option_context_free (context);
       return 1;
     }
 
   if (argc < 2)
     {
       show_help (context, _("No destination given"));
+      g_option_context_free (context);
       return 1;
     }
 
   if (argc > 2)
     {
       show_help (context, _("Too many arguments"));
+      g_option_context_free (context);
       return 1;
     }
 

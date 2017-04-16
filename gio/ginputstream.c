@@ -127,8 +127,8 @@ g_input_stream_init (GInputStream *stream)
 /**
  * g_input_stream_read:
  * @stream: a #GInputStream.
- * @buffer: (array length=count) (element-type guint8): a buffer to
- *     read data into (which should be at least count bytes long).
+ * @buffer: (array length=count) (element-type guint8) (out caller-allocates):
+ *     a buffer to read data into (which should be at least count bytes long).
  * @count: the number of bytes that will be read from the stream
  * @cancellable: (nullable): optional #GCancellable object, %NULL to ignore.
  * @error: location to store the error occurring, or %NULL to ignore
@@ -208,8 +208,8 @@ g_input_stream_read  (GInputStream  *stream,
 /**
  * g_input_stream_read_all:
  * @stream: a #GInputStream.
- * @buffer: (array length=count) (element-type guint8): a buffer to
- *     read data into (which should be at least count bytes long).
+ * @buffer: (array length=count) (element-type guint8) (out caller-allocates):
+ *     a buffer to read data into (which should be at least count bytes long).
  * @count: the number of bytes that will be read from the stream
  * @bytes_read: (out): location to store the number of bytes that was read from the stream
  * @cancellable: (nullable): optional #GCancellable object, %NULL to ignore.
@@ -306,7 +306,7 @@ g_input_stream_read_all (GInputStream  *stream,
  *
  * On error %NULL is returned and @error is set accordingly.
  *
- * Returns: a new #GBytes, or %NULL on error
+ * Returns: (transfer full): a new #GBytes, or %NULL on error
  *
  * Since: 2.34
  **/
@@ -550,8 +550,8 @@ async_ready_close_callback_wrapper (GObject      *source_object,
 /**
  * g_input_stream_read_async:
  * @stream: A #GInputStream.
- * @buffer: (array length=count) (element-type guint8): a buffer to
- *     read data into (which should be at least count bytes long).
+ * @buffer: (array length=count) (element-type guint8) (out caller-allocates):
+ *     a buffer to read data into (which should be at least count bytes long).
  * @count: the number of bytes that will be read from the stream
  * @io_priority: the [I/O priority][io-priority]
  * of the request. 
@@ -579,7 +579,7 @@ async_ready_close_callback_wrapper (GObject      *source_object,
  * be executed before an outstanding request with lower priority. Default
  * priority is %G_PRIORITY_DEFAULT.
  *
- * The asyncronous methods have a default fallback that uses threads to implement
+ * The asynchronous methods have a default fallback that uses threads to implement
  * asynchronicity, so they are optional for inheriting classes. However, if you
  * override one you must override all.
  **/
@@ -742,8 +742,8 @@ read_all_async_thread (GTask        *task,
 /**
  * g_input_stream_read_all_async:
  * @stream: A #GInputStream
- * @buffer: (array length=count) (element-type guint8): a buffer to
- *     read data into (which should be at least count bytes long)
+ * @buffer: (array length=count) (element-type guint8) (out caller-allocates):
+ *     a buffer to read data into (which should be at least count bytes long)
  * @count: the number of bytes that will be read from the stream
  * @io_priority: the [I/O priority][io-priority] of the request
  * @cancellable: (nullable): optional #GCancellable object, %NULL to ignore
@@ -939,7 +939,7 @@ g_input_stream_read_bytes_async (GInputStream          *stream,
  *
  * Finishes an asynchronous stream read-into-#GBytes operation.
  *
- * Returns: the newly-allocated #GBytes, or %NULL on error
+ * Returns: (transfer full): the newly-allocated #GBytes, or %NULL on error
  *
  * Since: 2.34
  **/
@@ -1081,7 +1081,7 @@ g_input_stream_skip_finish (GInputStream  *stream,
  *
  * For behaviour details see g_input_stream_close().
  *
- * The asyncronous methods have a default fallback that uses threads to implement
+ * The asynchronous methods have a default fallback that uses threads to implement
  * asynchronicity, so they are optional for inheriting classes. However, if you
  * override one you must override all.
  **/
