@@ -68,15 +68,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Generate Module Definition file"
-				CommandLine="echo EXPORTS &gt; glib-debug.def&#x0D;&#x0A;cl /EP -DG_ENABLE_DEBUG -DG_OS_WIN32 -DINCLUDE_INTERNAL_SYMBOLS -DALL_FILES -DG_GNUC_MALLOC= -DG_GNUC_CONST= -DG_GNUC_NULL_TERMINATED= -DG_GNUC_NORETURN= -DG_GNUC_PRINTF=;G_GNUC_PRINTF -DG_GNUC_FORMAT=;G_GNUC_FORMAT ..\glib\libglib.symbols &gt;&gt; $(ProjectDir)\glib-debug.def&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib ole32.lib winmm.lib intlD.lib libcharsetD.lib libgnulibD.lib libpcreD.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="&quot;$(ProjectDir)$(ConfigurationName)\lib&quot;;&quot;F:\pthread-win32\Pre-built.2\lib&quot;"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-debug.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -164,15 +164,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Use existing Module Definition file"
-				CommandLine="cd $(ProjectDir)"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib ole32.lib winmm.lib intl.lib libcharset.lib libgnulib.lib libpcre.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix).dll"
 				AdditionalLibraryDirectories="&quot;$(ProjectDir)$(ConfigurationName)\lib&quot;;&quot;F:\pthread-win32\Pre-built.2\lib&quot;"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
+				ModuleDefinitionFile=""
 				SubSystem="2"
 			/>
 			<Tool
@@ -258,15 +258,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Generate Module Definition file"
-				CommandLine="echo EXPORTS &gt; glib-release.def&#x0D;&#x0A;cl /EP -DG_OS_WIN32 -DINCLUDE_INTERNAL_SYMBOLS -DALL_FILES -DG_GNUC_MALLOC= -DG_GNUC_CONST= -DG_GNUC_NULL_TERMINATED= -DG_GNUC_NORETURN= -DG_GNUC_PRINTF=;G_GNUC_PRINTF -DG_GNUC_FORMAT=;G_GNUC_FORMAT ..\glib\libglib.symbols &gt;&gt; $(ProjectDir)\glib-release.def&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib ole32.lib winmm.lib intlRDC.lib libcharsetRDC.lib libgnulibRDC.lib libpcreRDC.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="&quot;$(ProjectDir)$(ConfigurationName)\lib&quot;;&quot;F:\pthread-win32\Pre-built.2\lib&quot;"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>

@@ -68,15 +68,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Generate Module Definition file"
-				CommandLine="echo EXPORTS &gt; gmodule-debug.def&#x0D;&#x0A;cl /EP -DG_ENABLE_DEBUG -DG_OS_WIN32  -DINCLUDE_INTERNAL_SYMBOLS -DALL_FILES -DG_GNUC_MALLOC= -DG_GNUC_CONST= -DG_GNUC_NULL_TERMINATED= -DG_GNUC_NORETURN= -DG_GNUC_PRINTF=;G_GNUC_PRINTF -DG_GNUC_FORMAT=;G_GNUC_FORMAT ..\gmodule\libgmodule.symbols &gt;&gt; $(ProjectDir)\gmodule-debug.def&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)D.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-debug.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -163,15 +163,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Use existing Module Definition file"
-				CommandLine="cd $(ProjectDir)"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix).lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix).dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
+				ModuleDefinitionFile=""
 				SubSystem="2"
 			/>
 			<Tool
@@ -256,15 +256,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Generate Module Definition file"
-				CommandLine="echo EXPORTS &gt; gmodule-release.def&#x0D;&#x0A;cl /EP -DG_OS_WIN32  -DINCLUDE_INTERNAL_SYMBOLS -DALL_FILES -DG_GNUC_MALLOC= -DG_GNUC_CONST= -DG_GNUC_NULL_TERMINATED= -DG_GNUC_NORETURN= -DG_GNUC_PRINTF=;G_GNUC_PRINTF -DG_GNUC_FORMAT=;G_GNUC_FORMAT ..\gmodule\libgmodule.symbols &gt;&gt; $(ProjectDir)\gmodule-release.def&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)RDC.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>

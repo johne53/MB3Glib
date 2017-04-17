@@ -68,15 +68,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Generate Module Definition file"
-				CommandLine="echo EXPORTS &gt; gio-debug.def&#x0D;&#x0A;cl /EP -DG_ENABLE_DEBUG -DG_OS_WIN32 -DINCLUDE_INTERNAL_SYMBOLS -DALL_FILES -DG_GNUC_MALLOC= -DG_GNUC_CONST= -DG_GNUC_NULL_TERMINATED= -DG_GNUC_NORETURN= -DG_GNUC_PRINTF=;G_GNUC_PRINTF -DG_GNUC_FORMAT=;G_GNUC_FORMAT ..\gio\libgio.symbols &gt;&gt; $(ProjectDir)\gio-debug.def&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libglib32-2.0-0D.lib libgobject32-2.0-0D.lib libgmodule32-2.0-0D.lib libgiowinD.lib ws2_32.lib intlD.lib zlib1D.lib shlwapi.lib dnsapi.lib iphlpapi.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\lib"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-debug.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -164,15 +164,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Use existing Module Definition file"
-				CommandLine="cd $(ProjectDir)"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libglib32-2.0-0.lib libgobject32-2.0-0.lib libgmodule32-2.0-0.lib libgiowin.lib ws2_32.lib intl.lib zlib1.lib shlwapi.lib dnsapi.lib iphlpapi.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix).dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\lib"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
+				ModuleDefinitionFile=""
 				SubSystem="2"
 			/>
 			<Tool
@@ -258,15 +258,15 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Generate Module Definition file"
-				CommandLine="echo EXPORTS &gt; gio-release.def&#x0D;&#x0A;cl /EP -DG_OS_WIN32 -DINCLUDE_INTERNAL_SYMBOLS -DALL_FILES -DG_GNUC_MALLOC= -DG_GNUC_CONST= -DG_GNUC_NULL_TERMINATED= -DG_GNUC_NORETURN= -DG_GNUC_PRINTF=;G_GNUC_PRINTF -DG_GNUC_FORMAT=;G_GNUC_FORMAT ..\gio\libgio.symbols &gt;&gt; $(ProjectDir)\gio-release.def&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libglib32-2.0-0RDC.lib libgobject32-2.0-0RDC.lib libgmodule32-2.0-0RDC.lib libgiowinRDC.lib ws2_32.lib intlRDC.lib zlib1RDC.lib shlwapi.lib dnsapi.lib iphlpapi.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\lib"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName)-release.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>

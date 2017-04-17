@@ -72,7 +72,7 @@
 				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)D.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)D.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
@@ -163,7 +163,7 @@
 				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix).lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix).dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
+				ModuleDefinitionFile=""
 				SubSystem="2"
 			/>
 			<Tool
@@ -252,7 +252,7 @@
 				AdditionalDependencies="$(DllPrefix)glib32$(DllSuffix)RDC.lib"
 				OutputFile="$(OutDir)\$(DllPrefix)$(ProjectName)32$(DllSuffix)RDC.dll"
 				AdditionalLibraryDirectories="$(ProjectDir)$(ConfigurationName)\bin"
-				ModuleDefinitionFile="$(ProjectDir)\$(ProjectName).def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 			/>
