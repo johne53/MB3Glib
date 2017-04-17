@@ -46,7 +46,7 @@
 				AdditionalOptions="/FI$(TargetSxsFolder)\targetsxs.h"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;&quot;$(GenericIncludeFolder)\ffi&quot;;.."
-				PreprocessorDefinitions="LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;_WINDLL;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GOBJECT_COMPILATION;GIO_COMPILATION;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib-GObject\&quot;"
+				PreprocessorDefinitions="LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;DEBUG;_DEBUG;_WINDOWS;_WINDLL;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GOBJECT_COMPILATION;GIO_COMPILATION;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib-GObject\&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -68,7 +68,6 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -142,7 +141,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;&quot;$(GenericIncludeFolder)\ffi&quot;;.."
-				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_WINDLL;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GOBJECT_COMPILATION;GIO_COMPILATION;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib-GObject\&quot;"
+				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_WINDLL;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GOBJECT_COMPILATION;GIO_COMPILATION;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib-GObject\&quot;"
 				StringPooling="false"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
@@ -163,7 +162,6 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -235,7 +233,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories=".;..\glib;..\gmodule;..\gio;..\build\win32\dirent;&quot;$(GenericIncludeFolder)\ffi&quot;;.."
-				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_WINDLL;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GOBJECT_COMPILATION;GIO_COMPILATION;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib-GObject\&quot;"
+				PreprocessorDefinitions="_SECURE_SCL=0;LIBDIR=\&quot;Not set (placeholder)\&quot;;WIN32;NDEBUG;_WINDOWS;_WINDLL;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GOBJECT_COMPILATION;GIO_COMPILATION;HAVE_CONFIG_H;G_LOG_DOMAIN=\&quot;Glib-GObject\&quot;"
 				StringPooling="false"
 				RuntimeLibrary="2"
 				EnableEnhancedInstructionSet="1"
@@ -256,7 +254,6 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
