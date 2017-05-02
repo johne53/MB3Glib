@@ -120,8 +120,8 @@ static const GScannerConfig scanner_config_template =
   FALSE                 /* symbol_2_token */,
   FALSE                 /* scope_0_fallback */,
 };
-static gchar		* const std_marshaller_prefix = "g_cclosure_marshal";
-static gchar		*marshaller_prefix = "g_cclosure_user_marshal";
+static const char       *std_marshaller_prefix = "g_cclosure_marshal";
+static const char       *marshaller_prefix = "g_cclosure_user_marshal";
 static gchar		*output_fn = NULL;
 static gint		 output_fd = -1;
 static gchar		*output_tmpfn = NULL;
@@ -376,7 +376,11 @@ generate_marshal (const gchar *signame,
     {
       g_fprintf (fout, "#define %s_%s\t%s_%s\n", marshaller_prefix, signame, std_marshaller_prefix, signame);
     }
-  if (gen_cheader && !have_std_marshaller)
+
+  /* We emit the prototype in both the header and the source, to pass
+   * without warnings when building with -Wmissing-prototypes
+   */
+  if (!have_std_marshaller)
     {
       ind = g_fprintf (fout, gen_internal ? "G_GNUC_INTERNAL " : "extern ");
       ind += g_fprintf (fout, "void ");
@@ -389,13 +393,15 @@ generate_marshal (const gchar *signame,
       g_fprintf (fout, "%sgpointer      marshal_data);\n",
                  indent (ind));
     }
+
   if (gen_cbody && !have_std_marshaller)
     {
       /* cfile marshal header */
       g_fprintf (fout, "void\n");
       ind = g_fprintf (fout, "%s_%s (", marshaller_prefix, signame);
       g_fprintf (fout,   "GClosure     *closure,\n");
-      g_fprintf (fout, "%sGValue       *return_value G_GNUC_UNUSED,\n", indent (ind));
+      g_fprintf (fout, "%sGValue       *return_value%s,\n", indent (ind),
+                 sig->rarg->setter ? "" : " G_GNUC_UNUSED");
       g_fprintf (fout, "%sguint         n_param_values,\n", indent (ind));
       g_fprintf (fout, "%sconst GValue *param_values,\n", indent (ind));
       g_fprintf (fout, "%sgpointer      invocation_hint G_GNUC_UNUSED,\n", indent (ind));
@@ -475,13 +481,14 @@ generate_marshal (const gchar *signame,
       g_fprintf (fout, "}\n");
     }
 
-
   /* vararg marshaller */
   if (gen_cheader && gen_valist && have_std_marshaller)
     {
       g_fprintf (fout, "#define %s_%sv\t%s_%sv\n", marshaller_prefix, signame, std_marshaller_prefix, signame);
     }
-  if (gen_cheader && gen_valist && !have_std_marshaller)
+
+  /* Like above, we generate the prototype for both the header and source */
+  if (gen_valist && !have_std_marshaller)
     {
       ind = g_fprintf (fout, gen_internal ? "G_GNUC_INTERNAL " : "extern ");
       ind += g_fprintf (fout, "void ");
@@ -494,6 +501,7 @@ generate_marshal (const gchar *signame,
       g_fprintf (fout, "%sint           n_params,\n", indent (ind));
       g_fprintf (fout, "%sGType        *param_types);\n", indent (ind));
     }
+
   if (gen_cbody && gen_valist && !have_std_marshaller)
     {
       gint i;
@@ -1020,7 +1028,7 @@ parse_args (gint    *argc_p,
       else if ((strcmp ("--prefix", argv[i]) == 0) ||
 	       (strncmp ("--prefix=", argv[i], 9) == 0))
 	{
-          gchar *equal = argv[i] + 8;
+          gchar *equal = argv[i] + strlen ("--prefix");
 
 	  if (*equal == '=')
 	    marshaller_prefix = equal + 1;
@@ -1035,7 +1043,7 @@ parse_args (gint    *argc_p,
       else if ((strcmp ("--output", argv[i]) == 0) ||
 	       (strncmp ("--output=", argv[i], 9) == 0))
 	{
-          gchar *equal = argv[i] + 8;
+          gchar *equal = argv[i] + strlen ("--output");
 
 	  if (*equal == '=')
 	    output_fn = equal + 1;
@@ -1116,8 +1124,8 @@ print_blurb (FILE    *bout,
       g_fprintf (bout, "Utility Options:\n");
       g_fprintf (bout, "  --header                   Generate C headers\n");
       g_fprintf (bout, "  --body                     Generate C code\n");
-      g_fprintf (bout, "  --prefix=string            Specify marshaller prefix\n");
-      g_fprintf (bout, "  --output=file              Write output into the specified file\n");
+      g_fprintf (bout, "  --prefix=STRING            Specify marshaller prefix\n");
+      g_fprintf (bout, "  --output=FILE              Write output into the specified file\n");
       g_fprintf (bout, "  --skip-source              Skip source location comments\n");
       g_fprintf (bout, "  --stdinc, --nostdinc       Include/use standard marshallers\n");
       g_fprintf (bout, "  --internal                 Mark generated functions as internal\n");

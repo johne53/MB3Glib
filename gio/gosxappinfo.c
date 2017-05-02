@@ -24,6 +24,7 @@
 #include "gcontenttype.h"
 #include "gfile.h"
 #include "gfileicon.h"
+#include "gioerror.h"
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <Foundation/Foundation.h>
@@ -295,13 +296,27 @@ free_urlspec (LSLaunchURLSpec *urlspec)
 }
 
 static NSBundle *
+get_bundle_for_url (CFURLRef app_url)
+{
+  NSBundle *bundle = [NSBundle bundleWithURL: (NSURL*)app_url];
+
+  if (!bundle)
+    {
+      g_debug ("Bundle not found for url.");
+      return NULL;
+    }
+
+  return bundle;
+}
+
+static NSBundle *
 get_bundle_for_id (CFStringRef bundle_id)
 {
   CFURLRef app_url;
   NSBundle *bundle;
 
-#ifdef AVAILABLE_MAC_OS_VERSION_10_10_OR_LATER
-  CSArrayRef urls = LSCopyApplicationURLsForBundleIdentifier (bundle_id, NULL);
+#ifdef AVAILABLE_MAC_OS_X_VERSION_10_10_AND_LATER
+  CFArrayRef urls = LSCopyApplicationURLsForBundleIdentifier (bundle_id, NULL);
   if (urls)
     {
       /* TODO: if there's multiple, we should perhaps prefer one thats in $HOME,
@@ -324,15 +339,8 @@ get_bundle_for_id (CFStringRef bundle_id)
       return NULL;
     }
 
-  bundle = [NSBundle bundleWithURL: (NSURL*)app_url];
+  bundle = get_bundle_for_url (app_url);
   CFRelease (app_url);
-
-  if (!bundle)
-    {
-      g_debug ("Bundle not found for url.");
-      return NULL;
-    }
-
   return bundle;
 }
 
@@ -445,7 +453,7 @@ g_osx_app_info_launch_internal (GAppInfo  *appinfo,
   if ((ret = LSOpenFromURLSpec (urlspec, NULL)))
     {
       /* TODO: Better error codes */
-      g_set_error (error, G_IO_ERR, G_IO_ERROR_FAILED,
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Opening application failed with code %d", ret);
       success = FALSE;
     }
@@ -593,24 +601,25 @@ g_osx_app_info_get_all_for_scheme (const char *cscheme)
 GList *
 g_app_info_get_all_for_type (const char *content_type)
 {
-  gchar *type_cstr;
+  gchar *mime_type;
   CFArrayRef bundle_list;
   CFStringRef type;
   NSBundle *bundle;
   GList *info_list = NULL;
   gint i;
 
-  if (g_str_has_prefix (content_type, "x-scheme-handler/"))
+  mime_type = g_content_type_get_mime_type (content_type);
+  if (g_str_has_prefix (mime_type, "x-scheme-handler/"))
     {
-      gchar *scheme = strchr (content_type, '/') + 1;
+      gchar *scheme = strchr (mime_type, '/') + 1;
+      GList *ret = g_osx_app_info_get_all_for_scheme (scheme);
 
-      return g_osx_app_info_get_all_for_scheme (scheme);
+      g_free (mime_type);
+      return ret;
     }
+  g_free (mime_type);
 
-  type_cstr = g_content_type_from_mime_type (content_type);
-  type = create_cfstring_from_cstr (type_cstr);
-  g_free (type_cstr);
-
+  type = create_cfstring_from_cstr (content_type);
   bundle_list = LSCopyAllRoleHandlersForContentType (type, kLSRolesAll);
   CFRelease (type);
 
@@ -650,24 +659,46 @@ GAppInfo *
 g_app_info_get_default_for_type (const char *content_type,
                                  gboolean    must_support_uris)
 {
-  gchar *type_cstr;
-  CFStringRef type, bundle_id;
+  gchar *mime_type;
+  CFStringRef type;
   NSBundle *bundle;
+#ifdef AVAILABLE_MAC_OS_X_VERSION_10_10_AND_LATER
+  CFURLRef bundle_id;
+#else
+  CFStringRef bundle_id;
+#endif
 
-  type_cstr = g_content_type_from_mime_type (content_type);
-  type = create_cfstring_from_cstr (type_cstr);
-  g_free (type_cstr);
+  mime_type = g_content_type_get_mime_type (content_type);
+  if (g_str_has_prefix (mime_type, "x-scheme-handler/"))
+    {
+      gchar *scheme = strchr (mime_type, '/') + 1;
+      GAppInfo *ret = g_app_info_get_default_for_uri_scheme (scheme);
 
+      g_free (mime_type);
+      return ret;
+    }
+  g_free (mime_type);
+
+  type = create_cfstring_from_cstr (content_type);
+
+#ifdef AVAILABLE_MAC_OS_X_VERSION_10_10_AND_LATER
+  bundle_id = LSCopyDefaultApplicationURLForContentType (type, kLSRolesAll, NULL);
+#else
   bundle_id = LSCopyDefaultRoleHandlerForContentType (type, kLSRolesAll);
+#endif
   CFRelease (type);
 
   if (!bundle_id)
     {
-      g_warning ("No default handler found for mimetype '%s'.", content_type);
+      g_warning ("No default handler found for content type '%s'.", content_type);
       return NULL;
     }
 
+#ifdef AVAILABLE_MAC_OS_X_VERSION_10_10_AND_LATER
+  bundle = get_bundle_for_url (bundle_id);
+#else
   bundle = get_bundle_for_id (bundle_id);
+#endif
   CFRelease (bundle_id);
 
   if (!bundle)
