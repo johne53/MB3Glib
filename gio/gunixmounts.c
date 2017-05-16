@@ -391,15 +391,13 @@ static GList *
 _g_get_unix_mounts (void)
 {
   struct libmnt_table *table = NULL;
-  struct libmnt_context *ctxt = NULL;
   struct libmnt_iter* iter = NULL;
   struct libmnt_fs *fs = NULL;
   GUnixMountEntry *mount_entry = NULL;
   GList *return_list = NULL;
 
-  ctxt = mnt_new_context ();
-  mnt_context_get_mtab (ctxt, &table);
-  if (!table)
+  table = mnt_new_table ();
+  if (mnt_table_parse_mtab (table, NULL) < 0)
     goto out;
 
   iter = mnt_new_iter (MNT_ITER_FORWARD);
@@ -409,9 +407,6 @@ _g_get_unix_mounts (void)
       char *mount_options = NULL;
       unsigned long mount_flags = 0;
       gboolean is_read_only = FALSE;
-
-      if (!mnt_table_is_fs_mounted (table, fs))
-        continue;
 
       device_path = mnt_fs_get_source (fs);
       if (g_strcmp0 (device_path, "/dev/root") == 0)
@@ -435,7 +430,7 @@ _g_get_unix_mounts (void)
   mnt_free_iter (iter);
 
  out:
-  mnt_free_context (ctxt);
+  mnt_unref_table (table);
 
   return g_list_reverse (return_list);
 }
@@ -875,15 +870,13 @@ static GList *
 _g_get_unix_mount_points (void)
 {
   struct libmnt_table *table = NULL;
-  struct libmnt_context *ctxt = NULL;
   struct libmnt_iter* iter = NULL;
   struct libmnt_fs *fs = NULL;
   GUnixMountPoint *mount_point = NULL;
   GList *return_list = NULL;
 
-  ctxt = mnt_new_context ();
-  mnt_context_get_fstab (ctxt, &table);
-  if (!table)
+  table = mnt_new_table ();
+  if (mnt_table_parse_mtab (table, NULL) < 0)
     goto out;
 
   iter = mnt_new_iter (MNT_ITER_FORWARD);
@@ -953,7 +946,7 @@ _g_get_unix_mount_points (void)
   mnt_free_iter (iter);
 
  out:
-  mnt_free_context (ctxt);
+  mnt_unref_table (table);
 
   return g_list_reverse (return_list);
 }

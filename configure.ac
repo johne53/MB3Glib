@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [53])
-m4_define([glib_micro_version], [1])
+m4_define([glib_micro_version], [2])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -1489,6 +1489,16 @@ dnl *** check whether we need preceeding underscores
   		G_MODULE_NEED_USCORE=0
 	fi
 
+        AC_CHECK_DECL([RTLD_LAZY],
+                      [AC_DEFINE(HAVE_RTLD_LAZY, 1, [Define to 1 if RTLD_LAZY is available])],
+                      [], [[#include <dlfcn.h>]])
+        AC_CHECK_DECL([RTLD_NOW],
+                      [AC_DEFINE(HAVE_RTLD_NOW, 1, [Define to 1 if RTLD_NOW is available])],
+                      [], [[#include <dlfcn.h>]])
+        AC_CHECK_DECL([RTLD_GLOBAL],
+                      [AC_DEFINE(HAVE_RTLD_GLOBAL, 1, [Define to 1 if RTLD_GLOBAL is available])],
+                      [], [[#include <dlfcn.h>]])
+
 	LDFLAGS="$LDFLAGS_orig"
 dnl *** check for having dlerror()
 	AC_CHECK_FUNC(dlerror,
@@ -1745,6 +1755,9 @@ PKG_CHECK_MODULES([LIBMOUNT], [mount >= 2.28], [have_libmount=yes], [have_libmou
 AS_IF([ test $have_libmount = maybe ], [
   glib_save_LIBS=$LIBS
   AC_CHECK_HEADER([libmount/libmount.h], [:], [have_libmount=no])
+
+  # Check for a recent enough libmount
+  AC_CHECK_LIB([mount], [mnt_unref_table], [:], [have_libmount=no])
   LIBS=$glib_save_LIBS
 
   if test $have_libmount != no; then

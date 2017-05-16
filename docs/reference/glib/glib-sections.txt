@@ -1476,6 +1476,15 @@ g_ascii_formatd
 g_strtod
 
 <SUBSECTION>
+GNumberParserError
+G_NUMBER_PARSER_ERROR
+g_ascii_string_to_signed
+g_ascii_string_to_unsigned
+
+<SUBSECTION Private>
+g_number_parser_error_quark
+
+<SUBSECTION>
 g_strchug
 g_strchomp
 g_strstrip
@@ -2566,6 +2575,8 @@ g_ptr_array_set_size
 g_ptr_array_index
 g_ptr_array_free
 g_ptr_array_foreach
+g_ptr_array_find
+g_ptr_array_find_with_equal_func
 
 </SECTION>
 
