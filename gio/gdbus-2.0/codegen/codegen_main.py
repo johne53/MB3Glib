@@ -7,7 +7,7 @@
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2 of the License, or (at your option) any later version.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -181,14 +181,15 @@ def codegen_main():
     for i in all_ifaces:
         i.post_process(opts.interface_prefix, opts.c_namespace)
 
+    outdir = opts.output_directory
+
     docbook = opts.generate_docbook
-    docbook_gen = codegen_docbook.DocbookCodeGenerator(all_ifaces, docbook);
+    docbook_gen = codegen_docbook.DocbookCodeGenerator(all_ifaces, docbook, outdir);
     if docbook:
         ret = docbook_gen.generate()
 
     c_code = opts.generate_c_code
     if c_code:
-        outdir = opts.output_directory
         header_name = c_code + '.h'
         h = open(path.join(outdir, header_name), 'w')
         c = open(path.join(outdir, c_code + '.c'), 'w')

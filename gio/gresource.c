@@ -5,7 +5,7 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * version 2.1 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -83,6 +83,13 @@ G_DEFINE_BOXED_TYPE (GResource, g_resource, g_resource_ref, g_resource_unref)
  * set to the full path to the gdk-pixbuf-pixdata executable; otherwise the resource compiler will
  * abort.
  *
+ * Resource files will be exported in the GResource namespace using the
+ * combination of the given `prefix` and the filename from the `file` element.
+ * The `alias` attribute can be used to alter the filename to expose them at a
+ * different location in the resource namespace. Typically, this is used to
+ * include files from a different source directory without exposing the source
+ * directory in the resource namespace, as in the example below.
+ *
  * Resource bundles are created by the [glib-compile-resources][glib-compile-resources] program
  * which takes an XML file that describes the bundle, and a set of files that the XML references. These
  * are combined into a binary resource bundle.
@@ -95,6 +102,7 @@ G_DEFINE_BOXED_TYPE (GResource, g_resource, g_resource_ref, g_resource_unref)
  *     <file>data/splashscreen.png</file>
  *     <file compressed="true">dialog.ui</file>
  *     <file preprocess="xml-stripblanks">menumarkup.xml</file>
+ *     <file alias="example.css">data/example.css</file>
  *   </gresource>
  * </gresources>
  * ]|
@@ -104,6 +112,7 @@ G_DEFINE_BOXED_TYPE (GResource, g_resource, g_resource_ref, g_resource_unref)
  * /org/gtk/Example/data/splashscreen.png
  * /org/gtk/Example/dialog.ui
  * /org/gtk/Example/menumarkup.xml
+ * /org/gtk/Example/example.css
  * ]|
  *
  * Note that all resources in the process share the same namespace, so use Java-style
@@ -124,22 +133,24 @@ G_DEFINE_BOXED_TYPE (GResource, g_resource, g_resource_ref, g_resource_unref)
  * to the data. You can also use URIs like "resource:///org/gtk/Example/data/splashscreen.png" with #GFile to access
  * the resource data.
  *
+ * Some higher-level APIs, such as #GtkApplication, will automatically load
+ * resources from certain well-known paths in the resource namespace as a
+ * convenience. See the documentation for those APIs for details.
+ *
  * There are two forms of the generated source, the default version uses the compiler support for constructor
  * and destructor functions (where available) to automatically create and register the #GResource on startup
- * or library load time. If you pass --manual-register two functions to register/unregister the resource is instead
- * created. This requires an explicit initialization call in your application/library, but it works on all platforms,
- * even on the minor ones where this is not available. (Constructor support is available for at least Win32, Mac OS and Linux.)
+ * or library load time. If you pass `--manual-register`, two functions to register/unregister the resource are created
+ * instead. This requires an explicit initialization call in your application/library, but it works on all platforms,
+ * even on the minor ones where constructors are not supported. (Constructor support is available for at least Win32, Mac OS and Linux.)
  *
  * Note that resource data can point directly into the data segment of e.g. a library, so if you are unloading libraries
  * during runtime you need to be very careful with keeping around pointers to data from a resource, as this goes away
  * when the library is unloaded. However, in practice this is not generally a problem, since most resource accesses
- * is for your own resources, and resource data is often used once, during parsing, and then released.
+ * are for your own resources, and resource data is often used once, during parsing, and then released.
  *
  * When debugging a program or testing a change to an installed version, it is often useful to be able to
  * replace resources in the program or library, without recompiling, for debugging or quick hacking and testing
- * purposes.
- *
- * Since GLib 2.50, it is possible to use the `G_RESOURCE_OVERLAYS` environment variable to selectively overlay
+ * purposes. Since GLib 2.50, it is possible to use the `G_RESOURCE_OVERLAYS` environment variable to selectively overlay
  * resources with replacements from the filesystem.  It is a colon-separated list of substitutions to perform
  * during resource lookups.
  *
