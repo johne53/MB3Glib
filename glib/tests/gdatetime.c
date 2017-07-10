@@ -370,19 +370,27 @@ test_GDateTime_new_from_timeval (void)
   g_date_time_unref (dt);
 }
 
-static gint64
+static glong
 find_maximum_supported_tv_sec (void)
 {
   glong highest_success = 0, lowest_failure = G_MAXLONG;
   GTimeVal tv;
+  GDateTime *dt = NULL;
 
   tv.tv_usec = 0;
 
+  /* Corner case of all glong values being valid. */
+  tv.tv_sec = G_MAXLONG;
+  dt = g_date_time_new_from_timeval_utc (&tv);
+  if (dt != NULL)
+    {
+      highest_success = tv.tv_sec;
+      g_date_time_unref (dt);
+    }
+
   while (highest_success < lowest_failure - 1)
     {
-      GDateTime *dt;
-
-      tv.tv_sec = (highest_success + lowest_failure) / 2;
+      tv.tv_sec = highest_success + (lowest_failure - highest_success) / 2;
       dt = g_date_time_new_from_timeval_utc (&tv);
 
       if (dt != NULL)
@@ -401,7 +409,10 @@ find_maximum_supported_tv_sec (void)
 
 /* Check that trying to create a #GDateTime too far in the future reliably
  * fails. With a #GTimeVal, this is subtle, as the tv_usec are added into the
- * calculation part-way through. */
+ * calculation part-way through.
+ *
+ * This varies a bit between 32- and 64-bit architectures, due to the
+ * differences in the size of glong (tv.tv_sec). */
 static void
 test_GDateTime_new_from_timeval_overflow (void)
 {
@@ -410,29 +421,26 @@ test_GDateTime_new_from_timeval_overflow (void)
 
   g_test_bug ("782089");
 
-  tv.tv_sec = G_MAXLONG;
-  tv.tv_usec = 0;
-
-  dt = g_date_time_new_from_timeval_utc (&tv);
-  g_assert_null (dt);
-
-  dt = g_date_time_new_from_timeval_local (&tv);
-  g_assert_null (dt);
-
   tv.tv_sec = find_maximum_supported_tv_sec ();
   tv.tv_usec = G_USEC_PER_SEC - 1;
 
   g_test_message ("Maximum supported GTimeVal.tv_sec = %lu", tv.tv_sec);
 
+  /* Sanity check: do we support the year 2000? */
+  g_assert_cmpint (tv.tv_sec, >=, 946684800);
+
   dt = g_date_time_new_from_timeval_utc (&tv);
   g_assert_nonnull (dt);
   g_date_time_unref (dt);
 
-  tv.tv_sec++;
-  tv.tv_usec = 0;
+  if (tv.tv_sec < G_MAXLONG)
+    {
+      tv.tv_sec++;
+      tv.tv_usec = 0;
 
-  dt = g_date_time_new_from_timeval_utc (&tv);
-  g_assert_null (dt);
+      dt = g_date_time_new_from_timeval_utc (&tv);
+      g_assert_null (dt);
+    }
 }
 
 static void
