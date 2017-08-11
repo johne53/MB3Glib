@@ -1243,6 +1243,28 @@ g_application_constructed (GObject *object)
 }
 
 static void
+g_application_dispose (GObject *object)
+{
+  GApplication *application = G_APPLICATION (object);
+
+  if (application->priv->impl != NULL &&
+      G_APPLICATION_GET_CLASS (application)->dbus_unregister != g_application_real_dbus_unregister)
+    {
+      static gboolean warned;
+
+      if (!warned)
+        {
+          g_warning ("Your application did not unregister from D-Bus before destruction. "
+                     "Consider using g_application_run().");
+        }
+
+      warned = TRUE;
+    }
+
+  G_OBJECT_CLASS (g_application_parent_class)->dispose (object);
+}
+
+static void
 g_application_finalize (GObject *object)
 {
   GApplication *application = G_APPLICATION (object);
@@ -1314,6 +1336,7 @@ g_application_class_init (GApplicationClass *class)
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
   object_class->constructed = g_application_constructed;
+  object_class->dispose = g_application_dispose;
   object_class->finalize = g_application_finalize;
   object_class->get_property = g_application_get_property;
   object_class->set_property = g_application_set_property;

@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [53])
-m4_define([glib_micro_version], [3])
+m4_define([glib_micro_version], [5])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -389,7 +389,7 @@ AC_ARG_WITH(python,
 if test x"$PYTHON" = xyes; then
   AC_MSG_ERROR([--with-python option requires a path or program argument])
 fi
-AM_PATH_PYTHON(2.5,,PYTHON="/usr/bin/env python2.5")
+AM_PATH_PYTHON(2.7,,PYTHON="python2.7")
 
 
 dnl ***********************
@@ -890,7 +890,7 @@ int main ()
 AC_MSG_RESULT($glib_ssize_type)
 
 # Check for some functions
-AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk memmem)
+AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk)
 AC_CHECK_FUNCS(lchmod lchown fchmod fchown utimes getresuid)
 AC_CHECK_FUNCS(getmntent_r setmntent endmntent hasmntopt getfsstat getvfsstat fallocate)
 case $host_os in aix*) ac_cv_func_splice=no ;; esac # AIX splice() is something else
@@ -959,7 +959,7 @@ if $glib_failed ; then
   AC_MSG_ERROR([Could not determine values for MSG_* constants])
 fi
 
-AC_CHECK_FUNCS(getprotobyname_r endservent if_nametoindex if_indextoname sendmmsg recvmmsg)
+AC_CHECK_FUNCS(endservent if_nametoindex if_indextoname sendmmsg recvmmsg)
 
 AS_IF([test $glib_native_win32 = yes], [
   # <wspiapi.h> in the Windows SDK and in mingw-w64 has wrappers for
@@ -2243,7 +2243,7 @@ AC_CACHE_CHECK([for lock-free atomic intrinsics], glib_cv_g_atomic_lock_free, [
         AC_TRY_LINK([],
                        [volatile int atomic = 2;\
                         __sync_bool_compare_and_swap (&atomic, 2, 3);],
-                       [AC_MSG_ERROR([GLib must be build with -march=i486 or later.])],
+                       [AC_MSG_ERROR([GLib must be built with -march=i486 or later.])],
                        [])
         CFLAGS="${SAVE_CFLAGS}"
       fi
@@ -3390,7 +3390,7 @@ AC_ARG_ENABLE(compile-warnings,
               [AS_HELP_STRING([--disable-compile-warnings],
                               [Don't use builtin compiler warnings])],,
 			      enable_compile_warnings=yes)
-AS_IF([test "x$enable_compile_warnings" = xyes], [
+AS_IF([test "x$enable_compile_warnings" != xno], [
   CC_CHECK_FLAGS_APPEND([GLIB_WARN_CFLAGS], [CFLAGS], [\
    -Wall -Wstrict-prototypes -Werror=declaration-after-statement \
    -Werror=missing-prototypes -Werror=implicit-function-declaration \
@@ -3467,6 +3467,7 @@ glib/tests/Makefile
 gmodule/Makefile
 gmodule/gmoduleconf.h
 gobject/Makefile
+gobject/glib-genmarshal
 gobject/glib-mkenums
 gobject/tests/Makefile
 gthread/Makefile
@@ -3502,6 +3503,7 @@ m4macros/Makefile
 AC_CONFIG_COMMANDS([chmod-scripts],
 [chmod 0755 glib-zip
 chmod 0755 glib-gettextize
+chmod 0755 gobject/glib-genmarshal
 chmod 0755 gobject/glib-mkenums])
 
 # we want to invoke this macro solely so that the config.status script
@@ -3513,16 +3515,11 @@ if false; then
     README
     config.h.win32
     glib/glibconfig.h.win32
-    glib/makefile.msc
     glib/glib.rc
-    gmodule/makefile.msc
     gmodule/gmodule.rc
-    gobject/makefile.msc
     gobject/gobject.rc
-    gthread/makefile.msc
     gthread/gthread.rc
     gio/gio.rc
-    tests/makefile.msc
   ])
 fi
 

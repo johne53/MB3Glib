@@ -6,8 +6,12 @@ fashion. Lots of information here might be misleading or outdated. You
 have been warned.
 
 The general parts, and the section about gcc and autoconfiscated
+<<<<<<< HEAD
 build, and about a Visual Studio build are by Tor Lillqvist. The
 sections about MSVC build with NMAKE is by Hans Breuer. 
+=======
+build, and about a Visual Studio build are by Tor Lillqvist.
+>>>>>>> fac7f2be2e99c71410260c70b47954154823cb3d
 
 General
 =======
@@ -201,6 +205,7 @@ $python win32/setup.py --perl path_to_your_perl.exe
 for more usage on this script, run
 $python win32/setup.py -h/--help
 
+<<<<<<< HEAD
 Building with MSVC and NMAKE
 ============================
 
@@ -381,4 +386,6 @@ dependencies order.
       +- plug-ins
           +- python
 
+=======
+>>>>>>> fac7f2be2e99c71410260c70b47954154823cb3d
 [1]: https://wiki.gnome.org/Projects/GTK%2B/Win32/MSVCCompilationOfGTKStack under "Preparations"

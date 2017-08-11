@@ -25,7 +25,16 @@ tags
 
 # autofoo stuff here
 compile
-config.*
+config.cache
+config.guess
+config.h
+config.h.in
+config.h-new
+config.log
+config.lt
+config.rpath
+config.status*
+config.sub
 configure
 depcomp
 aclocal.m4
@@ -55,3 +64,7 @@ ChangeLog
 
 /build/win32/vs10/glibprepbuild.props
 /build/win32/vs9/glibprepbuild.vsprops
+
+# Meson
+/meson-build/
+/subprojects/*/
