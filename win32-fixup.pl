@@ -70,14 +70,9 @@ process_file ("gobject-2.0.pc");
 my $command=join(' ',@ARGV);
 if ($command eq -buildall) {
 	process_file ("gio/gio.rc");
-	process_file ("glib/makefile.msc");
 	process_file ("glib/glib.rc");
-	process_file ("gmodule/makefile.msc");
 	process_file ("gmodule/gmodule.rc");
-	process_file ("gobject/makefile.msc");
 	process_file ("gobject/gobject.rc");
-	process_file ("gthread/makefile.msc");
 	process_file ("gthread/gthread.rc");
 	process_file ("msvc/glib.vsprops");
-	process_file ("tests/makefile.msc");
 }
