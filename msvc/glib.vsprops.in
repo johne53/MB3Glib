@@ -13,6 +13,10 @@
 		Value="-2.0-@LT_CURRENT_MINUS_AGE@"
 	/>
 	<UserMacro
+		Name="GlibVersion"
+		Value="glib-@GLIB_VERSION@"
+	/>
+	<UserMacro
 		Name="GlibBuildRootFolder"
 		Value="@GlibBuildRootFolder@"
 	/>

@@ -212,8 +212,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Generate enumtypes"
-				CommandLine="mkdir &quot;$(GenericIncludeFolder)\glib-2.0\gio&quot; 2&gt; NUL&#x0D;&#x0A;perl ../gobject/glib-mkenums --template ../gio/gioenumtypes.h.template ../gio/gioenums.h ../gio/gsettings.h &gt; ../gio/gioenumtypes.h&#x0D;&#x0A;perl ../gobject/glib-mkenums --template ../gio/gioenumtypes.c.template ../gio/gioenums.h ../gio/gsettings.h &gt; ../gio/gioenumtypes.c&#x0D;&#x0A;copy /Y &quot;..\gio\gioenumtypes.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\gioenumtypes.h&quot;&#x0D;&#x0A;"
+				Description="Generate enumtypes and glib-genmarshal"
+				CommandLine="mkdir &quot;$(GenericIncludeFolder)\glib-2.0\gio&quot; 2&gt; NUL&#x0D;&#x0A;python ../win32/gen_util_scripts.py --type=glib-genmarshal --version=$(GlibVersion)&#x0D;&#x0A;python ../win32/gen_util_scripts.py --type=glib-mkenums --version=$(GlibVersion)&#x0D;&#x0A;python ../gobject/glib-mkenums --template ../gio/gioenumtypes.h.template ../gio/gioenums.h ../gio/gsettings.h &gt; ../gio/gioenumtypes.h&#x0D;&#x0A;python ../gobject/glib-mkenums --template ../gio/gioenumtypes.c.template ../gio/gioenums.h ../gio/gsettings.h &gt; ../gio/gioenumtypes.c&#x0D;&#x0A;copy /Y &quot;..\gio\gioenumtypes.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\gioenumtypes.h&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
