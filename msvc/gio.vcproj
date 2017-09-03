@@ -215,7 +215,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Generate Gdbus configuration files"
-				CommandLine="mkdir &quot;$(GenericIncludeFolder)\glib-2.0\gio&quot; 2&gt; NUL&#x0D;&#x0A;python ../win32/gen_util_scripts.py --type=gdbus-codegen --version=$(GlibVersion)&#x0D;&#x0A;cd ../gio&#x0D;&#x0A;copy /Y &quot;gnetworking.h.win32&quot; &quot;gnetworking.h&quot;&#x0D;&#x0A;python &quot;gdbus-2.0/codegen/gdbus-codegen.in&quot; --interface-prefix org. --generate-c-code gdbus-daemon-generated --c-namespace _G dbus-daemon.xml&#x0D;&#x0A;copy /Y &quot;gdbus-daemon-generated.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h&quot;&#x0D;&#x0A;"
+				CommandLine="set UNINSTALLED_GLIB_SRCDIR=F:/+GTK-SOURCES/gnu-windows/src/MB3Glib/share/glib-2.0&#x0D;&#x0A;set UNINSTALLED_GLIB_BUILDDIR=F:/+GTK-SOURCES/gnu-windows/src/MB3Glib/share/glib-2.0&#x0D;&#x0A;mkdir &quot;$(GenericIncludeFolder)\glib-2.0\gio&quot; 2&gt; NUL&#x0D;&#x0A;python ../win32/gen_util_scripts.py --type=gdbus-codegen --version=$(GlibVersion)&#x0D;&#x0A;cd ../gio&#x0D;&#x0A;copy /Y &quot;gnetworking.h.win32&quot; &quot;gnetworking.h&quot;&#x0D;&#x0A;python &quot;gdbus-2.0/codegen/gdbus-codegen.in&quot; --interface-prefix org. --generate-c-code gdbus-daemon-generated --c-namespace _G dbus-daemon.xml&#x0D;&#x0A;copy /Y &quot;gdbus-daemon-generated.h&quot; &quot;$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
