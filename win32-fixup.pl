@@ -59,6 +59,7 @@ sub process_file
 process_file ("config.h.win32");
 process_file ("glib/glibconfig.h.win32");
 process_file ("gobject/glib-mkenums");
+process_file ("gobject/glib-genmarshal");
 process_file ("gio/gdbus-2.0/codegen/config.py");
 process_file ("gio-windows-2.0.pc");
 process_file ("gio-2.0.pc");
