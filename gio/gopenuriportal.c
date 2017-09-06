@@ -5,15 +5,15 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -103,15 +103,14 @@ g_openuri_portal_open_uri (const char  *uri,
     {
       char *path = NULL;
       GUnixFDList *fd_list = NULL;
-      int fd, fd_id, errsv;
+      int fd, fd_id;
 
       path = g_file_get_path (file);
 
       fd = g_open (path, O_PATH | O_CLOEXEC);
-      errsv = errno;
       if (fd == -1)
         {
-          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errsv),
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
                        "Failed to open '%s'", path);
           return FALSE;
         }
@@ -251,7 +250,10 @@ g_openuri_portal_open_uri_async (const char          *uri,
   GDBusConnection *connection;
   GTask *task;
   GFile *file;
-  GVariant *opts = NULL;
+  GVariantBuilder opt_builder;
+  char *token;
+  char *sender;
+  char *handle;
   int i;
   guint signal_id;
 
@@ -267,11 +269,6 @@ g_openuri_portal_open_uri_async (const char          *uri,
 
   if (callback)
     {
-      GVariantBuilder opt_builder;
-      char *token;
-      char *sender;
-      char *handle;
-
       task = g_task_new (NULL, cancellable, callback, user_data);
 
       token = g_strdup_printf ("gio%d", g_random_int_range (0, G_MAXINT));
@@ -295,33 +292,30 @@ g_openuri_portal_open_uri_async (const char          *uri,
                                                       task,
                                                       NULL);
       g_object_set_data (G_OBJECT (task), "signal-id", GINT_TO_POINTER (signal_id));
-
-      g_variant_builder_init (&opt_builder, G_VARIANT_TYPE_VARDICT);
-      g_variant_builder_add (&opt_builder, "{sv}", "handle_token", g_variant_new_string (token));
-      g_free (token);
-
-      opts = g_variant_builder_end (&opt_builder);
     }
   else
     task = NULL;
+
+  g_variant_builder_init (&opt_builder, G_VARIANT_TYPE_VARDICT);
+  g_variant_builder_add (&opt_builder, "{sv}", "handle_token", g_variant_new_string (token));
+  g_free (token);
 
   file = g_file_new_for_uri (uri);
   if (g_file_is_native (file))
     {
       char *path = NULL;
       GUnixFDList *fd_list = NULL;
-      int fd, fd_id, errsv;
+      int fd, fd_id;
 
       if (task)
         g_object_set_data (G_OBJECT (task), "open-file", GINT_TO_POINTER (TRUE));
 
       path = g_file_get_path (file);
       fd = g_open (path, O_PATH | O_CLOEXEC);
-      errsv = errno;
       if (fd == -1)
         {
           g_task_report_new_error (NULL, callback, user_data, NULL,
-                                   G_IO_ERROR, g_io_error_from_errno (errsv),
+                                   G_IO_ERROR, g_io_error_from_errno (errno),
                                    "OpenURI portal is not available");
           return;
         }
@@ -336,7 +330,7 @@ g_openuri_portal_open_uri_async (const char          *uri,
       gxdp_open_uri_call_open_file (openuri,
                                     parent_window ? parent_window : "",
                                     g_variant_new ("h", fd_id),
-                                    opts,
+                                    g_variant_builder_end (&opt_builder),
                                     fd_list,
                                     cancellable,
                                     task ? open_call_done : NULL,
@@ -349,7 +343,7 @@ g_openuri_portal_open_uri_async (const char          *uri,
       gxdp_open_uri_call_open_uri (openuri,
                                    parent_window ? parent_window : "",
                                    uri,
-                                   opts,
+                                   g_variant_builder_end (&opt_builder),
                                    cancellable,
                                    task ? open_call_done : NULL,
                                    task);

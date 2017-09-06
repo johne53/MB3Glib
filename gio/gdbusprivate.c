@@ -5,7 +5,7 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,9 +24,7 @@
 #include <string.h>
 
 #include "giotypes.h"
-#include "gioenumtypes.h"
 #include "gsocket.h"
-#include "gdbusauthobserver.h"
 #include "gdbusprivate.h"
 #include "gdbusmessage.h"
 #include "gdbusconnection.h"
@@ -38,7 +36,6 @@
 #include "gmemoryinputstream.h"
 #include "giostream.h"
 #include "glib/gstdio.h"
-#include "gsocketaddress.h"
 #include "gsocketcontrolmessage.h"
 #include "gsocketconnection.h"
 #include "gsocketoutputstream.h"
@@ -231,30 +228,10 @@ ensure_required_types (void)
 {
   g_assert (ensured_classes == NULL);
   ensured_classes = g_ptr_array_new ();
-  /* Generally in this list, you should initialize types which are used as
-   * properties first, then the class which has them. For example, GDBusProxy
-   * has a type of GDBusConnection, so we initialize GDBusConnection first.
-   * And because GDBusConnection has a property of type GDBusConnectionFlags,
-   * we initialize that first.
-   *
-   * Similarly, GSocket has a type of GSocketAddress.
-   *
-   * We don't fill out the whole dependency tree right now because in practice
-   * it tends to be just types that GDBus use that cause pain, and there
-   * is work on a more general approach in https://bugzilla.gnome.org/show_bug.cgi?id=674885
-   */
   ensure_type (G_TYPE_TASK);
   ensure_type (G_TYPE_MEMORY_INPUT_STREAM);
-  ensure_type (G_TYPE_DBUS_CONNECTION_FLAGS);
-  ensure_type (G_TYPE_DBUS_CAPABILITY_FLAGS);
-  ensure_type (G_TYPE_DBUS_AUTH_OBSERVER);
   ensure_type (G_TYPE_DBUS_CONNECTION);
   ensure_type (G_TYPE_DBUS_PROXY);
-  ensure_type (G_TYPE_SOCKET_FAMILY);
-  ensure_type (G_TYPE_SOCKET_TYPE);
-  ensure_type (G_TYPE_SOCKET_PROTOCOL);
-  ensure_type (G_TYPE_SOCKET_ADDRESS);
-  ensure_type (G_TYPE_SOCKET);
 }
 /* ---------------------------------------------------------------------------------------------------- */
 
