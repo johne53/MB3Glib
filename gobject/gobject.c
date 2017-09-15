@@ -511,7 +511,7 @@ g_object_do_class_init (GObjectClass *class)
   g_type_add_interface_check (NULL, object_interface_check_properties);
 }
 
-static inline void
+static inline gboolean
 install_property_internal (GType       g_type,
 			   guint       property_id,
 			   GParamSpec *pspec)
@@ -521,12 +521,64 @@ install_property_internal (GType       g_type,
       g_warning ("When installing property: type '%s' already has a property named '%s'",
 		 g_type_name (g_type),
 		 pspec->name);
-      return;
+      return FALSE;
     }
 
   g_param_spec_ref_sink (pspec);
   PARAM_SPEC_SET_PARAM_ID (pspec, property_id);
   g_param_spec_pool_insert (pspec_pool, pspec, g_type);
+  return TRUE;
+}
+
+static gboolean
+validate_pspec_to_install (GParamSpec *pspec)
+{
+  g_return_val_if_fail (G_IS_PARAM_SPEC (pspec), FALSE);
+  g_return_val_if_fail (PARAM_SPEC_PARAM_ID (pspec) == 0, FALSE);	/* paranoid */
+
+  g_return_val_if_fail (pspec->flags & (G_PARAM_READABLE | G_PARAM_WRITABLE), FALSE);
+
+  if (pspec->flags & G_PARAM_CONSTRUCT)
+    g_return_val_if_fail ((pspec->flags & G_PARAM_CONSTRUCT_ONLY) == 0, FALSE);
+
+  if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
+    g_return_val_if_fail (pspec->flags & G_PARAM_WRITABLE, FALSE);
+
+  return TRUE;
+}
+
+static gboolean
+validate_and_install_class_property (GObjectClass *class,
+                                     GType         oclass_type,
+                                     GType         parent_type,
+                                     guint         property_id,
+                                     GParamSpec   *pspec)
+{
+  if (!validate_pspec_to_install (pspec))
+    return FALSE;
+
+  if (pspec->flags & G_PARAM_WRITABLE)
+    g_return_val_if_fail (class->set_property != NULL, FALSE);
+  if (pspec->flags & G_PARAM_READABLE)
+    g_return_val_if_fail (class->get_property != NULL, FALSE);
+
+  class->flags |= CLASS_HAS_PROPS_FLAG;
+  if (install_property_internal (oclass_type, property_id, pspec))
+    {
+      if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
+        class->construct_properties = g_slist_append (class->construct_properties, pspec);
+
+      /* for property overrides of construct properties, we have to get rid
+       * of the overidden inherited construct property
+       */
+      pspec = g_param_spec_pool_lookup (pspec_pool, pspec->name, parent_type, TRUE);
+      if (pspec && pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
+        class->construct_properties = g_slist_remove (class->construct_properties, pspec);
+
+      return TRUE;
+    }
+  else
+    return FALSE;
 }
 
 /**
@@ -551,37 +603,22 @@ g_object_class_install_property (GObjectClass *class,
 				 guint	       property_id,
 				 GParamSpec   *pspec)
 {
+  GType oclass_type, parent_type;
+
   g_return_if_fail (G_IS_OBJECT_CLASS (class));
-  g_return_if_fail (G_IS_PARAM_SPEC (pspec));
+  g_return_if_fail (property_id > 0);
+
+  oclass_type = G_OBJECT_CLASS_TYPE (class);
+  parent_type = g_type_parent (oclass_type);
 
   if (CLASS_HAS_DERIVED_CLASS (class))
     g_error ("Attempt to add property %s::%s to class after it was derived", G_OBJECT_CLASS_NAME (class), pspec->name);
 
-  class->flags |= CLASS_HAS_PROPS_FLAG;
-
-  g_return_if_fail (pspec->flags & (G_PARAM_READABLE | G_PARAM_WRITABLE));
-  if (pspec->flags & G_PARAM_WRITABLE)
-    g_return_if_fail (class->set_property != NULL);
-  if (pspec->flags & G_PARAM_READABLE)
-    g_return_if_fail (class->get_property != NULL);
-  g_return_if_fail (property_id > 0);
-  g_return_if_fail (PARAM_SPEC_PARAM_ID (pspec) == 0);	/* paranoid */
-  if (pspec->flags & G_PARAM_CONSTRUCT)
-    g_return_if_fail ((pspec->flags & G_PARAM_CONSTRUCT_ONLY) == 0);
-  if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-    g_return_if_fail (pspec->flags & G_PARAM_WRITABLE);
-
-  install_property_internal (G_OBJECT_CLASS_TYPE (class), property_id, pspec);
-
-  if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-    class->construct_properties = g_slist_append (class->construct_properties, pspec);
-
-  /* for property overrides of construct properties, we have to get rid
-   * of the overidden inherited construct property
-   */
-  pspec = g_param_spec_pool_lookup (pspec_pool, pspec->name, g_type_parent (G_OBJECT_CLASS_TYPE (class)), TRUE);
-  if (pspec && pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-    class->construct_properties = g_slist_remove (class->construct_properties, pspec);
+  (void) validate_and_install_class_property (class,
+                                              oclass_type,
+                                              parent_type,
+                                              property_id,
+                                              pspec);
 }
 
 /**
@@ -679,30 +716,14 @@ g_object_class_install_properties (GObjectClass  *oclass,
     {
       GParamSpec *pspec = pspecs[i];
 
-      g_return_if_fail (pspec != NULL);
-
-      if (pspec->flags & G_PARAM_WRITABLE)
-        g_return_if_fail (oclass->set_property != NULL);
-      if (pspec->flags & G_PARAM_READABLE)
-        g_return_if_fail (oclass->get_property != NULL);
-      g_return_if_fail (PARAM_SPEC_PARAM_ID (pspec) == 0);	/* paranoid */
-      if (pspec->flags & G_PARAM_CONSTRUCT)
-        g_return_if_fail ((pspec->flags & G_PARAM_CONSTRUCT_ONLY) == 0);
-      if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-        g_return_if_fail (pspec->flags & G_PARAM_WRITABLE);
-
-      oclass->flags |= CLASS_HAS_PROPS_FLAG;
-      install_property_internal (oclass_type, i, pspec);
-
-      if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-        oclass->construct_properties = g_slist_append (oclass->construct_properties, pspec);
-
-      /* for property overrides of construct properties, we have to get rid
-       * of the overidden inherited construct property
-       */
-      pspec = g_param_spec_pool_lookup (pspec_pool, pspec->name, parent_type, TRUE);
-      if (pspec && pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-        oclass->construct_properties = g_slist_remove (oclass->construct_properties, pspec);
+      if (!validate_and_install_class_property (oclass,
+                                                oclass_type,
+                                                parent_type,
+                                                i,
+                                                pspec))
+        {
+          break;
+        }
     }
 }
 
@@ -737,17 +758,12 @@ g_object_interface_install_property (gpointer      g_iface,
   GTypeInterface *iface_class = g_iface;
 	
   g_return_if_fail (G_TYPE_IS_INTERFACE (iface_class->g_type));
-  g_return_if_fail (G_IS_PARAM_SPEC (pspec));
   g_return_if_fail (!G_IS_PARAM_SPEC_OVERRIDE (pspec)); /* paranoid */
-  g_return_if_fail (PARAM_SPEC_PARAM_ID (pspec) == 0);	/* paranoid */
 
-  g_return_if_fail (pspec->flags & (G_PARAM_READABLE | G_PARAM_WRITABLE));
-  if (pspec->flags & G_PARAM_CONSTRUCT)
-    g_return_if_fail ((pspec->flags & G_PARAM_CONSTRUCT_ONLY) == 0);
-  if (pspec->flags & (G_PARAM_CONSTRUCT | G_PARAM_CONSTRUCT_ONLY))
-    g_return_if_fail (pspec->flags & G_PARAM_WRITABLE);
+  if (!validate_pspec_to_install (pspec))
+    return;
 
-  install_property_internal (iface_class->g_type, 0, pspec);
+  (void) install_property_internal (iface_class->g_type, 0, pspec);
 }
 
 /**
@@ -3359,7 +3375,7 @@ g_clear_object (volatile GObject **object_ptr)
  * This function gets back user data pointers stored via
  * g_object_set_qdata().
  * 
- * Returns: (transfer none): The user data pointer set, or %NULL
+ * Returns: (transfer none) (nullable): The user data pointer set, or %NULL
  */
 gpointer
 g_object_get_qdata (GObject *object,
@@ -3374,7 +3390,7 @@ g_object_get_qdata (GObject *object,
  * g_object_set_qdata: (skip)
  * @object: The GObject to set store a user data pointer
  * @quark: A #GQuark, naming the user data pointer
- * @data: An opaque user data pointer
+ * @data: (nullable): An opaque user data pointer
  *
  * This sets an opaque, named pointer on an object.
  * The name is specified through a #GQuark (retrived e.g. via
@@ -3397,7 +3413,7 @@ g_object_set_qdata (GObject *object,
 }
 
 /**
- * g_object_dup_qdata:
+ * g_object_dup_qdata: (skip)
  * @object: the #GObject to store user data on
  * @quark: a #GQuark, naming the user data pointer
  * @dup_func: (nullable): function to dup the value
@@ -3438,13 +3454,13 @@ g_object_dup_qdata (GObject        *object,
 }
 
 /**
- * g_object_replace_qdata:
+ * g_object_replace_qdata: (skip)
  * @object: the #GObject to store user data on
  * @quark: a #GQuark, naming the user data pointer
  * @oldval: (nullable): the old value to compare against
  * @newval: (nullable): the new value
  * @destroy: (nullable): a destroy notify for the new value
- * @old_destroy: (nullable): destroy notify for the existing value
+ * @old_destroy: (out) (optional): destroy notify for the existing value
  *
  * Compares the user data for the key @quark on @object with
  * @oldval, and if they are the same, replaces @oldval with
@@ -3485,8 +3501,8 @@ g_object_replace_qdata (GObject        *object,
  * g_object_set_qdata_full: (skip)
  * @object: The GObject to set store a user data pointer
  * @quark: A #GQuark, naming the user data pointer
- * @data: An opaque user data pointer
- * @destroy: Function to invoke with @data as argument, when @data
+ * @data: (nullable): An opaque user data pointer
+ * @destroy: (nullable): Function to invoke with @data as argument, when @data
  *           needs to be freed
  *
  * This function works like g_object_set_qdata(), but in addition,
@@ -3549,7 +3565,7 @@ g_object_set_qdata_full (GObject       *object,
  * and thus the partial string list would have been freed upon
  * g_object_set_qdata_full().
  *
- * Returns: (transfer full): The user data pointer set, or %NULL
+ * Returns: (transfer full) (nullable): The user data pointer set, or %NULL
  */
 gpointer
 g_object_steal_qdata (GObject *object,
@@ -3568,7 +3584,8 @@ g_object_steal_qdata (GObject *object,
  * 
  * Gets a named field from the objects table of associations (see g_object_set_data()).
  * 
- * Returns: (transfer none): the data if found, or %NULL if no such data exists.
+ * Returns: (transfer none) (nullable): the data if found,
+ *          or %NULL if no such data exists.
  */
 gpointer
 g_object_get_data (GObject     *object,
@@ -3584,7 +3601,7 @@ g_object_get_data (GObject     *object,
  * g_object_set_data:
  * @object: #GObject containing the associations.
  * @key: name of the key
- * @data: data to associate with that key
+ * @data: (nullable): data to associate with that key
  *
  * Each object carries around a table of associations from
  * strings to pointers.  This function lets you set an association.
@@ -3604,7 +3621,7 @@ g_object_set_data (GObject     *object,
 }
 
 /**
- * g_object_dup_data:
+ * g_object_dup_data: (skip)
  * @object: the #GObject to store user data on
  * @key: a string, naming the user data pointer
  * @dup_func: (nullable): function to dup the value
@@ -3647,13 +3664,13 @@ g_object_dup_data (GObject        *object,
 }
 
 /**
- * g_object_replace_data:
+ * g_object_replace_data: (skip)
  * @object: the #GObject to store user data on
  * @key: a string, naming the user data pointer
  * @oldval: (nullable): the old value to compare against
  * @newval: (nullable): the new value
  * @destroy: (nullable): a destroy notify for the new value
- * @old_destroy: (nullable): destroy notify for the existing value
+ * @old_destroy: (out) (optional): destroy notify for the existing value
  *
  * Compares the user data for the key @key on @object with
  * @oldval, and if they are the same, replaces @oldval with
@@ -3695,8 +3712,8 @@ g_object_replace_data (GObject        *object,
  * g_object_set_data_full: (skip)
  * @object: #GObject containing the associations
  * @key: name of the key
- * @data: data to associate with that key
- * @destroy: function to call when the association is destroyed
+ * @data: (nullable): data to associate with that key
+ * @destroy: (nullable): function to call when the association is destroyed
  *
  * Like g_object_set_data() except it adds notification
  * for when the association is destroyed, either by setting it
@@ -3725,7 +3742,8 @@ g_object_set_data_full (GObject       *object,
  * Remove a specified datum from the object's data associations,
  * without invoking the association's destroy handler.
  *
- * Returns: (transfer full): the data if found, or %NULL if no such data exists.
+ * Returns: (transfer full) (nullable): the data if found, or %NULL
+ *          if no such data exists.
  */
 gpointer
 g_object_steal_data (GObject     *object,
