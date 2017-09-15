@@ -42,11 +42,14 @@ static const GOptionEntry entries[] = {
   { NULL }
 };
 
+/* 256k minus malloc overhead */
+#define STREAM_BUFFER_SIZE (1024*256 - 2*sizeof(gpointer))
+
 static gboolean
 cat (GFile *file)
 {
   GInputStream *in;
-  char buffer[1024 * 8 + 1];
+  char *buffer;
   char *p;
   gssize res;
   gboolean close_res;
@@ -62,10 +65,11 @@ cat (GFile *file)
       return FALSE;
     }
 
+  buffer = g_malloc (STREAM_BUFFER_SIZE);
   success = TRUE;
   while (1)
     {
-      res = g_input_stream_read (in, buffer, sizeof (buffer) - 1, NULL, &error);
+      res = g_input_stream_read (in, buffer, STREAM_BUFFER_SIZE, NULL, &error);
       if (res > 0)
         {
           gssize written;
@@ -80,7 +84,7 @@ cat (GFile *file)
 
               if (written == -1 && errsv != EINTR)
                 {
-                  print_file_error (file, _("Error writing to stdout"));
+                  print_error ("%s", _("Error writing to stdout"));
                   success = FALSE;
                   goto out;
                 }
@@ -108,6 +112,8 @@ cat (GFile *file)
       g_error_free (error);
       success = FALSE;
     }
+
+  g_free (buffer);
 
   return success;
 }

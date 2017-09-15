@@ -1,38 +1,241 @@
-Overview of changes in GLib 2.52.3
+Overview of changes in GLib 2.54.0
 ==================================
 
-* Bug fixes:
+* Bugs fixed:
+ 780861 Crash in GnomeWallClock
+ 786983 Please make the output of gio-querymodules deterministic
+ 787109 Valgrind false positive in ioctl() in btrfs file copy
+ 787123 glib: Slighty update GIOChannel documentation
+ 787146 GMainLoop: match of parameter pair of LOCK_CONTEXT/UNLOCK_CONTEXT
+
+* Translation updates:
+ Basque
+ Catalan
+ Romanian
+ Swedish
+
+
+Overview of changes in GLib 2.53.7
+==================================
+
+* Bugs fixed:
+ 736710 remove unnecessary executions of libtool from configure
+ 785260 gio/tests/appmonitor fails if local dir not writeable
+ 786456 g_subprocess_wait[_check]_async() breaks when cancelled...
+ 786555 g_array_free() is not thread safe w.r.t. g_array_unref()
+ 786580 gdesktopappinfo.c: Add Tilix as a fallback terminal
+ 786807 g_uuid_string_random undefined when built with meson
+
+* Translation updates:
+ Brazilian Portuguese
+ Catalan
+ Czech
+ Danish
+ Finnish
+ French
+ Friulian
+ German
+ Italian
+ Kazakh
+ Korean
+ Latvian
+ Nepali
+ Polish
+ Spanish
+ Turkish
+
+
+Overview of changes in GLib 2.53.6
+==================================
+
+* Bugs fixed:
+ 766358 glib doesn't respect XDG_* envvars on W32, ever
+ 783270 Improve Visual Studio support for Meson builds
+ 785955 pthread_setname_np misdetected with meson
+ 786060 Sequences documentation does not make it clear...
+ 786360 gobject: add autoptr support for GClosure
+ 786452 crash on Linux without stderr stream
+ 786460 gio-tool: Unify buffer sizes
+ 786462 Use g_output_stream_write_all instead of while
+ 786463 gio-tool-save: Prevent overwriting error
+
+* Translation updates:
+ Catalan
+ Galician
+ Hungarian
+ Indonesian
+ Lithuanian
+ Nepali
+ Serbian
+
+
+Overview of changes in GLib 2.53.5
+==================================
+
+* Bugs fixed:
+ 695573 Untranslatable strings in glib-compile-schemas
+ 725950 GApplication: call dbus_unregister only once, and before destruction
+ 731703 giomodule test misbuilds its test modules as libraries
+ 769135 External control for g_test_add/g_test_run
+ 779332 Rewrite mkenums in Python
+ 779607 Race between mounts-changed signal and g_unix_mounts_get() function
+ 784000 Improve strerror_r() detection
+ 784815 Map G_NOTIFICATION_PRIORITY_HIGH to NOTIFY_URGENCY_NORMAL
+ 784965 Use the glib preset for i18n in Meson
+ 784995 meson: some Windows improvements
+ 785113 glib-mkenums Python port fixes
+ 785130 G_LOG_DOMAIN shouldn't be left undefined for applications
+ 785438 Spurious -Wmaybe-uninitialized in gdatetime.c
+ 785468 glib/gpoll: Unnecessary if conditional included in the poll_rest() function
+ 785520 Replace advice to use removed gdk_spawn functions
+ 785577 clobbers errno while setting GError
+
+* Translation updates:
+ Slovenian
+ Spanish
+
+
+Overview of changes in GLib 2.53.4
+==================================
+
+* Unicode support has been updated to Unicode 10.0.0
+
+* glib-genmarshal and glib-mkenums have been rewritten in python.
+  Every effort has been made to keep compatibility. Please report
+  problems related to these tools
+
+* GLib can now be built with meson. autotools are still supported
+
+* Bugs fixed:
+ 722047 drop makefile.msc?
+ 733821 g_strerror() uses strerror(3) instead of strerror_r(3)
+ 773842 g_utf8_find_next_char() won't signal the end of a NUL-terminated string
+ 779332 Rewrite mkenums in Python
+ 780095 g_utf8_get_char_validated() stopping at nul byte even for length specified...
+ 780634 Remove remaining old codepage ABI comapt code
+ 783841 test_GDateTime_new_from_timeval_overflow fails on 32 bit systems
+ 784000 Improve strerror_r() detection
+ 784020 GKeyFile – Add array length annotations to to_data(), get_keys() and get_g...
+ 784037 gio: Mention the ALL_METADATA flag in g_file_copy()
+ 784433 gdbus-codegen with variant type parameters result in nested variant
+ 784456 Update to Unicode 10.0.0
+ 784528 Rewrite glib-genmarshal in Python
+ 784579 Calling g_dir_open on Missing Directory When Executable File Path Contains...
+ 784581 docs: Fix cut'n'paste error in g_resources_get_info() doc
+ 784739 Minor typo in configure error message
+ 784792 Just fixing a little typo in comments
+
+* Translation updates:
+ Hebrew
+
+
+Overview of changes in GLib 2.53.3
+==================================
+
+* Bugs fixed:
+ 658446 Add translation comment for wrong password notice string
+ 661926 Improve the default logging setup in GLib
+ 674885 type initialisation deadlock in GObject
+ 775593 GIO cannot write symlinks on FreeBSD and NetBSD
+ 776169 Various gio-tool fixes
+ 776333 Fix annotation on g_file_copy_async()
+ 776504 Upgrade license from LGPLv2+ to LGPLv2.1+
+ 777307 race condition between gdbus signal callback and g_bus_unwatch_name...
+ 778422 gsubprocesslauncher: Clarify the behavior of set_environ()
  781301 Stack pointer corrupted by incorrect call of NtNotifyChangeMultipleKeys
- 781601 Race in g_dbus_server_stop causing spurious GDBus test failures
- 781867 various gvfsd-* wants to look in /boot/efi, causes unnecessary/inappropriate...
+ 782336 Add additional documentation of the GResource XML format
+ 782996 build: Use AM_TESTS_ENVIRONMENT rather than TESTS_ENVIRONMENT
+ 783061 GApplication: Remove some unused members
  783130 Make dbus activation sandbox-aware
  783193 Adapt to OpenURI api change
  783201 gdbus-codegen: Apply --output-directory to generated docs as well
-
-Overview of changes in GLib 2.52.2
-==================================
-
-* Bug fixes:
- 734946 Implement GContentType on OSX
- 761102 Increase performance for main loop
- 780300 gio/gosxappinfo.c uses deprecated LSFindApplicationForInfo
- 780309 gio/tests/appinfo build fails: gdesktopappinfo.c skipped on OS X
- 781298 gfileutils.c:330:3: error: ISO C90 forbids mixed declarations and code
+ 783340 win32: port monotonic times to use QPC
+ 783350 length parameter can be NULL g_data_input_stream_read_line
+ 783392 incorrect (out) annotation for g_dbus_interface_info_generate_xml
+ 783593 GGtkNotificationBackend should use /org/freedesktop/DBus to call Ge...
 
 * Translation updates:
+ Esperanto
+ German
  Indonesian
+ Kazakh
+ Spanish
 
 
-Overview of changes in GLib 2.52.1
+Overview of changes in GLib 2.53.2
 ==================================
 
-* Bug fixes:
+* A few new number parsing functions have been added:
+  - g_ascii_string_to_signed
+  - g_ascii_string_to_unsigned
+  These have better error handling than the existing ones.
+
+* glib-mkenums now supports /*< private >*/ and /*< public >*/
+
+* GSettings now consider XDG_DATA_HOME in addition to XDG_DATA_DIRS.
+
+* Bugs fixed:
  674885 type initialisation deadlock in GObject
  698064 Add g_ptr_array_contains()
+ 732000 gdatetime: Remove an unnecessary NULL pointer check
+ 734946 Implement GContentType on OSX
+ 741335 Possible differences in use of XDG_DATA_DIRS versus XDG base directory specification
+ 748263 Use-after-free in g_dbus_connection_call_internal()
+ 776876 gmodule – Various Android bug-fixes
+ 777030 build error where minor() and major() cant be resolved in gio/gdbusmessage.c
+ 780300 gio/gosxappinfo.c uses deprecated LSFindApplicationForInfo
+ 780309 gio/tests/appinfo build fails: gdesktopappinfo.c skipped on OS X
+ 781755 Avoid compiler warnings in generated marshallers code
+ 781826 portal support: Read /.flatpak-info
+ 781830 Fix some typos and errors in GVariant documentation
+ 781847 Use-after-free under send_message_with_reply_cleanup():gdbusconnection.c:1792
+ 781867 various gvfsd-* wants to look in /boot/efi, causes unnecessary/inappropriate auto...
+ 782068 doc: Trivial typo fixes
+ 782075 gtimer: Handle gmtime() failure in g_time_val_to_iso8601()
+ 782089 gdatetime: Fix overflow checks when constructing from timestamps
+ 782162 Support public/private trigraph in glib-mkenums
+ 782237 make check error
+ 782311 inode/directory is treated as a subclass of application/octet-stream
+ 782628 libmount build dependency check not requiring the right version?
+
+* Translation updates:
+ Hungarian
+ Indonesian
+ Spanish
+
+
+Overview of changes in GLib 2.53.1
+==================================
+
+* The gdbus tool gained a wait command
+
+* g_unix_signal_source_new support SIGWINCH now
+
+* There are now g_enum_to_string and g_flags_to_string functions
+
+* A new function to instantiate objects: g_objet_new_with_properties
+
+* GParameter and related APIs have been deprecated
+
+* Bug fixes
+ 447907 enum/flags from string + type transform + tests
+ 668962 GUnixMountPoint/GUnixMountEntry not usable through gobject-introspection
+ 669355 gdbus-codegen output contains stray semicolons at file scope (forbidden in C99)
+ 674885 type initialisation deadlock in GObject
+ 698064 Add g_ptr_array_contains()
+ 709865 Add boxing to GParameter
  725894 build: Include gettext libraries for static compilation on Mac OS X
  734946 Implement GContentType on OSX
+ 741229 gio: Handle NULL cached properties in NetworkManager monitor
+ 745971 gdbus-tool: Add a command to wait for a well-known name on the bus
  755046 gfileutils: Add precondition checks to g_file_test()
+ 761102 Increase performance for main loop
+ 761889 GDateTime: %p does not always print AM/PM string
+ 766660 Please clarify the extent to which GInitable, GAsyncInitable must be idempotent
+ 769534 g_unix_signal_source_new does not support SIGWINCH
+ 772221 Take advantage of Unicode
  775879 g_log_default_handler should not check G_MESSAGES_DEBUG
+ 776169 various gio-tool fixes
  777961 Documentation for g_app_info_equals() could be clearer
  778049 race in gsource detected by TSan
  778207 gio-querymodules: fix memory leak
@@ -41,15 +244,20 @@ Overview of changes in GLib 2.52.1
  780066 g_base64_encode_close() in glib/gbase64.c produces invalid base64 encoding
  780095 g_utf8_get_char_validated() stopping at nul byte even for length specified buffers
  780306 Unused function in gunicollate.c for CARBON
- 780310 g_tls_database_verify_chain doesn't set the GError for failures other than cancellation
+ 780310 g_tls_database_verify_chain doesn't set the GError for failures other than cancell...
  780384 gio/tests/contenttype fails on OS X: "public.directory" != "public.folder"
  780441 Make the portal implementation of g_app_info_launch() synchronous
- 780471 appinfo: Only use portal as fallback
+ 780634 Remove remaining old codepage ABI comapt code
+ 780908 gobject: remove duplicate GType sanity check
  780924 Memory leak in gdbusmethodinvocation.c
+ 781125 gio-tool: Fix errors format string
+ 781234 the buffer written to by g_input_stream_read is not marked as an out parameter
+ 781298 gfileutils.c:330:3: error: ISO C90 forbids mixed declarations and code
 
-
-* Translation updates:
+* Translation updates
+ Catalan
  Friulian
+ German
  Hebrew
  Indonesian
  Polish

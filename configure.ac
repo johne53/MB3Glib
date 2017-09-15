@@ -30,9 +30,9 @@ m4_define(glib_configure_ac)
 # <mclasen> on the unstable (ie master), interface age = 0
 
 m4_define([glib_major_version], [2])
-m4_define([glib_minor_version], [52])
-m4_define([glib_micro_version], [3])
-m4_define([glib_interface_age], [3])
+m4_define([glib_minor_version], [54])
+m4_define([glib_micro_version], [0])
+m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
 m4_define([glib_version],
@@ -389,7 +389,7 @@ AC_ARG_WITH(python,
 if test x"$PYTHON" = xyes; then
   AC_MSG_ERROR([--with-python option requires a path or program argument])
 fi
-AM_PATH_PYTHON(2.5,,PYTHON="/usr/bin/env python2.5")
+AM_PATH_PYTHON(2.7,,PYTHON="python2.7")
 
 
 dnl ***********************
@@ -465,8 +465,8 @@ GLIB_GNU_GETTEXT
 
 if test "$gt_cv_have_gettext" != "yes" ; then
   AC_MSG_ERROR([
-*** You must have either have gettext support in your C library, or use the 
-*** GNU gettext library. (http://www.gnu.org/software/gettext/gettext.html
+*** You must have either have gettext support in your C library, or use the
+*** GNU gettext library. (http://www.gnu.org/software/gettext/gettext.html)
 ])
 fi
 
@@ -525,7 +525,8 @@ AM_CONDITIONAL(OS_WIN32_AND_DLL_COMPILATION, [test x$glib_native_win32 = xyes -a
 # Checks for library functions.
 AC_FUNC_ALLOCA
 AC_CHECK_FUNCS(mmap posix_memalign memalign valloc fsync pipe2 issetugid)
-AC_CHECK_FUNCS(timegm gmtime_r strerror_r)
+AC_CHECK_FUNCS(timegm gmtime_r)
+AC_FUNC_STRERROR_R()
 
 AC_CACHE_CHECK([for __libc_enable_secure], glib_cv_have_libc_enable_secure,
   [AC_TRY_LINK([#include <unistd.h>
@@ -889,7 +890,7 @@ int main ()
 AC_MSG_RESULT($glib_ssize_type)
 
 # Check for some functions
-AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk memmem)
+AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk)
 AC_CHECK_FUNCS(lchmod lchown fchmod fchown utimes getresuid)
 AC_CHECK_FUNCS(getmntent_r setmntent endmntent hasmntopt getfsstat getvfsstat fallocate)
 case $host_os in aix*) ac_cv_func_splice=no ;; esac # AIX splice() is something else
@@ -958,7 +959,7 @@ if $glib_failed ; then
   AC_MSG_ERROR([Could not determine values for MSG_* constants])
 fi
 
-AC_CHECK_FUNCS(getprotobyname_r endservent if_nametoindex if_indextoname sendmmsg recvmmsg)
+AC_CHECK_FUNCS(endservent if_nametoindex if_indextoname sendmmsg recvmmsg)
 
 AS_IF([test $glib_native_win32 = yes], [
   # <wspiapi.h> in the Windows SDK and in mingw-w64 has wrappers for
@@ -1378,7 +1379,7 @@ if test x"$glib_native_win32" = xyes; then
   G_MODULE_LDFLAGS=
 else
   export SED
-  G_MODULE_LDFLAGS=`(./libtool --config; echo eval echo \\$export_dynamic_flag_spec) | sh`
+  eval G_MODULE_LDFLAGS=$export_dynamic_flag_spec
 fi
 dnl G_MODULE_IMPL= don't reset, so cmd-line can override
 G_MODULE_NEED_USCORE=0
@@ -1433,7 +1434,6 @@ dnl *** check for OSF1/5.0 RTLD_GLOBAL brokenness
 		${LDFLAGS} -module -o plugin.la -export-dynamic \
 		-shrext ".o" -avoid-version plugin.lo \
 		-rpath /dont/care >/dev/null 2>&1
-	eval `./libtool --config | grep ^objdir`
 	AC_CACHE_CHECK([for RTLD_GLOBAL brokenness],
 		glib_cv_rtldglobal_broken,[
 		AC_TRY_RUN([
@@ -1489,6 +1489,16 @@ dnl *** check whether we need preceeding underscores
   		G_MODULE_NEED_USCORE=0
 	fi
 
+        AC_CHECK_DECL([RTLD_LAZY],
+                      [AC_DEFINE(HAVE_RTLD_LAZY, 1, [Define to 1 if RTLD_LAZY is available])],
+                      [], [[#include <dlfcn.h>]])
+        AC_CHECK_DECL([RTLD_NOW],
+                      [AC_DEFINE(HAVE_RTLD_NOW, 1, [Define to 1 if RTLD_NOW is available])],
+                      [], [[#include <dlfcn.h>]])
+        AC_CHECK_DECL([RTLD_GLOBAL],
+                      [AC_DEFINE(HAVE_RTLD_GLOBAL, 1, [Define to 1 if RTLD_GLOBAL is available])],
+                      [], [[#include <dlfcn.h>]])
+
 	LDFLAGS="$LDFLAGS_orig"
 dnl *** check for having dlerror()
 	AC_CHECK_FUNC(dlerror,
@@ -1506,8 +1516,6 @@ fi
 
 AC_MSG_CHECKING(for the suffix of module shared libraries)
 export SED
-shrext_cmds=`./libtool --config | grep '^shrext_cmds='`
-eval $shrext_cmds
 module=yes eval std_shrext=$shrext_cmds
 # chop the initial dot
 glib_gmodule_suffix=`echo $std_shrext | sed 's/^\.//'`
@@ -1745,6 +1753,9 @@ PKG_CHECK_MODULES([LIBMOUNT], [mount >= 2.28], [have_libmount=yes], [have_libmou
 AS_IF([ test $have_libmount = maybe ], [
   glib_save_LIBS=$LIBS
   AC_CHECK_HEADER([libmount/libmount.h], [:], [have_libmount=no])
+
+  # Check for a recent enough libmount
+  AC_CHECK_LIB([mount], [mnt_unref_table], [:], [have_libmount=no])
   LIBS=$glib_save_LIBS
 
   if test $have_libmount != no; then
@@ -2229,7 +2240,7 @@ AC_CACHE_CHECK([for lock-free atomic intrinsics], glib_cv_g_atomic_lock_free, [
         AC_TRY_LINK([],
                        [volatile int atomic = 2;\
                         __sync_bool_compare_and_swap (&atomic, 2, 3);],
-                       [AC_MSG_ERROR([GLib must be build with -march=i486 or later.])],
+                       [AC_MSG_ERROR([GLib must be built with -march=i486 or later.])],
                        [])
         CFLAGS="${SAVE_CFLAGS}"
       fi
@@ -2580,7 +2591,7 @@ AS_IF([ test "x$use_gcov" = "xyes"], [
     AC_MSG_ERROR([ccache must be disabled when --enable-coverage option is used. You can disable ccache by setting environment variable CCACHE_DISABLE=1.])
   fi
 
-  ltp_version_list="1.6 1.7 1.8 1.9 1.10"
+  ltp_version_list="1.6 1.7 1.8 1.9 1.10 1.12"
   AC_CHECK_PROG(LTP, lcov, lcov)
   AC_CHECK_PROG(LTP_GENHTML, genhtml, genhtml)
 
@@ -3376,7 +3387,7 @@ AC_ARG_ENABLE(compile-warnings,
               [AS_HELP_STRING([--disable-compile-warnings],
                               [Don't use builtin compiler warnings])],,
 			      enable_compile_warnings=yes)
-AS_IF([test "x$enable_compile_warnings" = xyes], [
+AS_IF([test "x$enable_compile_warnings" != xno], [
   CC_CHECK_FLAGS_APPEND([GLIB_WARN_CFLAGS], [CFLAGS], [\
    -Wall -Wstrict-prototypes -Werror=declaration-after-statement \
    -Werror=missing-prototypes -Werror=implicit-function-declaration \
@@ -3453,6 +3464,7 @@ glib/tests/Makefile
 gmodule/Makefile
 gmodule/gmoduleconf.h
 gobject/Makefile
+gobject/glib-genmarshal
 gobject/glib-mkenums
 gobject/tests/Makefile
 gthread/Makefile
@@ -3488,6 +3500,7 @@ m4macros/Makefile
 AC_CONFIG_COMMANDS([chmod-scripts],
 [chmod 0755 glib-zip
 chmod 0755 glib-gettextize
+chmod 0755 gobject/glib-genmarshal
 chmod 0755 gobject/glib-mkenums])
 
 # we want to invoke this macro solely so that the config.status script
@@ -3499,16 +3512,11 @@ if false; then
     README
     config.h.win32
     glib/glibconfig.h.win32
-    glib/makefile.msc
     glib/glib.rc
-    gmodule/makefile.msc
     gmodule/gmodule.rc
-    gobject/makefile.msc
     gobject/gobject.rc
-    gthread/makefile.msc
     gthread/gthread.rc
     gio/gio.rc
-    tests/makefile.msc
   ])
 fi
 

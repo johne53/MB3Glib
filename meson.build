@@ -1,5 +1,5 @@
 project('glib', 'c', 'cpp',
-  version : '2.53.5',
+  version : '2.54.0',
   meson_version : '>= 0.38.1',
   default_options : [
     'warning_level=1',
@@ -84,7 +84,6 @@ glib_conf.set_quoted('PACKAGE_TARNAME', 'glib')
 glib_conf.set_quoted('PACKAGE_URL', '')
 glib_conf.set_quoted('PACKAGE_VERSION', meson.project_version())
 glib_conf.set('ENABLE_NLS', 1)
-glib_conf.set('HAVE_GOOD_PRINTF', 1) # FIXME
 
 # Variables used in glib-gettextize and pkg-config files
 # These should not contain " quotes around the values
@@ -129,6 +128,10 @@ else
   glib_os = '#define G_OS_UNIX'
 endif
 glibconfig_conf.set('glib_os', glib_os)
+
+# We need to know the build type to determine what .lib files we need on Visual Studio
+# for dependencies that don't normally come with pkg-config files for Visual Studio builds
+buildtype = get_option('buildtype')
 
 # check for header files
 
@@ -252,6 +255,11 @@ foreach m : struct_members
   endif
 endforeach
 
+# Windows Support (Vista+)
+if host_system == 'windows'
+  glib_conf.set('_WIN32_WINNT', '0x0601')
+endif
+
 functions = [
   'alloca',
   'mmap',
@@ -308,8 +316,6 @@ functions = [
   'kqueue',
   'kevent',
   'endservent',
-  'if_indextoname',
-  'if_nametoindex',
   'sendmmsg',
   'recvmmsg',
 ]
@@ -323,6 +329,25 @@ if glib_conf.has('HAVE_SYS_STATFS_H') or glib_conf.has('HAVE_SYS_MOUNT_H')
   functions += ['statfs']
 else
   have_func_statfs = false
+endif
+
+if host_system == 'windows'
+  iphlpapi_dep = cc.find_library('iphlpapi')
+  iphlpapi_funcs = ['if_nametoindex', 'if_indextoname']
+  foreach ifunc : iphlpapi_funcs
+    if cc.has_function(ifunc,
+                       prefix : '#define _WIN32_WINNT 0x0601\n#include <winsock2.h>\n#include <iphlpapi.h>',
+                       dependencies : iphlpapi_dep)
+      idefine = 'HAVE_' + ifunc.underscorify().to_upper()
+      glib_conf.set(idefine, 1)
+      glib_conf_prefix = glib_conf_prefix + '#define @0@ 1\n'.format(idefine)
+      set_variable('have_func_' + ifunc, true)
+    else
+      set_variable('have_func_' + ifunc, false)
+    endif
+  endforeach
+else
+  functions += ['if_indextoname', 'if_nametoindex']
 endif
 
 # AIX splice is something else
@@ -553,11 +578,15 @@ endif
 # AC_FUNC_VSNPRINTF_C99
 # Check whether there is a snprintf() function with C99 semantics installed.
 # AC_FUNC_SNPRINTF_C99
-if host_system == 'windows' and cc.get_id() == 'gcc'
-  # Unfortunately the mingw implementations of C99-style snprintf and vsnprintf
-  # don't seem to be quite good enough, at least not in mingw-runtime-3.14.
-  # (Sorry, I don't know exactly what is the problem, but it is related to
-  # floating point formatting and decimal point vs. comma.)
+
+have_good_vsnprintf = false
+have_good_snprintf = false
+
+if host_system == 'windows'
+  # Unfortunately the mingw and Visual Studio 2015+ implementations of C99-style
+  # snprintf and vsnprintf don't seem to be quite good enough, at least not in
+  # mingw-runtime-3.14.  (Sorry, I don't know exactly what is the problem,
+  # but it is related to floating point formatting and decimal point vs. comma.)
   # The simple tests in AC_FUNC_VSNPRINTF_C99 and AC_FUNC_SNPRINTF_C99 aren't
   # rigorous enough to notice, though.
   glib_conf.set('HAVE_C99_SNPRINTF', false)
@@ -604,6 +633,7 @@ main(void)
   rres = cc.run(vsnprintf_c99_test_code, name : 'C99 vsnprintf')
   if rres.compiled() and rres.returncode() == 0
     glib_conf.set('HAVE_C99_VSNPRINTF', 1)
+    have_good_vsnprintf = true
   endif
 
   snprintf_c99_test_code = '''
@@ -645,6 +675,7 @@ main(void)
   rres = cc.run(snprintf_c99_test_code, name : 'C99 snprintf')
   if rres.compiled() and rres.returncode() == 0
     glib_conf.set('HAVE_C99_SNPRINTF', 1)
+    have_good_snprintf = true
   endif
 endif
 
@@ -654,9 +685,17 @@ else
   glib_conf.set('EXEEXT', '')
 endif
 
+if have_good_vsnprintf and have_good_snprintf
+  # Our printf is 'good' only if vsnpintf()/snprintf() supports C99 well enough
+  glib_conf.set('HAVE_GOOD_PRINTF', 1) # FIXME: Check for HAVE_UNIX98_PRINTF?
+else
+  glib_conf.set('HAVE_VASPRINTF', 1)
+endif
+
 # Check whether the printf() family supports Unix98 %n$ positional parameters
 # AC_FUNC_PRINTF_UNIX98
 # Nothing uses HAVE_UNIX98_PRINTF
+
 
 # Check for nl_langinfo and CODESET
 # FIXME: Check for HAVE_BIND_TEXTDOMAIN_CODESET
@@ -1272,12 +1311,17 @@ else
   if cc.has_header_symbol('pthread.h', 'pthread_cond_timedwait_relative_np')
     glib_conf.set('HAVE_PTHREAD_COND_TIMEDWAIT_RELATIVE_NP', 1)
   endif
-  if cc.links('''#include <pthread.h>
+  # Assume that pthread_setname_np is available in some form; same as configure
+  if cc.links('''#ifndef _GNU_SOURCE
+              # define _GNU_SOURCE
+              #endif
+              #include <pthread.h>
               int main() {
                 pthread_setname_np("example");
               }''',
               name : 'pthread_setname_np(const char*)',
               dependencies : thread_dep)
+    # macOS and iOS
     glib_conf.set('HAVE_PTHREAD_SETNAME_NP_WITHOUT_TID', 1)
   elif cc.links('''#ifndef _GNU_SOURCE
                 # define _GNU_SOURCE
@@ -1288,6 +1332,7 @@ else
                 }''',
                 name : 'pthread_setname_np(pthread_t, const char*)',
                 dependencies : thread_dep)
+    # Linux, Solaris, etc.
     glib_conf.set('HAVE_PTHREAD_SETNAME_NP_WITH_TID', 1)
   endif
 endif
@@ -1353,13 +1398,69 @@ if get_option('with-pcre') == 'internal'
   use_system_pcre = false
 else
   pcre = dependency('libpcre', required : false) # Should check for Unicode support, too. FIXME
+  if not pcre.found()
+    if cc.get_id() == 'msvc'
+    # MSVC: Search for the PCRE library by the configuration, which corresponds
+    # to the output of CMake builds of PCRE.  Note that debugoptimized
+    # is really a Release build with .PDB files.
+      if buildtype == 'debug'
+        pcre = cc.find_library('pcred', required : false)
+      else
+        pcre = cc.find_library('pcre', required : false)
+      endif
+    endif
+  endif
   use_system_pcre = pcre.found()
 endif
 glib_conf.set('USE_SYSTEM_PCRE', use_system_pcre)
 
+use_pcre_static_flag = false
+
+if host_system == 'windows'
+  if not use_system_pcre
+    use_pcre_static_flag = true
+  else
+    pcre_static = cc.links('''#define PCRE_STATIC
+                              #include <pcre.h>
+                              int main() {
+                                void *p = NULL;
+                                pcre_free(p);
+                                return 0;
+                              }''',
+                           dependencies: pcre,
+                           name : 'Windows system PCRE is a static build')
+    if pcre_static
+      use_pcre_static_flag = true
+    endif
+  endif
+endif
+
 libm = cc.find_library('m', required : false)
 libffi_dep = dependency('libffi', version : '>= 3.0.0', fallback : ['libffi', 'ffi_dep'])
-libz_dep = dependency('zlib', fallback : ['zlib', 'zlib_dep'])
+zlib_libname = '-lz'
+if cc.get_id() != 'msvc'
+  libz_dep = dependency('zlib', fallback : ['zlib', 'zlib_dep'])
+else
+  # MSVC: Don't use the bundled ZLib sources until we are sure that we can't
+  # find the ZLib .lib
+  libz_dep = dependency('zlib', required : false)
+
+  # MSVC: Search for the ZLib .lib, which corresponds to the results of
+  # of using ZLib's win32/makefile.msc.
+  if not libz_dep.found()
+    libz_dep = cc.find_library('zlib1', required : false)
+    if libz_dep.found()
+      zlib_libname = '-lzlib1'
+    else
+      libz_dep = cc.find_library('zlib', required : false)
+      if libz_dep.found()
+        zlib_libname = '-lzlib'
+      else
+        zlib_dep = subproject('zlib').get_variable('zlib_dep')
+      endif
+    endif
+  endif
+endif
 
 # Only used on non-glibc targets
 libintl = cc.find_library('intl', required : false)
@@ -1398,6 +1499,11 @@ endif
 
 python = import('python3').find_python()
 
+# Determine which user environment-dependent files that we want to install
+have_bash = find_program('bash', required : false).found() # For completion scripts
+have_m4 = find_program('m4', required : false).found() # For m4 macros
+have_sh = find_program('sh', required : false).found() # For glib-gettextize
+
 # FIXME: defines in config.h that are not actually used anywhere
 # (we add them for now to minimise the diff)
 glib_conf.set('HAVE_DLFCN_H', 1)
@@ -1408,7 +1514,7 @@ glib_conf.set('SIZEOF___INT64', 8)
 
 # Various substs needed for our pkg-config files
 # FIXME: Derive these from the dependency() objects (Meson support needed)
-glib_conf.set('ZLIB_LIBS', '-lz')
+glib_conf.set('ZLIB_LIBS', zlib_libname)
 glib_conf.set('LIBFFI_LIBS', '-lffi')
 if libintl.found()
   glib_conf.set('INTLLIBS', '-lintl')
@@ -1507,23 +1613,35 @@ endforeach
 
 # NOTE: We skip glib-zip.in because the filenames it assumes don't match ours
 
-# Install glib-gettextize executable
-configure_file(input : 'glib-gettextize.in',
-  install : true,
-  install_dir : 'bin',
-  output : 'glib-gettextize',
-  configuration : glib_conf)
+# Install glib-gettextize executable, if a UNIX-style shell is found
+if have_sh
+  configure_file(input : 'glib-gettextize.in',
+    install : true,
+    install_dir : 'bin',
+    output : 'glib-gettextize',
+    configuration : glib_conf)
+endif
 
-# Install m4 macros that other projects use
-install_data('m4macros/glib-2.0.m4', 'm4macros/glib-gettext.m4', 'm4macros/gsettings.m4',
-  install_dir : join_paths(get_option('datadir'), 'aclocal'))
-# Install Valgrind suppression file
-install_data('glib.supp',
-  install_dir : join_paths(get_option('datadir'), 'glib-2.0', 'valgrind'))
+if have_m4
+  # Install m4 macros that other projects use
+  install_data('m4macros/glib-2.0.m4', 'm4macros/glib-gettext.m4', 'm4macros/gsettings.m4',
+    install_dir : join_paths(get_option('datadir'), 'aclocal'))
+endif
+
+if host_system != 'windows'
+  # Install Valgrind suppression file (except on Windows,
+  # as Valgrind is currently not supported on Windows)
+  install_data('glib.supp',
+    install_dir : join_paths(get_option('datadir'), 'glib-2.0', 'valgrind'))
+endif
 
 configure_file(input : 'config.h.meson',
   output : 'config.h',
   configuration : glib_conf)
+
+if host_system == 'windows'
+  install_headers([ 'msvc_recommended_pragmas.h' ], subdir : 'glib-2.0')
+endif
 
 if get_option('with-man') != 'no'
   xsltproc = find_program('xsltproc', required : false)

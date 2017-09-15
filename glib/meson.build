@@ -7,6 +7,11 @@ subdir('libcharset')
 if not use_system_pcre
   subdir('pcre')
 endif
+if have_good_vsnprintf and have_good_snprintf
+  gnulib_lib = []
+else
+  subdir('gnulib')
+endif
 
 glib_headers = [
   'glib.h',
@@ -179,6 +184,7 @@ glib_sources = [
   'gunidecomp.c',
   'gurifuncs.c',
   'gutils.c',
+  'guuid.c',
   'gvariant.c',
   'gvariant-core.c',
   'gvariant-parser.c',
@@ -208,6 +214,12 @@ else
   glib_dtrace_hdr = []
 endif
 
+pcre_static_args = []
+
+if use_pcre_static_flag
+  pcre_static_args = ['-DPCRE_STATIC']
+endif
+
 libglib = shared_library('glib-2.0',
   glib_dtrace_obj, glib_dtrace_hdr,
   sources : [deprecated_sources, glib_sources, thread_src, plat_src],
@@ -217,9 +229,9 @@ libglib = shared_library('glib-2.0',
   # intl.lib is not compatible with SAFESEH
   link_args : noseh_link_args,
   include_directories : configinc,
-  link_with : charset_lib,
+  link_with : [charset_lib, gnulib_lib],
   dependencies : [pcre, thread_dep, libintl, librt] + libiconv + platform_deps,
-  c_args : ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION', '-DPCRE_STATIC'] + glib_hidden_visibility_args
+  c_args : ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args + glib_hidden_visibility_args
 )
 
 libglib_dep = declare_dependency(link_with : libglib,
@@ -262,6 +274,7 @@ else
 endif
 
 install_data('gtester-report', install_dir : get_option('bindir'))
+
 install_data('glib_gdb.py', install_dir : join_paths(glib_pkgdatadir, 'gdb'))
 
 gdb_conf = configuration_data()
@@ -271,7 +284,7 @@ configure_file(
   output: 'libglib-2.0.so.@0@-gdb.py'.format(library_version),
   configuration: gdb_conf,
   install: true,
-  install_dir: join_paths(get_option('datadir'), 'gdb/auto-load' + glib_libdir)
+  install_dir: join_paths(get_option('datadir'), 'gdb/auto-load' + get_option('libdir'))
 )
 
 if enable_systemtap
