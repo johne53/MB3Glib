@@ -202,6 +202,7 @@
 #endif
 
 #ifdef G_OS_WIN32
+#include "je-compat.h"
 #include <process.h>		/* For getpid() */
 #include <io.h>
 #  include <windows.h>
@@ -1475,6 +1476,7 @@ color_reset (gboolean use_color)
 }
 
 #ifdef G_OS_WIN32
+#if _WIN32_WINNT < 0x0600
 
 /* We might be using tty emulators such as mintty, so try to detect it, if we passed in a valid FD
  * so we need to check the name of the pipe if _isatty (fd) == 0
@@ -1574,6 +1576,7 @@ done_query:
 
   return result;
 }
+#endif
 #endif
 
 #pragma GCC diagnostic push

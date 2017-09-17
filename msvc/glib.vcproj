@@ -68,7 +68,6 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -164,7 +163,6 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -258,7 +256,6 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description=""
 				CommandLine=""
 			/>
 			<Tool
@@ -630,6 +627,10 @@
 				RelativePath="..\glib\gwin32.c"
 				>
 			</File>
+			<File
+				RelativePath="..\glib\je-compat.c"
+				>
+			</File>
 			<Filter
 				Name="deprecated"
 				>
@@ -829,6 +830,10 @@
 			</File>
 			<File
 				RelativePath="..\glib\gwakeup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\glib\je-compat.h"
 				>
 			</File>
 			<File
