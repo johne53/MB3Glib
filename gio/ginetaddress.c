@@ -35,6 +35,7 @@
 /* Ensure Windows XP runtime compatibility, while using
  * inet_pton() and inet_ntop() if available
  */
+#include "je-compat.h"
 #include "gwin32networking.h"
 #endif
 

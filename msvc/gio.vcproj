@@ -3732,6 +3732,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\gio\je-compat.c"
+				>
+			</File>
+			<File
 				RelativePath="..\gio\thumbnail-verify.c"
 				>
 			</File>
@@ -4342,6 +4346,10 @@
 			</File>
 			<File
 				RelativePath="..\gio\gwin32volumemonitor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\gio\je-compat.h"
 				>
 			</File>
 			<File
