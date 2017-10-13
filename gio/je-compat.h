@@ -31,6 +31,10 @@
 #include "ginetaddress.h"
 #include "gnetworkingprivate.h"
 
+#if !defined(HAVE_IF_NAMETOINDEX) && defined(G_OS_WIN32)
+guint if_nametoindex (const gchar *iface);
+#endif
+
 /* These are provided so that we can use inet_pton() and inet_ntop() on Windows
  * if they are available (i.e. Vista and later), and use the existing code path
  * on Windows XP/Server 2003.

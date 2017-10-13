@@ -24,6 +24,63 @@
 #include "je-compat.h"
 #include <gwin32networking.h>
 
+#if !defined(HAVE_IF_NAMETOINDEX) && defined(G_OS_WIN32)
+guint
+if_nametoindex (const gchar *iface)
+{
+  PIP_ADAPTER_ADDRESSES addresses = NULL, p;
+  gulong addresses_len = 0;
+  guint idx = 0;
+  DWORD res;
+
+  if (ws2funcs.pIfNameToIndex != NULL)
+    return ws2funcs.pIfNameToIndex (iface);
+
+  res = GetAdaptersAddresses (AF_UNSPEC, 0, NULL, NULL, &addresses_len);
+  if (res != NO_ERROR && res != ERROR_BUFFER_OVERFLOW)
+    {
+      if (res == ERROR_NO_DATA)
+        errno = G_FILE_ERROR_NXIO;
+      else
+        errno = G_SPAWN_ERROR_INVAL;
+      return 0;
+    }
+
+  addresses = g_malloc (addresses_len);
+  res = GetAdaptersAddresses (AF_UNSPEC, 0, NULL, addresses, &addresses_len);
+
+  if (res != NO_ERROR)
+    {
+      g_free (addresses);
+      if (res == ERROR_NO_DATA)
+        errno = G_FILE_ERROR_NXIO;
+      else
+        errno = G_SPAWN_ERROR_INVAL;
+      return 0;
+    }
+
+  p = addresses;
+  while (p)
+    {
+      if (strcmp (p->AdapterName, iface) == 0)
+        {
+          idx = p->IfIndex;
+          break;
+        }
+      p = p->Next;
+    }
+
+  if (p == NULL)
+    errno = G_FILE_ERROR_NXIO;
+
+  g_free (addresses);
+
+  return idx;
+}
+
+#define HAVE_IF_NAMETOINDEX 1
+#endif
+
 
 /* These are provided so that we can use inet_pton() and inet_ntop() on Windows
  * if they are available (i.e. Vista and later), and use the existing code path
