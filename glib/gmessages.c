@@ -274,19 +274,27 @@ myInvalidParameterHandler(const wchar_t *expression,
 /**
  * G_LOG_DOMAIN:
  *
- * Defines the log domain.
+ * Defines the log domain. See [Log Domains](#log-domains).
  *
  * Libraries should define this so that any messages
  * which they log can be differentiated from messages from other
  * libraries and application code. But be careful not to define
  * it in any public header files.
  *
- * For example, GTK+ uses this in its Makefile.am:
+ * Log domains must be unique, and it is recommended that they are the
+ * application or library name, optionally followed by a hyphen and a sub-domain
+ * name. For example, `bloatpad` or `bloatpad-io`.
+ *
+ * If undefined, it defaults to the default %NULL (or `""`) log domain; this is
+ * not advisable, as it cannot be filtered against using the `G_MESSAGES_DEBUG`
+ * environment variable.
+ *
+ * For example, GTK+ uses this in its `Makefile.am`:
  * |[
  * AM_CPPFLAGS = -DG_LOG_DOMAIN=\"Gtk\"
  * ]|
  *
- * Applications can choose to leave it as the default %NULL (or "")
+ * Applications can choose to leave it as the default %NULL (or `""`)
  * domain. However, defining the domain offers the same advantages as
  * above.
  *
@@ -372,7 +380,8 @@ myInvalidParameterHandler(const wchar_t *expression,
  * @...: format string, followed by parameters to insert
  *     into the format string (as with printf())
  *
- * A convenience function/macro to log a warning message.
+ * A convenience function/macro to log a warning message. The message should
+ * typically *not* be translated to the user's language.
  *
  * This is not intended for end user error reporting. Use of #GError is
  * preferred for that instead, as it allows calling functions to perform actions
@@ -407,6 +416,9 @@ myInvalidParameterHandler(const wchar_t *expression,
  * setting the `G_DEBUG` environment variable (see
  * [Running GLib Applications](glib-running.html)).
  *
+ * The message should typically *not* be translated to the
+ * user's language.
+ *
  * If g_log_default_handler() is used as the log handler function, a new-line
  * character will automatically be appended to @..., and need not be entered
  * manually.
@@ -421,7 +433,8 @@ myInvalidParameterHandler(const wchar_t *expression,
  * @...: format string, followed by parameters to insert
  *     into the format string (as with printf())
  *
- * A convenience function/macro to log an error message.
+ * A convenience function/macro to log an error message. The message should
+ * typically *not* be translated to the user's language.
  *
  * This is not intended for end user error reporting. Use of #GError is
  * preferred for that instead, as it allows calling functions to perform actions
@@ -469,7 +482,8 @@ myInvalidParameterHandler(const wchar_t *expression,
  * @...: format string, followed by parameters to insert
  *     into the format string (as with printf())
  *
- * A convenience function/macro to log a debug message.
+ * A convenience function/macro to log a debug message. The message should
+ * typically *not* be translated to the user's language.
  *
  * If g_log_default_handler() is used as the log handler function, a new-line
  * character will automatically be appended to @..., and need not be entered
@@ -2265,7 +2279,12 @@ g_log_writer_format_fields (GLogLevelFlags   log_level,
   return g_string_free (gstring, FALSE);
 }
 
-#if defined(__linux__) && !defined(__BIONIC__)
+/* Enable support for the journal if we're on a recent enough Linux */
+#if defined(__linux__) && !defined(__BIONIC__) && defined(HAVE_MKOSTEMP) && defined(O_CLOEXEC)
+#define ENABLE_JOURNAL_SENDV
+#endif
+
+#ifdef ENABLE_JOURNAL_SENDV
 static int
 journal_sendv (struct iovec *iov,
                gsize         iovlen)
@@ -2349,7 +2368,7 @@ retry2:
 
   return -1;
 }
-#endif
+#endif /* ENABLE_JOURNAL_SENDV */
 
 /**
  * g_log_writer_journald:
@@ -2379,7 +2398,7 @@ g_log_writer_journald (GLogLevelFlags   log_level,
                        gsize            n_fields,
                        gpointer         user_data)
 {
-#if defined(__linux__) && !defined(__BIONIC__)
+#ifdef ENABLE_JOURNAL_SENDV
   const char equals = '=';
   const char newline = '\n';
   gsize i, k;
@@ -2459,7 +2478,7 @@ g_log_writer_journald (GLogLevelFlags   log_level,
   return retval == 0 ? G_LOG_WRITER_HANDLED : G_LOG_WRITER_UNHANDLED;
 #else
   return G_LOG_WRITER_UNHANDLED;
-#endif
+#endif /* ENABLE_JOURNAL_SENDV */
 }
 
 /**

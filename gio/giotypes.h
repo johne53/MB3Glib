@@ -259,7 +259,7 @@ typedef struct _GVolumeMonitor                GVolumeMonitor;
 
 /**
  * GAsyncReadyCallback:
- * @source_object: the object the asynchronous operation was started with.
+ * @source_object: (nullable): the object the asynchronous operation was started with.
  * @res: a #GAsyncResult.
  * @user_data: user data passed to the callback.
  *
@@ -288,7 +288,7 @@ typedef void (*GFileProgressCallback) (goffset current_num_bytes,
  * GFileReadMoreCallback:
  * @file_contents: the data as currently read.
  * @file_size: the size of the data currently read.
- * @callback_data: data passed to the callback.
+ * @callback_data: (closure): data passed to the callback.
  *
  * When loading the partial contents of a file with g_file_load_partial_contents_async(),
  * it may become necessary to determine if any more data from the file should be loaded.

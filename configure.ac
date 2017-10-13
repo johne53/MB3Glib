@@ -144,7 +144,7 @@ case "$host" in
       ;;
     esac
 
-    AC_DEFINE([_WIN32_WINNT], [0x0501], [Target the Windows XP API])
+    AC_DEFINE([_WIN32_WINNT], [0x0601], [Target the Windows 7 API])
     ;;
   *)
     glib_native_win32=no
@@ -368,16 +368,6 @@ if test "x$enable_rebuilds" = "xyes" && \
   REBUILD=
 fi
 AC_SUBST(REBUILD)
-
-# Need full path to Perl for glib-mkenums
-#
-if test "x$PERL" != x ; then
-  AC_PATH_PROG(PERL_PATH, [$PERL])
-fi
-if test "x$PERL_PATH" = x ; then
-  PERL_PATH="/usr/bin/env perl"
-fi
-AC_SUBST(PERL_PATH)
 
 # option to specify python interpreter to use; this just sets $PYTHON, so that
 # we will fallback to reading $PYTHON if --with-python is not given, and
@@ -890,7 +880,7 @@ int main ()
 AC_MSG_RESULT($glib_ssize_type)
 
 # Check for some functions
-AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk)
+AC_CHECK_FUNCS(lstat strsignal vsnprintf stpcpy strcasecmp strncasecmp poll vasprintf setenv unsetenv getc_unlocked readlink symlink fdwalk mkostemp)
 AC_CHECK_FUNCS(lchmod lchown fchmod fchown utimes getresuid)
 AC_CHECK_FUNCS(getmntent_r setmntent endmntent hasmntopt getfsstat getvfsstat fallocate)
 case $host_os in aix*) ac_cv_func_splice=no ;; esac # AIX splice() is something else

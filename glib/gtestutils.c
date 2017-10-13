@@ -94,10 +94,6 @@
  * variants over plain g_assert() is that the assertion messages can be
  * more elaborate, and include the values of the compared entities.
  *
- * GLib ships with two utilities called [gtester][gtester] and
- * [gtester-report][gtester-report] to facilitate running tests and producing
- * nicely formatted test reports.
- *
  * A full example of creating a test suite with two tests using fixtures:
  * |[<!-- language="C" -->
  * #include <glib.h>
@@ -161,6 +157,78 @@
  *   return g_test_run ();
  * }
  * ]|
+ *
+ * ### Integrating GTest in your project
+ *
+ * If you are using the [Meson](http://mesonbuild.com) build system, you will
+ * typically use the provided `test()` primitive to call the test binaries,
+ * e.g.:
+ *
+ * |[<!-- language="plain" -->
+ *   test(
+ *     'foo',
+ *     executable('foo', 'foo.c', dependencies: deps),
+ *     env: [
+ *       'G_TEST_SRCDIR=@0@'.format(meson.current_source_dir()),
+ *       'G_TEST_BUILDDIR=@0@'.format(meson.current_build_dir()),
+ *     ],
+ *   )
+ *
+ *   test(
+ *     'bar',
+ *     executable('bar', 'bar.c', dependencies: deps),
+ *     env: [
+ *       'G_TEST_SRCDIR=@0@'.format(meson.current_source_dir()),
+ *       'G_TEST_BUILDDIR=@0@'.format(meson.current_build_dir()),
+ *     ],
+ *   )
+ * ]|
+ *
+ * If you are using Autotools, you're strongly encouraged to use the Automake
+ * [TAP](https://testanything.org/) harness; GLib provides template files for
+ * easily integrating with it:
+ *
+ *   - [glib-tap.mk](https://git.gnome.org/browse/glib/tree/glib-tap.mk)
+ *   - [tap-test](https://git.gnome.org/browse/glib/tree/tap-test)
+ *   - [tap-driver.sh](https://git.gnome.org/browse/glib/tree/tap-driver.sh)
+ *
+ * You can copy these files in your own project's root directory, and then
+ * set up your `Makefile.am` file to reference them, for instance:
+ *
+ * |[<!-- language="plain" -->
+ * include $(top_srcdir)/glib-tap.mk
+ *
+ * # test binaries
+ * test_programs = \
+ *   foo \
+ *   bar
+ *
+ * # data distributed in the tarball
+ * dist_test_data = \
+ *   foo.data.txt \
+ *   bar.data.txt
+ *
+ * # data not distributed in the tarball
+ * test_data = \
+ *   blah.data.txt
+ * ]|
+ *
+ * Make sure to distribute the TAP files, using something like the following
+ * in your top-level `Makefile.am`:
+ *
+ * |[<!-- language="plain" -->
+ * EXTRA_DIST += \
+ *   tap-driver.sh \
+ *   tap-test
+ * ]|
+ *
+ * `glib-tap.mk` will be distributed implicitly due to being included in a
+ * `Makefile.am`. All three files should be added to version control.
+ *
+ * If you don't have access to the Autotools TAP harness, you can use the
+ * [gtester][gtester] and [gtester-report][gtester-report] tools, and use
+ * the [glib.mk](https://git.gnome.org/browse/glib/tree/glib.mk) Automake
+ * template provided by GLib.
  */
 
 /**
@@ -712,6 +780,7 @@ static char       *test_argv0_dirname;
 static const char *test_disted_files_dir;
 static const char *test_built_files_dir;
 static char       *test_initial_cwd = NULL;
+static gboolean    test_in_forked_child = FALSE;
 static gboolean    test_in_subprocess = FALSE;
 static GTestConfig mutable_test_config_vars = {
   FALSE,        /* test_initialized */
@@ -807,7 +876,7 @@ g_test_log (GTestLogType lbit,
     case G_TEST_LOG_START_BINARY:
       if (test_tap_log)
         g_print ("# random seed: %s\n", string2);
-      else if (g_test_verbose())
+      else if (g_test_verbose ())
         g_print ("GTest: random seed: %s\n", string2);
       break;
     case G_TEST_LOG_START_SUITE:
@@ -839,15 +908,15 @@ g_test_log (GTestLogType lbit,
           else
             g_print ("\n");
         }
-      else if (g_test_verbose())
+      else if (g_test_verbose ())
         g_print ("GTest: result: %s\n", g_test_result_names[result]);
-      else if (!g_test_quiet())
+      else if (!g_test_quiet ())
         g_print ("%s\n", g_test_result_names[result]);
       if (fail && test_mode_fatal)
         {
           if (test_tap_log)
             g_print ("Bail out!\n");
-          g_abort();
+          g_abort ();
         }
       if (result == G_TEST_RUN_SKIPPED)
         test_skipped_count++;
@@ -855,21 +924,26 @@ g_test_log (GTestLogType lbit,
     case G_TEST_LOG_MIN_RESULT:
       if (test_tap_log)
         g_print ("# min perf: %s\n", string1);
-      else if (g_test_verbose())
+      else if (g_test_verbose ())
         g_print ("(MINPERF:%s)\n", string1);
       break;
     case G_TEST_LOG_MAX_RESULT:
       if (test_tap_log)
         g_print ("# max perf: %s\n", string1);
-      else if (g_test_verbose())
+      else if (g_test_verbose ())
         g_print ("(MAXPERF:%s)\n", string1);
       break;
     case G_TEST_LOG_MESSAGE:
-    case G_TEST_LOG_ERROR:
       if (test_tap_log)
         g_print ("# %s\n", string1);
-      else if (g_test_verbose())
+      else if (g_test_verbose ())
         g_print ("(MSG: %s)\n", string1);
+      break;
+    case G_TEST_LOG_ERROR:
+      if (test_tap_log)
+        g_print ("Bail out! %s\n", string1);
+      else if (g_test_verbose ())
+        g_print ("(ERROR: %s)\n", string1);
       break;
     default: ;
     }
@@ -890,9 +964,9 @@ g_test_log (GTestLogType lbit,
     case G_TEST_LOG_START_CASE:
       if (test_tap_log)
         ;
-      else if (g_test_verbose())
+      else if (g_test_verbose ())
         g_print ("GTest: run: %s\n", string1);
-      else if (!g_test_quiet())
+      else if (!g_test_quiet ())
         g_print ("%s: ", string1);
       break;
     default: ;
@@ -2405,7 +2479,12 @@ g_assertion_message (const char     *domain,
                    " ", message, NULL);
   g_printerr ("**\n%s\n", s);
 
-  g_test_log (G_TEST_LOG_ERROR, s, NULL, 0, NULL);
+  /* Don't print a fatal error indication if assertions are non-fatal, or
+   * if we are a child process that might be sharing the parent's stdout. */
+  if (test_nonfatal_assertions || test_in_subprocess || test_in_forked_child)
+    g_test_log (G_TEST_LOG_MESSAGE, s, NULL, 0, NULL);
+  else
+    g_test_log (G_TEST_LOG_ERROR, s, NULL, 0, NULL);
 
   if (test_nonfatal_assertions)
     {
@@ -2839,6 +2918,7 @@ g_test_trap_fork (guint64        usec_timeout,
   if (test_trap_last_pid == 0)  /* child */
     {
       int fd0 = -1;
+      test_in_forked_child = TRUE;
       close (stdout_pipe[0]);
       close (stderr_pipe[0]);
       if (!(test_trap_flags & G_TEST_TRAP_INHERIT_STDIN))

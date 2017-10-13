@@ -451,6 +451,14 @@ else
 endif
 message('Checking whether to use statfs or statvfs .. ' + stat_func_to_use)
 
+if host_system == 'linux'
+  if cc.has_function('mkostemp',
+                     prefix: '''#define _GNU_SOURCE
+                                #include <stdlib.h>''')
+    glib_conf.set('HAVE_MKOSTEMP', 1)
+  endif
+endif
+
 # Mac OS X Carbon support
 glib_have_carbon = cc.compiles('''#include <Carbon/Carbon.h>
                                   #include <CoreServices/CoreServices.h>''',
@@ -1484,7 +1492,7 @@ libmount_opt = get_option('enable-libmount')
 if host_system == 'linux' and libmount_opt != 'no'
   libmount_dep = [dependency('mount', version : '>=2.28', required : false)]
   if not libmount_dep[0].found()
-    libmount_dep = [cc.find_library('mount')]
+    libmount_dep = [cc.find_library('mount', required : false)]
     libmount_h = cc.has_header('libmount/libmount.h')
     libmount_needed = libmount_opt == 'yes' and host_system == 'linux'
     if libmount_needed and (not libmount_dep[0].found() or not libmount_h)

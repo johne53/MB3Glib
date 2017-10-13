@@ -287,26 +287,52 @@ guess_system_internal (const char *mountpoint,
 		       const char *device)
 {
   const char *ignore_fs[] = {
+    "adfs",
+    "afs",
     "auto",
     "autofs",
+    "autofs4",
+    "cgroup",
+    "cifs",
+    "configfs",
+    "cxfs",
+    "debugfs",
     "devfs",
     "devpts",
+    "devtmpfs",
     "ecryptfs",
     "fdescfs",
+    "fusectl",
+    "gfs",
+    "gfs2",
+    "gpfs",
+    "hugetlbfs",
     "kernfs",
     "linprocfs",
+    "linsysfs",
+    "lustre",
+    "lustre_lite",
     "mfs",
+    "mqueue",
+    "ncpfs",
+    "nfs",
+    "nfs4",
+    "nfsd",
     "nullfs",
+    "ocfs2",
+    "overlay",
     "proc",
     "procfs",
+    "pstore",
     "ptyfs",
     "rootfs",
+    "rpc_pipefs",
+    "securityfs",
     "selinuxfs",
+    "smbfs",
     "sysfs",
     "tmpfs",
     "usbfs",
-    "nfsd",
-    "rpc_pipefs",
     "zfs",
     NULL
   };
@@ -885,7 +911,7 @@ _g_get_unix_mount_points (void)
   GList *return_list = NULL;
 
   table = mnt_new_table ();
-  if (mnt_table_parse_mtab (table, NULL) < 0)
+  if (mnt_table_parse_fstab (table, NULL) < 0)
     goto out;
 
   iter = mnt_new_iter (MNT_ITER_FORWARD);
@@ -1280,7 +1306,6 @@ _g_get_unix_mount_points (void)
   GList *return_list;
 #ifdef HAVE_SYS_SYSCTL_H
   int usermnt = 0;
-  size_t len = sizeof(usermnt);
   struct stat sb;
 #endif
   
@@ -1291,10 +1316,15 @@ _g_get_unix_mount_points (void)
   
 #ifdef HAVE_SYS_SYSCTL_H
 #if defined(HAVE_SYSCTLBYNAME)
-  sysctlbyname ("vfs.usermount", &usermnt, &len, NULL, 0);
+  {
+    size_t len = sizeof(usermnt);
+
+    sysctlbyname ("vfs.usermount", &usermnt, &len, NULL, 0);
+  }
 #elif defined(CTL_VFS) && defined(VFS_USERMOUNT)
   {
     int mib[2];
+    size_t len = sizeof(usermnt);
     
     mib[0] = CTL_VFS;
     mib[1] = VFS_USERMOUNT;
@@ -1303,6 +1333,7 @@ _g_get_unix_mount_points (void)
 #elif defined(CTL_KERN) && defined(KERN_USERMOUNT)
   {
     int mib[2];
+    size_t len = sizeof(usermnt);
     
     mib[0] = CTL_KERN;
     mib[1] = KERN_USERMOUNT;
