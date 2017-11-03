@@ -1464,7 +1464,7 @@ else
       if libz_dep.found()
         zlib_libname = '-lzlib'
       else
-        zlib_dep = subproject('zlib').get_variable('zlib_dep')
+        libz_dep = subproject('zlib').get_variable('zlib_dep')
       endif
     endif
   endif
@@ -1535,6 +1535,7 @@ if use_system_pcre
 endif
 if libmount_dep.length() == 1 and libmount_dep[0].found()
   glib_conf.set('LIBMOUNT_LIBS', '-lmount')
+  glib_conf.set('HAVE_LIBMOUNT', 1)
 endif
 glib_conf.set('GIO_MODULE_DIR', '${libdir}/gio/modules')
 # FIXME: Missing:

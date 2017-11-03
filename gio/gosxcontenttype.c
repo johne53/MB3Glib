@@ -25,6 +25,12 @@
 
 #include <CoreServices/CoreServices.h>
 
+#define XDG_PREFIX _gio_xdg
+#include "xdgmime/xdgmime.h"
+
+/* We lock this mutex whenever we modify global state in this module.  */
+G_LOCK_DEFINE_STATIC (gio_xdgmime);
+
 
 /*< internal >
  * create_cfstring_from_cstr:
@@ -52,15 +58,21 @@ create_cfstring_from_cstr (const gchar *cstr)
 static gchar *
 create_cstr_from_cfstring (CFStringRef str)
 {
-  const gchar *cstr;
+  g_return_val_if_fail (str != NULL, NULL);
 
-  if (str == NULL)
-    return NULL;
-
-  cstr = CFStringGetCStringPtr (str, kCFStringEncodingUTF8);
+  CFIndex length = CFStringGetLength (str);
+  CFIndex maxlen = CFStringGetMaximumSizeForEncoding (length, kCFStringEncodingUTF8);
+  gchar *buffer = g_malloc (maxlen + 1);
+  Boolean success = CFStringGetCString (str, (char *) buffer, maxlen,
+                                        kCFStringEncodingUTF8);
   CFRelease (str);
-
-  return g_strdup (cstr);
+  if (success)
+    return buffer;
+  else
+    {
+      g_free (buffer);
+      return NULL;
+    }
 }
 
 /*< internal >
@@ -78,9 +90,10 @@ static gchar *
 create_cstr_from_cfstring_with_fallback (CFStringRef  str,
                                          const gchar *fallback)
 {
-  gchar *cstr;
+  gchar *cstr = NULL;
 
-  cstr = create_cstr_from_cfstring (str);
+  if (str)
+    cstr = create_cstr_from_cfstring (str);
   if (!cstr)
     return g_strdup (fallback);
 
@@ -180,25 +193,59 @@ g_content_type_get_description (const gchar *type)
 }
 
 static GIcon *
-g_content_type_get_icon_internal (const gchar *type,
+g_content_type_get_icon_internal (const gchar *uti,
                                   gboolean     symbolic)
 {
-  GIcon *icon = NULL;
-  gchar *name;
+  char *mimetype_icon;
+  char *type;
+  char *generic_mimetype_icon = NULL;
+  char *q;
+  char *icon_names[6];
+  int n = 0;
+  GIcon *themed_icon;
+  const char  *xdg_icon;
+  int i;
 
-  g_return_val_if_fail (type != NULL, NULL);
+  g_return_val_if_fail (uti != NULL, NULL);
 
-  /* TODO: Show mimetype icons. */
-  if (g_content_type_can_be_executable (type))
-    name = "gtk-execute";
-  else if (g_content_type_is_a (type, "public.directory"))
-    name = symbolic ? "inode-directory-symbolic" : "inode-directory";
-  else
-    name = "gtk-file";
+  type = g_content_type_get_mime_type (uti);
 
-  icon = g_themed_icon_new_with_default_fallbacks (name);
+  G_LOCK (gio_xdgmime);
+  xdg_icon = xdg_mime_get_icon (type);
+  G_UNLOCK (gio_xdgmime);
 
-  return icon;
+  if (xdg_icon)
+    icon_names[n++] = g_strdup (xdg_icon);
+
+  mimetype_icon = g_strdup (type);
+  while ((q = strchr (mimetype_icon, '/')) != NULL)
+    *q = '-';
+
+  icon_names[n++] = mimetype_icon;
+
+  generic_mimetype_icon = g_content_type_get_generic_icon_name (type);
+  if (generic_mimetype_icon)
+    icon_names[n++] = generic_mimetype_icon;
+
+  if (symbolic)
+    {
+      for (i = 0; i < n; i++)
+        {
+          icon_names[n + i] = icon_names[i];
+          icon_names[i] = g_strconcat (icon_names[i], "-symbolic", NULL);
+        }
+
+      n += n;
+    }
+
+  themed_icon = g_themed_icon_new_from_names (icon_names, n);
+ 
+  for (i = 0; i < n; i++)
+    g_free (icon_names[i]);
+ 
+  g_free(type);
+ 
+  return themed_icon;
 }
 
 GIcon *
@@ -429,7 +476,17 @@ g_content_type_guess (const gchar  *filename,
   if (data && (!filename || !uti ||
                CFStringCompare (uti, CFSTR ("public.data"), 0) == kCFCompareEqualTo))
     {
-      if (looks_like_text (data, data_size))
+      const char *sniffed_mimetype;
+      G_LOCK (gio_xdgmime);
+      sniffed_mimetype = xdg_mime_get_mime_type_for_data (data, data_size, NULL);
+      G_UNLOCK (gio_xdgmime);
+      if (sniffed_mimetype != XDG_MIME_TYPE_UNKNOWN)
+        {
+          gchar *uti_str = g_content_type_from_mime_type (sniffed_mimetype);
+          uti = create_cfstring_from_cstr (uti_str);
+          g_free (uti_str);
+        }
+      if (!uti && looks_like_text (data, data_size))
         {
           if (g_str_has_prefix ((const gchar*)data, "#!/"))
             uti = CFStringCreateCopy (NULL, CFSTR ("public.script"));

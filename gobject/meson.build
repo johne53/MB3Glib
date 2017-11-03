@@ -100,8 +100,7 @@ configure_file(
   input: 'libgobject-gdb.py.in',
   output: 'libgobject-2.0.so.@0@-gdb.py'.format(library_version),
   configuration: gdb_conf,
-  install: true,
-  install_dir: join_paths(get_option('datadir'), 'gdb/auto-load/' + get_option('libdir'))
+  install_dir: gdb_install_dir,
 )
 
 if enable_systemtap

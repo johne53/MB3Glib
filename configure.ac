@@ -63,7 +63,7 @@ AC_CONFIG_MACRO_DIR([m4macros])
 # Save this value here, since automake will set cflags later
 cflags_set=${CFLAGS:+set}
 
-AM_INIT_AUTOMAKE([1.11 -Wno-portability no-define no-dist-gzip dist-xz tar-ustar])
+AM_INIT_AUTOMAKE([1.13.3 -Wno-portability no-define no-dist-gzip dist-xz tar-ustar subdir-objects])
 AM_MAINTAINER_MODE([enable])
 
 # Support silent build rules. Disable
@@ -951,6 +951,22 @@ fi
 
 AC_CHECK_FUNCS(endservent if_nametoindex if_indextoname sendmmsg recvmmsg)
 
+AC_MSG_CHECKING([for SIOCGIFADDR])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[
+        #include <sys/ioctl.h>
+        #include <net/if.h>
+    ]],
+    [[
+        struct ifreq ifr;
+        ioctl(0, SIOCGIFADDR, &ifr);
+    ]])], [
+        AC_MSG_RESULT(yes)
+        AC_DEFINE(HAVE_SIOCGIFADDR, 1, [SIOCGIFADDR is available])
+    ], [
+        AC_MSG_RESULT(no)
+])
+
 AS_IF([test $glib_native_win32 = yes], [
   # <wspiapi.h> in the Windows SDK and in mingw-w64 has wrappers for
   # inline workarounds for getaddrinfo, getnameinfo and freeaddrinfo if
@@ -1744,8 +1760,10 @@ AS_IF([ test $have_libmount = maybe ], [
   glib_save_LIBS=$LIBS
   AC_CHECK_HEADER([libmount/libmount.h], [:], [have_libmount=no])
 
-  # Check for a recent enough libmount
-  AC_CHECK_LIB([mount], [mnt_unref_table], [:], [have_libmount=no])
+  # We used to check for mnt_unref_table(), but now for compat with
+  # e.g. RHEL7 just use mnt_free_table().  Let's keep this check
+  # anyways.
+  AC_CHECK_LIB([mount], [mnt_free_table], [:], [have_libmount=no])
   LIBS=$glib_save_LIBS
 
   if test $have_libmount != no; then
