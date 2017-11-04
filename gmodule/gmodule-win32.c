@@ -28,6 +28,8 @@
 /* 
  * MT safe
  */
+
+#include "je-compat.h" /* Added by JE - 04-11-2017 */
 #include "config.h"
 
 #include <stdio.h>
@@ -71,15 +73,34 @@ _g_module_open (const gchar *file_name,
   HINSTANCE handle;
   wchar_t *wfilename;
   DWORD old_mode;
-  BOOL success;
+  BOOL success = 0; /* Initialized by JE - 04-11-2017 */
 #ifdef G_WITH_CYGWIN
   gchar tmp[MAX_PATH];
 
   cygwin_conv_to_win32_path(file_name, tmp);
   file_name = tmp;
 #endif
+
+/* This section added by JE - 04-11-2017 */
+#if (_WIN32_WINNT < 0x0600 || (defined(_MSC_VER) && _MSC_VER < 1500))
+  HANDLE h_kerneldll = NULL;
+  fSetThreadErrorMode *SetThreadErrorMode = NULL;
+
+  h_kerneldll = LoadLibraryW (L"kernel32.dll");
+
+  if (h_kerneldll != NULL) {
+    SetThreadErrorMode =
+      (fSetThreadErrorMode *) GetProcAddress (h_kerneldll, "SetThreadErrorMode");
+    FreeLibrary (h_kerneldll);
+  }
+#endif
+
   wfilename = g_utf8_to_utf16 (file_name, -1, NULL, NULL, NULL);
 
+/* This section added by JE - 04-11-2017 */
+#if (_WIN32_WINNT < 0x0600 || (defined(_MSC_VER) && _MSC_VER < 1500))
+  if (SetThreadErrorMode)
+#endif
   /* suppress error dialog */
   success = SetThreadErrorMode (SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS, &old_mode);
   if (!success)
