@@ -30,6 +30,7 @@
 #endif
 
 #ifdef G_OS_WIN32
+#include "je-compat.h" /* Added by JE - 04-11-2017 */
 #include <windows.h>
 #include <errno.h>
 #include <wchar.h>
@@ -143,6 +144,24 @@ _g_win32_stat_utf16_no_trailing_slashes (const gunichar2    *filename,
   DWORD open_flags;
   wchar_t *filename_target = NULL;
   int result;
+
+/* This section added by JE - 04-11-2017 */
+#if (_WIN32_WINNT < 0x0600 || (defined(_MSC_VER) && _MSC_VER < 1500))
+  HANDLE h_kerneldll = NULL;
+  fGetFileInformationByHandleEx *GetFileInformationByHandleEx;
+  fGetFinalPathNameByHandleW    *GetFinalPathNameByHandleW;
+
+  h_kerneldll = LoadLibraryW (L"kernel32.dll");
+
+  if (h_kerneldll != NULL) {
+    GetFileInformationByHandleEx =
+      (fGetFileInformationByHandleEx *) GetProcAddress (h_kerneldll, "GetFileInformationByHandleEx");
+    GetFinalPathNameByHandleW =
+      (fGetFinalPathNameByHandleW *) GetProcAddress (h_kerneldll, "GetFinalPathNameByHandleW");
+
+    FreeLibrary (h_kerneldll);
+  }
+#endif
 
   if (fd < 0)
     {

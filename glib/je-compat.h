@@ -29,6 +29,15 @@
 #include <glib.h>
 
 #if (_WIN32_WINNT < 0x0600 || (defined(_MSC_VER) && _MSC_VER < 1500))
+
+#define FILE_NAME_NORMALIZED 0x0  //default
+#define FILE_NAME_OPENED     0x8
+
+#ifndef IO_REPARSE_TAG_SYMLINK
+#define IO_REPARSE_TAG_SYMLINK                  (0xA000000CL)       
+#define IO_REPARSE_TAG_DFSR                     (0x80000012L)       
+#endif
+
 typedef enum _FILE_INFO_BY_HANDLE_CLASS
 {
   FileBasicInfo                   = 0,
@@ -55,8 +64,15 @@ typedef enum _FILE_INFO_BY_HANDLE_CLASS
   MaximumFileInfoByHandlesClass
 } FILE_INFO_BY_HANDLE_CLASS;
 
-typedef struct _FILE_NAME_INFO
-{
+typedef struct _FILE_STANDARD_INFO {
+    LARGE_INTEGER AllocationSize;
+    LARGE_INTEGER EndOfFile;
+    DWORD NumberOfLinks;
+    BOOLEAN DeletePending;
+    BOOLEAN Directory;
+} FILE_STANDARD_INFO, *PFILE_STANDARD_INFO;
+
+typedef struct _FILE_NAME_INFO {
   DWORD FileNameLength;
   WCHAR FileName[1];
 } FILE_NAME_INFO;
@@ -64,6 +80,11 @@ typedef struct _FILE_NAME_INFO
 typedef BOOL (WINAPI fGetFileInformationByHandleEx) (HANDLE,
                                                      FILE_INFO_BY_HANDLE_CLASS,
                                                      LPVOID,
+                                                     DWORD);
+
+typedef DWORD (WINAPI fGetFinalPathNameByHandleW)   (HANDLE,
+                                                     LPWSTR,
+                                                     DWORD,
                                                      DWORD);
 #endif
 
