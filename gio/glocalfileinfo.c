@@ -68,6 +68,7 @@
 #include "thumbnail-verify.h"
 
 #ifdef G_OS_WIN32
+#include "je-compat.h" /* Added by JE - 04-11-2017 */
 #include <windows.h>
 #include <io.h>
 #ifndef W_OK

@@ -35,11 +35,17 @@
 guint if_nametoindex (const gchar *iface);
 #endif
 
+#if ((defined(G_OS_WIN32) && _WIN32_WINNT < 0x0600) || (defined(_MSC_VER) && _MSC_VER < 1500))
+
+#ifndef IO_REPARSE_TAG_SYMLINK
+#define IO_REPARSE_TAG_SYMLINK                  (0xA000000CL)       
+#define IO_REPARSE_TAG_DFSR                     (0x80000012L)       
+#endif
+
 /* These are provided so that we can use inet_pton() and inet_ntop() on Windows
  * if they are available (i.e. Vista and later), and use the existing code path
  * on Windows XP/Server 2003.
  */
-#if ((defined(G_OS_WIN32) && _WIN32_WINNT < 0x0600) || (defined(_MSC_VER) && _MSC_VER < 1500))
 gint inet_pton (gint family,
            const gchar *addr_string,
            gpointer addr);
