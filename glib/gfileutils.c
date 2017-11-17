@@ -1965,6 +1965,44 @@ g_build_pathname_va (const gchar  *first_element,
 
 #endif
 
+static gchar *
+g_build_filename_va (const gchar  *first_argument,
+                     va_list      *args,
+                     gchar       **str_array)
+{
+  gchar *str;
+
+#ifndef G_OS_WIN32
+  str = g_build_path_va (G_DIR_SEPARATOR_S, first_argument, args, str_array);
+#else
+  str = g_build_pathname_va (first_argument, args, str_array);
+#endif
+
+  return str;
+}
+
+/**
+ * g_build_filename_valist:
+ * @first_element: (type filename): the first element in the path
+ * @args: va_list of remaining elements in path
+ *
+ * Behaves exactly like g_build_filename(), but takes the path elements
+ * as a va_list. This function is mainly meant for language bindings.
+ *
+ * Returns: (type filename): a newly-allocated string that must be freed
+ *     with g_free().
+ *
+ * Since: 2.56
+ */
+gchar *
+g_build_filename_valist (const gchar  *first_element,
+                         va_list      *args)
+{
+  g_return_val_if_fail (first_element != NULL, NULL);
+
+  return g_build_filename_va (first_element, args, NULL);
+}
+
 /**
  * g_build_filenamev:
  * @args: (array zero-terminated=1) (element-type filename): %NULL-terminated
@@ -1982,15 +2020,7 @@ g_build_pathname_va (const gchar  *first_element,
 gchar *
 g_build_filenamev (gchar **args)
 {
-  gchar *str;
-
-#ifndef G_OS_WIN32
-  str = g_build_path_va (G_DIR_SEPARATOR_S, NULL, NULL, args);
-#else
-  str = g_build_pathname_va (NULL, NULL, args);
-#endif
-
-  return str;
+  return g_build_filename_va (NULL, NULL, args);
 }
 
 /**
@@ -2025,11 +2055,7 @@ g_build_filename (const gchar *first_element,
   va_list args;
 
   va_start (args, first_element);
-#ifndef G_OS_WIN32
-  str = g_build_path_va (G_DIR_SEPARATOR_S, first_element, &args, NULL);
-#else
-  str = g_build_pathname_va (first_element, &args, NULL);
-#endif
+  str = g_build_filename_va (first_element, &args, NULL);
   va_end (args);
 
   return str;

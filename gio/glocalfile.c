@@ -753,6 +753,8 @@ get_fs_type (long f_type)
       return "xiafs";
     case 0x52345362:
       return "reiser4";
+    case 0x65735546:
+      return "fuse";
     default:
       return NULL;
     }
@@ -1104,16 +1106,16 @@ g_local_file_query_filesystem_info (GFile         *file,
 #ifndef G_OS_WIN32
 #ifdef USE_STATFS
 #if defined(HAVE_STRUCT_STATFS_F_FSTYPENAME)
-  fstype = g_strdup (statfs_buffer.f_fstypename);
+  fstype = statfs_buffer.f_fstypename;
 #else
   fstype = get_fs_type (statfs_buffer.f_type);
 #endif
 
 #elif defined(USE_STATVFS)
 #if defined(HAVE_STRUCT_STATVFS_F_FSTYPENAME)
-  fstype = g_strdup (statfs_buffer.f_fstypename);
+  fstype = statfs_buffer.f_fstypename;
 #elif defined(HAVE_STRUCT_STATVFS_F_BASETYPE)
-  fstype = g_strdup (statfs_buffer.f_basetype);
+  fstype = statfs_buffer.f_basetype;
 #else
   fstype = NULL;
 #endif

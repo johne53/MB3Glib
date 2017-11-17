@@ -70,7 +70,7 @@ typedef struct _GSourcePrivate          GSourcePrivate;
  * @unref: Called when a reference to the callback object is dropped
  * @get: Called to extract the callback function and data from the
  *     callback object.
-
+ *
  * The `GSourceCallbackFuncs` struct contains
  * functions for managing callback objects.
  */
@@ -562,6 +562,38 @@ gboolean g_source_remove_by_user_data        (gpointer       user_data);
 GLIB_AVAILABLE_IN_ALL
 gboolean g_source_remove_by_funcs_user_data  (GSourceFuncs  *funcs,
                                               gpointer       user_data);
+
+/**
+ * GClearHandleFunc:
+ * @handle_id: the handle ID to clear
+ *
+ * Specifies the type of function passed to g_clear_handle_id().
+ * The implementation is expected to free the resource identified
+ * by @handle_id; for instance, if @handle_id is a #GSource ID,
+ * g_source_remove() can be used.
+ *
+ * Since: 2.56
+ */
+typedef void (* GClearHandleFunc) (guint handle_id);
+
+GLIB_AVAILABLE_IN_2_56
+void    g_clear_handle_id (guint           *tag_ptr,
+                           GClearHandleFunc clear_func);
+
+#define g_clear_handle_id(tag_ptr, clear_func)             \
+  G_STMT_START {                                           \
+    G_STATIC_ASSERT (sizeof *(tag_ptr) == sizeof (guint)); \
+    guint *_tag_ptr = (guint *) (tag_ptr);                 \
+    guint _handle_id;                                      \
+                                                           \
+    _handle_id = *_tag_ptr;                                \
+    if (_handle_id > 0)                                    \
+      {                                                    \
+        *_tag_ptr = 0;                                     \
+        if (clear_func != NULL)                            \
+          clear_func (_handle_id);                         \
+      }                                                    \
+  } G_STMT_END
 
 /* Idles, child watchers and timeouts */
 GLIB_AVAILABLE_IN_ALL
