@@ -1678,7 +1678,7 @@ get_icon_name (const char *path,
     {
       name = use_symbolic ? "folder-videos-symbolic" : "folder-videos";
     }
-  else if (g_strcmp0 (content_type, "inode/directory") == 0)
+  else if (g_content_type_is_mime_type (content_type,"inode/directory"))
     {
       name = use_symbolic ? "folder-symbolic" : "folder";
     }
@@ -1982,7 +1982,11 @@ _g_local_file_info_get (const char             *basename,
   get_xattrs (path, FALSE, info, attribute_matcher, (flags & G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS) == 0);
 
   if (_g_file_attribute_matcher_matches_id (attribute_matcher,
-					    G_FILE_ATTRIBUTE_ID_THUMBNAIL_PATH))
+                                            G_FILE_ATTRIBUTE_ID_THUMBNAIL_PATH) ||
+      _g_file_attribute_matcher_matches_id (attribute_matcher,
+                                            G_FILE_ATTRIBUTE_ID_THUMBNAIL_IS_VALID) ||
+      _g_file_attribute_matcher_matches_id (attribute_matcher,
+                                            G_FILE_ATTRIBUTE_ID_THUMBNAILING_FAILED))
     {
       if (stat_ok)
           get_thumbnail_attributes (path, info, &statbuf);
