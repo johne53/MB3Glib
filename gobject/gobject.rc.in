@@ -22,17 +22,17 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904b0"
-        BEGIN
-            VALUE "CompanyName", "The GLib developer community"
-            VALUE "FileDescription", "Libgobject for Ardour and Mixbus"
-            VALUE "FileVersion", "@GLIB_MAJOR_VERSION@, @GLIB_MINOR_VERSION@, @GLIB_MICRO_VERSION@, @GLIB_INTERFACE_AGE@"
-            VALUE "InternalName", "libgobject-2.0-@LT_CURRENT_MINUS_AGE@"
-            VALUE "LegalCopyright", "Copyright © 2006-2011 Red Hat, Inc. and others."
-            VALUE "OriginalFilename", "libgobject-2.0-@LT_CURRENT_MINUS_AGE@.dll"
-            VALUE "ProductName", "GLib"
-            VALUE "ProductVersion", "@GLIB_MAJOR_VERSION@, @GLIB_MINOR_VERSION@, @GLIB_MICRO_VERSION@, @GLIB_INTERFACE_AGE@"
-        END
+      BLOCK "040904b0"
+      BEGIN
+	VALUE "CompanyName", "The GLib developer community"
+	VALUE "FileDescription", "Libgobject for Ardour and Mixbus"
+	VALUE "FileVersion", "@GLIB_MAJOR_VERSION@, @GLIB_MINOR_VERSION@, @GLIB_MICRO_VERSION@, @GLIB_INTERFACE_AGE@"
+	VALUE "InternalName", "libgobject-2.0-@LT_CURRENT_MINUS_AGE@"
+	VALUE "LegalCopyright", "Copyright 1998-2011 Tim Janik, Red Hat, Inc. and others"
+	VALUE "OriginalFilename", "libgobject-2.0-@LT_CURRENT_MINUS_AGE@.dll"
+	VALUE "ProductName", "GLib"
+	VALUE "ProductVersion", "@GLIB_MAJOR_VERSION@, @GLIB_MINOR_VERSION@, @GLIB_MICRO_VERSION@, @GLIB_INTERFACE_AGE@"
+      END
     END
     BLOCK "VarFileInfo"
     BEGIN

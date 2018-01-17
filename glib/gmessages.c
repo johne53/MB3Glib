@@ -2170,12 +2170,15 @@ g_log_writer_is_journald (gint output_fd)
 
   if (g_once_init_enter (&initialized))
     {
-      struct sockaddr_storage addr;
+      union {
+        struct sockaddr_storage storage;
+        struct sockaddr sa;
+        struct sockaddr_un un;
+      } addr;
       socklen_t addr_len = sizeof(addr);
-      int err = getpeername (output_fd, (struct sockaddr *) &addr, &addr_len);
-      if (err == 0 && addr.ss_family == AF_UNIX)
-        fd_is_journal = g_str_has_prefix (((struct sockaddr_un *)&addr)->sun_path,
-                                          "/run/systemd/journal/");
+      int err = getpeername (output_fd, &addr.sa, &addr_len);
+      if (err == 0 && addr.storage.ss_family == AF_UNIX)
+        fd_is_journal = g_str_has_prefix (addr.un.sun_path, "/run/systemd/journal/");
 
       g_once_init_leave (&initialized, TRUE);
     }
@@ -2556,6 +2559,7 @@ g_log_writer_standard_streams (GLogLevelFlags   log_level,
   out = g_log_writer_format_fields (log_level, fields, n_fields,
                                     g_log_writer_supports_color (fileno (stream)));
   _g_fprintf (stream, "%s\n", out);
+  fflush (stream);
   g_free (out);
 
   return G_LOG_WRITER_HANDLED;

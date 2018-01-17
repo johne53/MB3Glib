@@ -388,7 +388,17 @@ else
     'gwin32volumemonitor.c',
     'gwin32inputstream.c',
     'gwin32outputstream.c',
+    'gnetworkmonitorwindows.c',
+    'gnetworkmonitorwindows.h',
   )
+
+  gio_win_rc = configure_file(
+    input: 'gio.rc.in',
+    output: 'gio.rc',
+    configuration: glibconfig_conf,
+  )
+  gio_win_res = windows.compile_resources(gio_win_rc)
+  win32_sources += [gio_win_res]
 
   gio_win32_include_headers = files(
     'gwin32inputstream.h',
@@ -441,6 +451,7 @@ gio_sources = files(
   'ginputstream.c',
   'gioerror.c',
   'giomodule.c',
+  'giomodule-priv.c',
   'gioscheduler.c',
   'giostream.c',
   'gloadableicon.c',
@@ -528,14 +539,6 @@ gio_sources += portal_sources
 gio_sources += local_sources
 
 MISSING_STUFF = '''
-if OS_WIN32_AND_DLL_COMPILATION
-gio_win32_res = gio-win32-res.o
-gio_win32_res_ldflag = -Wl,$(gio_win32_res)
-endif
-
-gio-win32-res.o: gio.rc
-  '$(WINDRES) gio.rc $@
-
 # This is read by gobject-introspection/misc/ and gtk-doc
 gio-public-headers.txt: Makefile
   '$(AM_V_GEN) echo $(gioinclude_HEADERS) $(giowin32include_HEADERS) $(giounixinclude_HEADERS) > $@.tmp && mv $@.tmp $@
@@ -723,7 +726,7 @@ else
   gio_dtrace_hdr = []
 endif
 
-libgio = shared_library('gio-2.0',
+libgio = library('gio-2.0',
   gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
   gio_dtrace_hdr, gio_dtrace_obj,
   version : library_version,
@@ -803,7 +806,7 @@ executable('gresource', 'gresource-tool.c',
   link_args : noseh_link_args,
   dependencies : [libelf, libintl, libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
 
-executable('gio-querymodules', 'gio-querymodules.c',
+executable('gio-querymodules', 'gio-querymodules.c', 'giomodule-priv.c',
   install : true,
   c_args : ['-DHAVE_CONFIG_H=1'] + gio_c_args,
   # intl.lib is not compatible with SAFESEH

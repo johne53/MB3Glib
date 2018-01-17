@@ -1,5 +1,5 @@
 project('glib', 'c', 'cpp',
-  version : '2.55.0',
+  version : '2.55.1',
   meson_version : '>= 0.44.0',
   default_options : [
     'warning_level=1',
@@ -63,6 +63,12 @@ glib_pkgconfigreldir = join_paths(glib_libdir, 'pkgconfig')
 
 add_project_arguments('-D_GNU_SOURCE', language: 'c')
 
+# Disable strict aliasing;
+# see https://bugzilla.gnome.org/show_bug.cgi?id=791622
+if cc.has_argument('-fno-strict-aliasing')
+  add_project_arguments('-fno-strict-aliasing', language: 'c')
+endif
+
 ########################
 # Configuration begins #
 ########################
@@ -121,6 +127,11 @@ if get_option('default_library') != 'static'
     glib_conf.set('_GLIB_EXTERN', '__attribute__((visibility("default"))) extern')
     glib_hidden_visibility_args = ['-fvisibility=hidden']
   endif
+endif
+
+if host_system == 'windows' and get_option('default_library') == 'static'
+    glibconfig_conf.set('GLIB_STATIC_COMPILATION', '1')
+    glibconfig_conf.set('GOBJECT_STATIC_COMPILATION', '1')
 endif
 
 # FIXME: what about Cygwin (G_WITH_CYGWIN)
@@ -988,10 +999,14 @@ if host_system == 'windows'
   else
     glibconfig_conf.set_quoted('g_pollfd_format', '%#x')
   endif
+  glibconfig_conf.set('g_dir_separator', '\\\\')
+  glibconfig_conf.set('g_searchpath_separator', ';')
 else
   glibconfig_conf.set('g_pid_type', 'int')
   glibconfig_conf.set_quoted('g_pid_format', 'i')
   glibconfig_conf.set_quoted('g_pollfd_format', '%d')
+  glibconfig_conf.set('g_dir_separator', '/')
+  glibconfig_conf.set('g_searchpath_separator', ':')
 endif
 
 if sizet_size == short_size
@@ -1073,6 +1088,7 @@ glibconfig_conf.set('g_module_suffix', g_module_suffix)
 glibconfig_conf.set('GLIB_MAJOR_VERSION', major_version)
 glibconfig_conf.set('GLIB_MINOR_VERSION', minor_version)
 glibconfig_conf.set('GLIB_MICRO_VERSION', micro_version)
+glibconfig_conf.set('GLIB_VERSION', glib_version)
 
 glibconfig_conf.set('glib_void_p', voidp_size)
 glibconfig_conf.set('glib_long', long_size)
@@ -1279,7 +1295,7 @@ if host_cpu_family == 'x86' or host_cpu_family == 'x86_64' or host_cpu_family ==
 elif host_cpu_family.startswith('sparc') or host_cpu_family.startswith('alpha') or host_cpu_family.startswith('powerpc') or host_cpu_family == 'ia64'
   glib_memory_barrier_needed = true
 else
-  error('Unknown host cpu: ' + host_cpu_family)
+  warning('Unknown host cpu: ' + host_cpu_family)
   glib_memory_barrier_needed = true
 endif
 glibconfig_conf.set('G_ATOMIC_OP_MEMORY_BARRIER_NEEDED', glib_memory_barrier_needed)
@@ -1504,7 +1520,7 @@ xgettext = find_program('xgettext', required : false)
 # libmount is only used by gio, but we need to fetch the libs to generate the
 # pkg-config file below
 libmount_dep = []
-if get_option('libmount')
+if host_system == 'linux' and get_option('libmount')
   libmount_dep = [dependency('mount', version : '>=2.28', required : false)]
   if not libmount_dep[0].found()
     libmount_dep = [cc.find_library('mount', required : true)]
@@ -1519,14 +1535,14 @@ if host_system == 'windows'
 endif
 
 selinux_dep = []
-if get_option('selinux')
+if host_system == 'linux' and get_option('selinux')
   selinux_dep = [dependency('libselinux')]
   glib_conf.set('SELINUX_LIBS', '-lselinux')
   glib_conf.set('HAVE_SELINUX', 1)
 endif
 
 xattr_dep = []
-if get_option('xattr')
+if host_system != 'windows' and get_option('xattr')
   # either glibc or libattr can provide xattr support
   # for both of them, we check for getxattr being in
   # the library and a valid xattr header.
@@ -1645,6 +1661,7 @@ if want_systemtap and enable_dtrace
 endif
 
 
+windows = import('windows')
 subdir('glib')
 subdir('gobject')
 subdir('gthread')

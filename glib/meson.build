@@ -197,6 +197,13 @@ glib_sources = files(
 )
 
 if host_system == 'windows'
+  glib_win_rc = configure_file(
+    input: 'glib.rc.in',
+    output: 'glib.rc',
+    configuration: glibconfig_conf,
+  )
+  glib_win_res = windows.compile_resources(glib_win_rc)
+  glib_sources += [glib_win_res]
   glib_sources += files('gthread-win32.c')
   glib_sources += files('gwin32.c', 'gspawn-win32.c', 'giowin32.c')
   platform_deps = [winsock2, cc.find_library('winmm')]
@@ -220,7 +227,7 @@ if use_pcre_static_flag
   pcre_static_args = ['-DPCRE_STATIC']
 endif
 
-libglib = shared_library('glib-2.0',
+libglib = library('glib-2.0',
   glib_dtrace_obj, glib_dtrace_hdr,
   sources : [deprecated_sources, glib_sources],
   version : library_version,
@@ -234,7 +241,11 @@ libglib = shared_library('glib-2.0',
   c_args : ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args + glib_hidden_visibility_args
 )
 
-libglib_dep = declare_dependency(link_with : libglib,
+libglib_dep = declare_dependency(
+  link_with : libglib,
+  # thread_dep doesn't get pulled in from libglib atm,
+  # see https://github.com/mesonbuild/meson/issues/1426
+  dependencies : [thread_dep],
   # We sadly need to export configinc here because everyone includes <glib/*.h>
   include_directories : [configinc, glibinc])
 

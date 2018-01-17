@@ -43,6 +43,16 @@ gobject_sources = files(
   'gvaluetypes.c',
 )
 
+if host_system == 'windows'
+  gobject_win_rc = configure_file(
+    input: 'gobject.rc.in',
+    output: 'gobject.rc',
+    configuration: glibconfig_conf,
+  )
+  gobject_win_res = windows.compile_resources(gobject_win_rc)
+  gobject_sources += [gobject_win_res]
+endif
+
 if enable_dtrace
   gobject_dtrace_obj = dtrace_obj_gen.process('gobject_probes.d')
   gobject_dtrace_hdr = dtrace_hdr_gen.process('gobject_probes.d')
@@ -51,7 +61,7 @@ else
   gobject_dtrace_hdr = []
 endif
 
-libgobject = shared_library('gobject-2.0',
+libgobject = library('gobject-2.0',
   gobject_dtrace_obj, gobject_dtrace_hdr,
   sources : gobject_sources,
   version : library_version,

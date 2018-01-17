@@ -31,7 +31,7 @@ m4_define(glib_configure_ac)
 
 m4_define([glib_major_version], [2])
 m4_define([glib_minor_version], [55])
-m4_define([glib_micro_version], [0])
+m4_define([glib_micro_version], [1])
 m4_define([glib_interface_age], [0])
 m4_define([glib_binary_age],
           [m4_eval(100 * glib_minor_version + glib_micro_version)])
@@ -127,6 +127,8 @@ case "$host" in
     glib_pid_type='void *'
     glib_pid_format='p'
     glib_pollfd_format='%#x'
+    glib_dir_separator='\\\\'
+    glib_searchpath_separator=';'
     glib_cv_stack_grows=no
     # Unfortunately the mingw implementations of C99-style snprintf and vsnprintf
     # don't seem to be quite good enough, at least not in mingw-runtime-3.14.
@@ -151,6 +153,8 @@ case "$host" in
     glib_pid_type=int
     glib_pid_format='i'
     glib_pollfd_format='%d'
+    glib_dir_separator='/'
+    glib_searchpath_separator=':'
     ;;
 esac
 case $host in
@@ -2630,6 +2634,14 @@ AS_IF([ test "x$use_gcov" = "xyes"], [
   LDFLAGS="$LDFLAGS -lgcov"
 ])
 
+dnl *******************************
+dnl *** Disable strict aliasing ***
+dnl *******************************
+dnl See https://bugzilla.gnome.org/show_bug.cgi?id=791622
+AS_IF([test "${GCC}" = "yes"],[
+  CFLAGS="$CFLAGS -fno-strict-aliasing"
+])
+
 dnl ******************************
 dnl *** output the whole stuff ***
 dnl ******************************
@@ -2937,6 +2949,11 @@ typedef $g_pid_type GPid;
 #define GLIB_SYSDEF_MSG_PEEK $g_msg_peek
 #define GLIB_SYSDEF_MSG_DONTROUTE $g_msg_dontroute
 
+#define G_DIR_SEPARATOR '$g_dir_separator'
+#define G_DIR_SEPARATOR_S "$g_dir_separator"
+#define G_SEARCHPATH_SEPARATOR '$g_searchpath_separator'
+#define G_SEARCHPATH_SEPARATOR_S "$g_searchpath_separator"
+
 G_END_DECLS
 
 #endif /* __GLIBCONFIG_H__ */
@@ -3209,6 +3226,9 @@ g_memory_barrier_needed="$glib_memory_barrier_needed"
 g_gcc_atomic_ops="$glib_cv_gcc_has_builtin_atomic_operations"
 
 g_module_suffix="$glib_gmodule_suffix"
+g_dir_separator="$glib_dir_separator"
+g_searchpath_separator="$glib_searchpath_separator"
+
 g_pid_type="$glib_pid_type"
 g_pid_format="\"$glib_pid_format\""
 g_pollfd_format="\"$glib_pollfd_format\""

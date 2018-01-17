@@ -345,6 +345,8 @@ win32_actual_sources = \
 	gwin32outputstream.c \
 	gwin32outputstream.h \
 	gwin32networking.h \
+	gnetworkmonitorwindows.c \
+	gnetworkmonitorwindows.h \
 	$(NULL)
 
 win32_more_sources_for_vcproj = \
@@ -476,6 +478,7 @@ gio_base_sources =		\
 	gioenums.h		\
 	gioerror.c 		\
 	giomodule.c 		\
+	giomodule-priv.c	\
 	giomodule-priv.h	\
 	gioscheduler.c 		\
 	giostream.c		\
@@ -815,7 +818,7 @@ glib_compile_resources_SOURCES = \
 	gvdb/gvdb-builder.c		\
 	glib-compile-resources.c
 
-gio_querymodules_SOURCES = gio-querymodules.c
+gio_querymodules_SOURCES = gio-querymodules.c giomodule-priv.c
 gio_querymodules_LDADD	 = libgio-2.0.la 		\
 	$(top_builddir)/gobject/libgobject-2.0.la	\
 	$(top_builddir)/gmodule/libgmodule-2.0.la	\

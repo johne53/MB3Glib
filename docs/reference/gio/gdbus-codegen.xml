@@ -35,7 +35,11 @@
     <arg><option>--c-generate-autocleanup</option> none|objects|all</arg>
     <arg><option>--output-directory</option> <replaceable>OUTDIR</replaceable></arg>
     <arg><option>--generate-docbook</option> <replaceable>OUTFILES</replaceable></arg>
+    <arg><option>--pragma-once</option></arg>
     <arg><option>--xml-files</option> <replaceable>FILE</replaceable></arg>
+    <arg><option>--header</option></arg>
+    <arg><option>--body</option></arg>
+    <arg><option>--output</option> <replaceable>OUTFILE</replaceable></arg>
     <group choice="plain" rep="repeat">
       <arg>
         <option>--annotate</option>
@@ -55,11 +59,15 @@
   <title>Description</title>
   <para>
     <command>gdbus-codegen</command> is used to generate code and/or
-    documentation for one or more D-Bus interfaces. The tool reads
+    documentation for one or more D-Bus interfaces.
+  </para>
+  <para>
+    <command>gdbus-codegen</command> reads
     <ulink
     url="http://dbus.freedesktop.org/doc/dbus-specification.html#introspection-format">D-Bus
-    Introspection XML</ulink> files and generates output files. The
-    tool currently supports generating C code (via
+    Introspection XML</ulink> from files passed as additional
+    arguments on the command line and generates output files.
+    It currently supports generating C code (via
     <option>--generate-c-code</option>) and Docbook XML (via
     <option>--generate-docbook</option>).
   </para>
@@ -152,6 +160,7 @@
       <term><option>--xml-files</option> <replaceable>FILE</replaceable></term>
       <listitem>
         <para>
+          This option is deprecated; use positional arguments instead.
           The D-Bus introspection XML file.
         </para>
       </listitem>
@@ -211,6 +220,17 @@
     </varlistentry>
 
     <varlistentry>
+      <term><option>--pragma-once</option></term>
+      <listitem>
+        <para>
+          If this option is passed, the
+          <ulink url="https://en.wikipedia.org/wiki/Pragma_once">&#35;pragma once</ulink>
+          preprocessor directive is used instead of include guards.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
       <term><option>--c-generate-object-manager</option></term>
       <listitem>
         <para>
@@ -241,6 +261,55 @@
       <listitem>
         <para>
           Directory to output generated source to. Equivalent to changing directory before generation.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>--header</option></term>
+      <listitem>
+        <para>
+          If this option is passed, it will generate the header code and write it to the disk by
+          using the path and file name provided by <option>--output</option>.
+        </para>
+        <para>
+          Using <option>--generate-c-code</option>, <option>--generate-docbook</option> or
+          <option>--output-directory</option> are not allowed to be used along with
+          <option>--header</option> and <option>--body</option> options, because these options
+          are used to generate only one file.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>--body</option></term>
+      <listitem>
+        <para>
+          If this option is passed, it will generate the source code and write it to the disk by
+          using the path and file name provided by <option>--output</option>.
+        </para>
+        <para>
+          Using <option>--generate-c-code</option>, <option>--generate-docbook</option> or
+          <option>--output-directory</option> are not allowed to be used along with
+          <option>--header</option> and <option>--body</option> options, because these options
+          are used to generate only one file.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><option>--output</option> <replaceable>OUTFILE</replaceable></term>
+      <listitem>
+        <para>
+          The full path where the header (<option>--header</option>) or the source code
+          (<option>--body</option>) will be written, using the path and filename provided by
+          <option>--output</option>. The full path could be something like
+          <literal>$($OUTFILE).{c,h}</literal>.
+        </para>
+        <para>
+          Using <option>--generate-c-code</option>, <option>--generate-docbook</option> or
+          <option>--output-directory</option> is not allowed along with
+          <option>--output</option>, because the latter is used to generate only one file.
         </para>
       </listitem>
     </varlistentry>
