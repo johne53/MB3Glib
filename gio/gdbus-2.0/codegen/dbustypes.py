@@ -20,7 +20,7 @@
 # Author: David Zeuthen <davidz@redhat.com>
 
 import utils
-from .utils import print_error
+from utils import print_error
 
 class Annotation:
     def __init__(self, key, value):

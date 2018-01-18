@@ -30,7 +30,7 @@ import dbustypes
 from parse import parser
 import codegen
 import codegen_docbook
-from .utils import print_error, print_warning
+from utils import print_error, print_warning
 
 def find_arg(arg_list, arg_name):
     for a in arg_list:
