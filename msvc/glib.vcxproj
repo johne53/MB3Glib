@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release with Debugging Capability|x64">
+      <Configuration>Release with Debugging Capability</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{059B86B0-7E14-4660-AD33-5EB297159D62}</ProjectGuid>
+    <RootNamespace>glib</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="glib.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="glib.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="glib.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <TargetName>$(DllPrefix)$(ProjectName)64$(DllSuffix)D</TargetName>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <TargetName>$(DllPrefix)$(ProjectName)64$(DllSuffix)</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <TargetName>$(DllPrefix)$(ProjectName)64$(DllSuffix)RDC</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEvent>
+      <Message>Prepare configuration files</Message>
+      <Command>cd ..
+copy /Y "config.h.win32" "config.h"
+copy /Y "glib\glibconfig.h.win32" "glibconfig.h"
+copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h"
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/FI$(TargetSxsFolder)\targetsxs.h %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;..;../glib;$(GenericIncludeFolder)/ardourext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBDIR="Not set (placeholder)";WIN32;_WIN64;DEBUG;_DEBUG;_WINDOWS;_WINDLL;GLIB_COMPILATION;THREADS_WIN32;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;G_LOG_DOMAIN="Glib";G_ENABLE_DEBUG;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile />
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>$(TargetSxsFolder)\targetsxs.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <StringPooling>false</StringPooling>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Message />
+      <Command />
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;ole32.lib;winmm.lib;intl64D.lib;libcharset64D.lib;libgnulib64D.lib;libpcre64D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\$(Platform)\$(Configuration)\lib;F:\pthread-win32\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TargetFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TestSuiteFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Message>Prepare configuration files</Message>
+      <Command>cd ..
+copy /Y "config.h.win32" "config.h"
+copy /Y "glib\glibconfig.h.win32" "glibconfig.h"
+copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h"
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/FI$(TargetSxsFolder)\targetsxs.h %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;..;../glib;$(GenericIncludeFolder)/ardourext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SECURE_SCL=0;LIBDIR="Not set (placeholder)";WIN32;_WIN64;NDEBUG;_WINDOWS;_WINDLL;GLIB_COMPILATION;THREADS_WIN32;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile />
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>$(TargetSxsFolder)\targetsxs.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Message />
+      <Command />
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;ole32.lib;winmm.lib;intl64.lib;libcharset64.lib;libgnulib64.lib;libpcre64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\$(Platform)\$(Configuration)\lib;F:\pthread-win32\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TargetFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'">
+    <PreBuildEvent>
+      <Message>Prepare configuration files</Message>
+      <Command>mkdir "$(GenericLibraryFolder)\glib-2.0\include" 2&gt; NUL
+cd ..
+copy /Y "config.h.win32" "config.h"
+copy /Y "glib\glibconfig.h.win32" "glibconfig.h"
+copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h"
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/FI$(TargetSxsFolder)\targetsxs.h %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;..;../glib;$(GenericIncludeFolder)/ardourext;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SECURE_SCL=0;LIBDIR="Not set (placeholder)";WIN32;_WIN64;NDEBUG;_WINDOWS;_WINDLL;GLIB_COMPILATION;THREADS_WIN32;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderOutputFile />
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>$(TargetSxsFolder)\targetsxs.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Message />
+      <Command />
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;ole32.lib;winmm.lib;intl64RDC.lib;libcharset64RDC.lib;libgnulib64RDC.lib;libpcre64RDC.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\$(Platform)\$(Configuration)\lib;F:\pthread-win32\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>mkdir "$(GenericLibraryFolder)\pkgconfig" 2&gt; NUL
+mkdir "$(GenericIncludeFolder)\glib-2.0\" 2&gt; NUL
+mkdir "$(GenericIncludeFolder)\glib-2.0\glib" 2&gt; NUL
+mkdir "$(GenericIncludeFolder)\glib-2.0\glib\deprecated" 2&gt; NUL
+copy /Y "..\glib\deprecated\*.h" "$(GenericIncludeFolder)\glib-2.0\glib\deprecated"
+copy /Y "..\glib\*.h" "$(GenericIncludeFolder)\glib-2.0\glib\"
+copy /Y "..\glib\glib.h" "$(GenericIncludeFolder)\glib-2.0\"
+copy /Y "..\glib\glib-object.h" "$(GenericIncludeFolder)\glib-2.0\"
+copy /Y "$(OutDir)$(TargetName).dll" "$(GenericWin64BinaryFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+copy /Y "..\glib-2.0.pc" "$(GenericLibraryFolder)\pkgconfig"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\glib\deprecated\gallocator.c" />
+    <ClCompile Include="..\glib\deprecated\gcache.c" />
+    <ClCompile Include="..\glib\deprecated\gcompletion.c" />
+    <ClCompile Include="..\glib\deprecated\grel.c" />
+    <ClCompile Include="..\glib\deprecated\gthread-deprecated.c" />
+    <ClCompile Include="..\glib\garray.c" />
+    <ClCompile Include="..\glib\gasyncqueue.c" />
+    <ClCompile Include="..\glib\gatomic.c" />
+    <ClCompile Include="..\glib\gbacktrace.c" />
+    <ClCompile Include="..\glib\gbase64.c" />
+    <ClCompile Include="..\glib\gbitlock.c" />
+    <ClCompile Include="..\glib\gbookmarkfile.c" />
+    <ClCompile Include="..\glib\gbytes.c" />
+    <ClCompile Include="..\glib\gcharset.c" />
+    <ClCompile Include="..\glib\gchecksum.c" />
+    <ClCompile Include="..\glib\gconvert.c" />
+    <ClCompile Include="..\glib\gdataset.c" />
+    <ClCompile Include="..\glib\gdate.c" />
+    <ClCompile Include="..\glib\gdatetime.c" />
+    <ClCompile Include="..\glib\gdir.c" />
+    <ClCompile Include="..\glib\genviron.c" />
+    <ClCompile Include="..\glib\gerror.c" />
+    <ClCompile Include="..\glib\gfileutils.c" />
+    <ClCompile Include="..\glib\ggettext.c" />
+    <ClCompile Include="..\glib\ghash.c" />
+    <ClCompile Include="..\glib\ghmac.c" />
+    <ClCompile Include="..\glib\ghook.c" />
+    <ClCompile Include="..\glib\ghostutils.c" />
+    <ClCompile Include="..\glib\giochannel.c" />
+    <ClCompile Include="..\glib\giowin32.c" />
+    <ClCompile Include="..\glib\gkeyfile.c" />
+    <ClCompile Include="..\glib\glib-init.c" />
+    <ClCompile Include="..\glib\glib-private.c" />
+    <ClCompile Include="..\glib\glist.c" />
+    <ClCompile Include="..\glib\gmain.c" />
+    <ClCompile Include="..\glib\gmappedfile.c" />
+    <ClCompile Include="..\glib\gmarkup.c" />
+    <ClCompile Include="..\glib\gmem.c" />
+    <ClCompile Include="..\glib\gmessages.c" />
+    <ClCompile Include="..\glib\gnode.c" />
+    <ClCompile Include="..\glib\goption.c" />
+    <ClCompile Include="..\glib\gpattern.c" />
+    <ClCompile Include="..\glib\gpoll.c" />
+    <ClCompile Include="..\glib\gprimes.c" />
+    <ClCompile Include="..\glib\gprintf.c" />
+    <ClCompile Include="..\glib\gqsort.c" />
+    <ClCompile Include="..\glib\gquark.c" />
+    <ClCompile Include="..\glib\gqueue.c" />
+    <ClCompile Include="..\glib\grand.c" />
+    <ClCompile Include="..\glib\gregex.c" />
+    <ClCompile Include="..\glib\gscanner.c" />
+    <ClCompile Include="..\glib\gsequence.c" />
+    <ClCompile Include="..\glib\gshell.c" />
+    <ClCompile Include="..\glib\gslice.c" />
+    <ClCompile Include="..\glib\gslist.c" />
+    <ClCompile Include="..\glib\gspawn-win32.c" />
+    <ClCompile Include="..\glib\gstdio.c" />
+    <ClCompile Include="..\glib\gstrfuncs.c" />
+    <ClCompile Include="..\glib\gstring.c" />
+    <ClCompile Include="..\glib\gstringchunk.c" />
+    <ClCompile Include="..\glib\gtestutils.c" />
+    <ClCompile Include="..\glib\gthread-win32.c" />
+    <ClCompile Include="..\glib\gthread.c" />
+    <ClCompile Include="..\glib\gthreadpool.c" />
+    <ClCompile Include="..\glib\gtimer.c" />
+    <ClCompile Include="..\glib\gtimezone.c" />
+    <ClCompile Include="..\glib\gtranslit.c" />
+    <ClCompile Include="..\glib\gtrashstack.c" />
+    <ClCompile Include="..\glib\gtree.c" />
+    <ClCompile Include="..\glib\gunibreak.c" />
+    <ClCompile Include="..\glib\gunicollate.c" />
+    <ClCompile Include="..\glib\gunidecomp.c" />
+    <ClCompile Include="..\glib\guniprop.c" />
+    <ClCompile Include="..\glib\gurifuncs.c" />
+    <ClCompile Include="..\glib\gutf8.c" />
+    <ClCompile Include="..\glib\gutils.c" />
+    <ClCompile Include="..\glib\guuid.c" />
+    <ClCompile Include="..\glib\gvariant-core.c" />
+    <ClCompile Include="..\glib\gvariant-parser.c" />
+    <ClCompile Include="..\glib\gvariant-serialiser.c" />
+    <ClCompile Include="..\glib\gvariant.c" />
+    <ClCompile Include="..\glib\gvarianttype.c" />
+    <ClCompile Include="..\glib\gvarianttypeinfo.c" />
+    <ClCompile Include="..\glib\gversion.c" />
+    <ClCompile Include="..\glib\gwakeup.c" />
+    <ClCompile Include="..\glib\gwin32.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\build\win32\dirent\dirent.h" />
+    <ClInclude Include="..\gio\gio-autocleanups.h" />
+    <ClInclude Include="..\glib\galias.h" />
+    <ClInclude Include="..\glib\gbsearcharray.h" />
+    <ClInclude Include="..\glib\gbuffer.h" />
+    <ClInclude Include="..\glib\gbytes.h" />
+    <ClInclude Include="..\glib\gcharset.h" />
+    <ClInclude Include="..\glib\gdatasetprivate.h" />
+    <ClInclude Include="..\glib\gdatetime.h" />
+    <ClInclude Include="..\glib\gdebug.h" />
+    <ClInclude Include="..\glib\gdir.h" />
+    <ClInclude Include="..\glib\genviron.h" />
+    <ClInclude Include="..\glib\ggettext.h" />
+    <ClInclude Include="..\glib\ghmac.h" />
+    <ClInclude Include="..\glib\glib-init.h" />
+    <ClInclude Include="..\glib\glib-private.h" />
+    <ClInclude Include="..\glib\glibintl.h" />
+    <ClInclude Include="..\glib\gmacros.h" />
+    <ClInclude Include="..\glib\gmirroringtable.h" />
+    <ClInclude Include="..\glib\gnulib\printf.h" />
+    <ClInclude Include="..\glib\gprintfint.h" />
+    <ClInclude Include="..\glib\gquark.h" />
+    <ClInclude Include="..\glib\gscripttable.h" />
+    <ClInclude Include="..\glib\gstringchunk.h" />
+    <ClInclude Include="..\glib\gthreadprivate.h" />
+    <ClInclude Include="..\glib\gtimezone.h" />
+    <ClInclude Include="..\glib\gtranslit-data.h" />
+    <ClInclude Include="..\glib\gtrashstack.h" />
+    <ClInclude Include="..\glib\gunibreak.h" />
+    <ClInclude Include="..\glib\gunichartables.h" />
+    <ClInclude Include="..\glib\gunicodeprivate.h" />
+    <ClInclude Include="..\glib\gunicomp.h" />
+    <ClInclude Include="..\glib\gunidecomp.h" />
+    <ClInclude Include="..\glib\gutils.h" />
+    <ClInclude Include="..\glib\guuid.h" />
+    <ClInclude Include="..\glib\gvariant-core.h" />
+    <ClInclude Include="..\glib\gvariant-internal.h" />
+    <ClInclude Include="..\glib\gvariant-serialiser.h" />
+    <ClInclude Include="..\glib\gvariant.h" />
+    <ClInclude Include="..\glib\gvarianttype.h" />
+    <ClInclude Include="..\glib\gvarianttypeinfo.h" />
+    <ClInclude Include="..\glib\gversion.h" />
+    <ClInclude Include="..\glib\gversionmacros.h" />
+    <ClInclude Include="..\glib\gwakeup.h" />
+    <ClInclude Include="..\glib\libcharset\libcharset.h" />
+    <ClInclude Include="..\glib\libcharset\localcharset.h" />
+    <ClInclude Include="..\glib\pcre\pcre.h" />
+    <ClInclude Include="..\glib\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\glib\glib.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\glib\resource" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

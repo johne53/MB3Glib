@@ -1,0 +1,620 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release with Debugging Capability|x64">
+      <Configuration>Release with Debugging Capability</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{07E6FBA8-D80D-4727-AE04-D631F0565AD5}</ProjectGuid>
+    <RootNamespace>gio</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="glib.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="glib.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+    <Import Project="glib.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <TargetName>$(DllPrefix)$(ProjectName)64$(DllSuffix)D</TargetName>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <TargetName>$(DllPrefix)$(ProjectName)64$(DllSuffix)</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\obj\$(ProjectName)\</IntDir>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <TargetName>$(DllPrefix)$(ProjectName)64$(DllSuffix)RDC</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PreBuildEvent>
+      <Message>Copy GDbus configuration file(s)</Message>
+      <Command>copy /Y "..\gio\gnetworking.h.win32" "..\gio\gnetworking.h"
+copy /Y "..\gio\gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h"
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/FI$(TargetSxsFolder)\targetsxs.h %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;..\glib;..\gmodule;..\gio;..\build\win32\dirent;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBDIR="Not set (placeholder)";WIN32;_WIN64;DEBUG;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_ENABLE_DEBUG;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;NET_IFINDEX=ULONG;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN="GLib-GIO";GIO_MODULE_DIR="gio/modules";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile />
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>$(TargetSxsFolder)\targetsxs.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <StringPooling>false</StringPooling>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Command />
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)D.lib;$(DllPrefix)gobject64$(DllSuffix)D.lib;$(DllPrefix)gmodule64$(DllSuffix)D.lib;libgiowin64D.lib;ws2_32.lib;intl64D.lib;zlib64D.lib;shlwapi.lib;dnsapi.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\x64\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\libgio_2_0/libgio_2_0.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TargetFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TestSuiteFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Message>Copy GDbus configuration file(s)</Message>
+      <Command>copy /Y "..\gio\gnetworking.h.win32" "..\gio\gnetworking.h"
+copy /Y "..\gio\gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h"
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/FI$(TargetSxsFolder)\targetsxs.h %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;..\glib;..\gmodule;..\gio;..\build\win32\dirent;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SECURE_SCL=0;LIBDIR="Not set (placeholder)";NDEBUG;WIN32;_WIN64;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;NET_IFINDEX=ULONG;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN="GLib-GIO";GIO_MODULE_DIR="gio/modules";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile />
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>$(TargetSxsFolder)\targetsxs.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Command />
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix).lib;$(DllPrefix)gobject64$(DllSuffix).lib;$(DllPrefix)gmodule64$(DllSuffix).lib;libgiowin64.lib;ws2_32.lib;intl64.lib;zlib64.lib;shlwapi.lib;dnsapi.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\x64\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\libgio_2_0/libgio_2_0.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TargetFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'">
+    <PreBuildEvent>
+      <Message>Generate Gdbus configuration files</Message>
+      <Command>set UNINSTALLED_GLIB_SRCDIR=F:/+GTK-SOURCES/gnu-windows/src/MB3Glib/share/glib-2.0
+set UNINSTALLED_GLIB_BUILDDIR=F:/+GTK-SOURCES/gnu-windows/src/MB3Glib/share/glib-2.0
+mkdir "$(GenericIncludeFolder)\glib-2.0\gio" 2&gt; NUL
+python ../win32/gen_util_scripts.py --type=gdbus-codegen --version=$(GlibVersion)
+cd ../gio
+copy /Y "gnetworking.h.win32" "gnetworking.h"
+python "gdbus-2.0/codegen/gdbus-codegen.in" --interface-prefix org. --generate-c-code gdbus-daemon-generated --c-namespace _G dbus-daemon.xml
+copy /Y "gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\gdbus-daemon-generated.h"
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/FI$(TargetSxsFolder)\targetsxs.h %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;..\glib;..\gmodule;..\gio;..\build\win32\dirent;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_SECURE_SCL=0;LIBDIR="Not set (placeholder)";NDEBUG;WIN32;_WIN64;_WINDOWS;_CRT_SECURE_NO_WARNINGS;G_OS_WIN32;DLL_EXPORT;HAVE_CONFIG_H;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_COUNT=10000;MAX_NAME_SIZE=256;NEWLINE=-1;NET_IFINDEX=ULONG;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=1000;GIO_COMPILATION;G_LOG_DOMAIN="GLib-GIO";GIO_MODULE_DIR="gio/modules";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile />
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>$(TargetSxsFolder)\targetsxs.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <PreLinkEvent>
+      <Command />
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)RDC.lib;$(DllPrefix)gobject64$(DllSuffix)RDC.lib;$(DllPrefix)gmodule64$(DllSuffix)RDC.lib;libgiowin64RDC.lib;ws2_32.lib;intl64RDC.lib;zlib64RDC.lib;shlwapi.lib;dnsapi.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\x64\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile />
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\libgio_2_0/libgio_2_0.bsc</OutputFile>
+    </Bscmake>
+    <PostBuildEvent>
+      <Command>mkdir "$(GenericLibraryFolder)\pkgconfig" 2&gt; NUL
+mkdir "$(GenericIncludeFolder)\glib-2.0\gio" 2&gt; NUL
+copy /Y "..\gio\*.h" "$(GenericIncludeFolder)\glib-2.0\gio\"
+copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
+copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+copy /Y "..\gio-2.0.pc" "$(GenericLibraryFolder)\pkgconfig"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\gio\gaction.c" />
+    <ClCompile Include="..\gio\gactiongroup.c" />
+    <ClCompile Include="..\gio\gactiongroupexporter.c" />
+    <ClCompile Include="..\gio\gactionmap.c" />
+    <ClCompile Include="..\gio\gappinfo.c" />
+    <ClCompile Include="..\gio\gapplication.c" />
+    <ClCompile Include="..\gio\gapplicationcommandline.c" />
+    <ClCompile Include="..\gio\gapplicationimpl-dbus.c" />
+    <ClCompile Include="..\gio\gasynchelper.c" />
+    <ClCompile Include="..\gio\gasyncinitable.c" />
+    <ClCompile Include="..\gio\gasyncresult.c" />
+    <ClCompile Include="..\gio\gbufferedinputstream.c" />
+    <ClCompile Include="..\gio\gbufferedoutputstream.c" />
+    <ClCompile Include="..\gio\gbytesicon.c" />
+    <ClCompile Include="..\gio\gcancellable.c" />
+    <ClCompile Include="..\gio\gcharsetconverter.c" />
+    <ClCompile Include="..\gio\gcontenttype-win32.c" />
+    <ClCompile Include="..\gio\gcontextspecificgroup.c" />
+    <ClCompile Include="..\gio\gconverter.c" />
+    <ClCompile Include="..\gio\gconverterinputstream.c" />
+    <ClCompile Include="..\gio\gconverteroutputstream.c" />
+    <ClCompile Include="..\gio\gcredentials.c" />
+    <ClCompile Include="..\gio\gdatagrambased.c" />
+    <ClCompile Include="..\gio\gdatainputstream.c" />
+    <ClCompile Include="..\gio\gdataoutputstream.c" />
+    <ClCompile Include="..\gio\gdbus-daemon-generated.c" />
+    <ClCompile Include="..\gio\gdbusactiongroup.c" />
+    <ClCompile Include="..\gio\gdbusaddress.c" />
+    <ClCompile Include="..\gio\gdbusauth.c" />
+    <ClCompile Include="..\gio\gdbusauthmechanism.c" />
+    <ClCompile Include="..\gio\gdbusauthmechanismanon.c" />
+    <ClCompile Include="..\gio\gdbusauthmechanismexternal.c" />
+    <ClCompile Include="..\gio\gdbusauthmechanismsha1.c" />
+    <ClCompile Include="..\gio\gdbusauthobserver.c" />
+    <ClCompile Include="..\gio\gdbusconnection.c" />
+    <ClCompile Include="..\gio\gdbusdaemon.c" />
+    <ClCompile Include="..\gio\gdbuserror.c" />
+    <ClCompile Include="..\gio\gdbusinterface.c" />
+    <ClCompile Include="..\gio\gdbusinterfaceskeleton.c" />
+    <ClCompile Include="..\gio\gdbusintrospection.c" />
+    <ClCompile Include="..\gio\gdbusmenumodel.c" />
+    <ClCompile Include="..\gio\gdbusmessage.c" />
+    <ClCompile Include="..\gio\gdbusmethodinvocation.c" />
+    <ClCompile Include="..\gio\gdbusnameowning.c" />
+    <ClCompile Include="..\gio\gdbusnamewatching.c" />
+    <ClCompile Include="..\gio\gdbusobject.c" />
+    <ClCompile Include="..\gio\gdbusobjectmanager.c" />
+    <ClCompile Include="..\gio\gdbusobjectmanagerclient.c" />
+    <ClCompile Include="..\gio\gdbusobjectmanagerserver.c" />
+    <ClCompile Include="..\gio\gdbusobjectproxy.c" />
+    <ClCompile Include="..\gio\gdbusobjectskeleton.c" />
+    <ClCompile Include="..\gio\gdbusprivate.c" />
+    <ClCompile Include="..\gio\gdbusproxy.c" />
+    <ClCompile Include="..\gio\gdbusserver.c" />
+    <ClCompile Include="..\gio\gdbusutils.c" />
+    <ClCompile Include="..\gio\gdelayedsettingsbackend.c" />
+    <ClCompile Include="..\gio\gdesktopappinfo.c" />
+    <ClCompile Include="..\gio\gdrive.c" />
+    <ClCompile Include="..\gio\gdtlsclientconnection.c" />
+    <ClCompile Include="..\gio\gdtlsconnection.c" />
+    <ClCompile Include="..\gio\gdtlsserverconnection.c" />
+    <ClCompile Include="..\gio\gdummyfile.c" />
+    <ClCompile Include="..\gio\gdummyproxyresolver.c" />
+    <ClCompile Include="..\gio\gdummytlsbackend.c" />
+    <ClCompile Include="..\gio\gemblem.c" />
+    <ClCompile Include="..\gio\gemblemedicon.c" />
+    <ClCompile Include="..\gio\gfdonotificationbackend.c" />
+    <ClCompile Include="..\gio\gfile.c" />
+    <ClCompile Include="..\gio\gfileattribute.c" />
+    <ClCompile Include="..\gio\gfiledescriptorbased.c" />
+    <ClCompile Include="..\gio\gfileenumerator.c" />
+    <ClCompile Include="..\gio\gfileicon.c" />
+    <ClCompile Include="..\gio\gfileinfo.c" />
+    <ClCompile Include="..\gio\gfileinputstream.c" />
+    <ClCompile Include="..\gio\gfileiostream.c" />
+    <ClCompile Include="..\gio\gfilemonitor.c" />
+    <ClCompile Include="..\gio\gfilenamecompleter.c" />
+    <ClCompile Include="..\gio\gfileoutputstream.c" />
+    <ClCompile Include="..\gio\gfilterinputstream.c" />
+    <ClCompile Include="..\gio\gfilteroutputstream.c" />
+    <ClCompile Include="..\gio\ggtknotificationbackend.c" />
+    <ClCompile Include="..\gio\ghttpproxy.c" />
+    <ClCompile Include="..\gio\gicon.c" />
+    <ClCompile Include="..\gio\ginetaddress.c" />
+    <ClCompile Include="..\gio\ginetaddressmask.c" />
+    <ClCompile Include="..\gio\ginetsocketaddress.c" />
+    <ClCompile Include="..\gio\ginitable.c" />
+    <ClCompile Include="..\gio\ginputstream.c" />
+    <ClCompile Include="..\gio\gioenumtypes.c" />
+    <ClCompile Include="..\gio\gioerror.c" />
+    <ClCompile Include="..\gio\giomodule.c" />
+    <ClCompile Include="..\gio\gioscheduler.c" />
+    <ClCompile Include="..\gio\giostream.c" />
+    <ClCompile Include="..\gio\gkeyfilesettingsbackend.c" />
+    <ClCompile Include="..\gio\glistmodel.c" />
+    <ClCompile Include="..\gio\gliststore.c" />
+    <ClCompile Include="..\gio\gloadableicon.c" />
+    <ClCompile Include="..\gio\glocalfile.c" />
+    <ClCompile Include="..\gio\glocalfileenumerator.c" />
+    <ClCompile Include="..\gio\glocalfileinfo.c" />
+    <ClCompile Include="..\gio\glocalfileinputstream.c" />
+    <ClCompile Include="..\gio\glocalfileiostream.c" />
+    <ClCompile Include="..\gio\glocalfilemonitor.c" />
+    <ClCompile Include="..\gio\glocalfileoutputstream.c" />
+    <ClCompile Include="..\gio\glocalvfs.c" />
+    <ClCompile Include="..\gio\gmemoryinputstream.c" />
+    <ClCompile Include="..\gio\gmemoryoutputstream.c" />
+    <ClCompile Include="..\gio\gmemorysettingsbackend.c" />
+    <ClCompile Include="..\gio\gmenu.c" />
+    <ClCompile Include="..\gio\gmenuexporter.c" />
+    <ClCompile Include="..\gio\gmenumodel.c" />
+    <ClCompile Include="..\gio\gmount.c" />
+    <ClCompile Include="..\gio\gmountoperation.c" />
+    <ClCompile Include="..\gio\gnativesocketaddress.c" />
+    <ClCompile Include="..\gio\gnativevolumemonitor.c" />
+    <ClCompile Include="..\gio\gnetworkaddress.c" />
+    <ClCompile Include="..\gio\gnetworking.c" />
+    <ClCompile Include="..\gio\gnetworkmonitor.c" />
+    <ClCompile Include="..\gio\gnetworkmonitorbase.c" />
+    <ClCompile Include="..\gio\gnetworkservice.c" />
+    <ClCompile Include="..\gio\gnotification.c" />
+    <ClCompile Include="..\gio\gnotificationbackend.c" />
+    <ClCompile Include="..\gio\gnullsettingsbackend.c" />
+    <ClCompile Include="..\gio\goutputstream.c" />
+    <ClCompile Include="..\gio\gpermission.c" />
+    <ClCompile Include="..\gio\gpollableinputstream.c" />
+    <ClCompile Include="..\gio\gpollableoutputstream.c" />
+    <ClCompile Include="..\gio\gpollableutils.c" />
+    <ClCompile Include="..\gio\gpollfilemonitor.c" />
+    <ClCompile Include="..\gio\gpropertyaction.c" />
+    <ClCompile Include="..\gio\gproxy.c" />
+    <ClCompile Include="..\gio\gproxyaddress.c" />
+    <ClCompile Include="..\gio\gproxyaddressenumerator.c" />
+    <ClCompile Include="..\gio\gproxyresolver.c" />
+    <ClCompile Include="..\gio\gregistrysettingsbackend.c" />
+    <ClCompile Include="..\gio\gremoteactiongroup.c" />
+    <ClCompile Include="..\gio\gresolver.c" />
+    <ClCompile Include="..\gio\gresource.c" />
+    <ClCompile Include="..\gio\gresourcefile.c" />
+    <ClCompile Include="..\gio\gseekable.c" />
+    <ClCompile Include="..\gio\gsettings-mapping.c" />
+    <ClCompile Include="..\gio\gsettings.c" />
+    <ClCompile Include="..\gio\gsettingsbackend.c" />
+    <ClCompile Include="..\gio\gsettingsschema.c" />
+    <ClCompile Include="..\gio\gsimpleaction.c" />
+    <ClCompile Include="..\gio\gsimpleactiongroup.c" />
+    <ClCompile Include="..\gio\gsimpleasyncresult.c" />
+    <ClCompile Include="..\gio\gsimpleiostream.c" />
+    <ClCompile Include="..\gio\gsimplepermission.c" />
+    <ClCompile Include="..\gio\gsocket.c" />
+    <ClCompile Include="..\gio\gsocketaddress.c" />
+    <ClCompile Include="..\gio\gsocketaddressenumerator.c" />
+    <ClCompile Include="..\gio\gsocketclient.c" />
+    <ClCompile Include="..\gio\gsocketconnectable.c" />
+    <ClCompile Include="..\gio\gsocketconnection.c" />
+    <ClCompile Include="..\gio\gsocketcontrolmessage.c" />
+    <ClCompile Include="..\gio\gsocketinputstream.c" />
+    <ClCompile Include="..\gio\gsocketlistener.c" />
+    <ClCompile Include="..\gio\gsocketoutputstream.c" />
+    <ClCompile Include="..\gio\gsocketservice.c" />
+    <ClCompile Include="..\gio\gsocks4aproxy.c" />
+    <ClCompile Include="..\gio\gsocks4proxy.c" />
+    <ClCompile Include="..\gio\gsocks5proxy.c" />
+    <ClCompile Include="..\gio\gsrvtarget.c" />
+    <ClCompile Include="..\gio\gsubprocess.c" />
+    <ClCompile Include="..\gio\gsubprocesslauncher.c" />
+    <ClCompile Include="..\gio\gtask.c" />
+    <ClCompile Include="..\gio\gtcpconnection.c" />
+    <ClCompile Include="..\gio\gtcpwrapperconnection.c" />
+    <ClCompile Include="..\gio\gtestdbus.c" />
+    <ClCompile Include="..\gio\gthemedicon.c" />
+    <ClCompile Include="..\gio\gthreadedresolver.c" />
+    <ClCompile Include="..\gio\gthreadedsocketservice.c" />
+    <ClCompile Include="..\gio\gtlsbackend.c" />
+    <ClCompile Include="..\gio\gtlscertificate.c" />
+    <ClCompile Include="..\gio\gtlsclientconnection.c" />
+    <ClCompile Include="..\gio\gtlsconnection.c" />
+    <ClCompile Include="..\gio\gtlsdatabase.c" />
+    <ClCompile Include="..\gio\gtlsfiledatabase.c" />
+    <ClCompile Include="..\gio\gtlsinteraction.c" />
+    <ClCompile Include="..\gio\gtlspassword.c" />
+    <ClCompile Include="..\gio\gtlsserverconnection.c" />
+    <ClCompile Include="..\gio\gunionvolumemonitor.c" />
+    <ClCompile Include="..\gio\gunixconnection.c" />
+    <ClCompile Include="..\gio\gunixfdlist.c" />
+    <ClCompile Include="..\gio\gunixfdmessage.c" />
+    <ClCompile Include="..\gio\gunixinputstream.c" />
+    <ClCompile Include="..\gio\gunixmount.c" />
+    <ClCompile Include="..\gio\gunixmounts.c" />
+    <ClCompile Include="..\gio\gunixoutputstream.c" />
+    <ClCompile Include="..\gio\gunixsocketaddress.c" />
+    <ClCompile Include="..\gio\gunixvolume.c" />
+    <ClCompile Include="..\gio\gunixvolumemonitor.c" />
+    <ClCompile Include="..\gio\gvdb\gvdb-builder.c" />
+    <ClCompile Include="..\gio\gvdb\gvdb-reader.c" />
+    <ClCompile Include="..\gio\gvfs.c" />
+    <ClCompile Include="..\gio\gvolume.c" />
+    <ClCompile Include="..\gio\gvolumemonitor.c" />
+    <ClCompile Include="..\gio\gwin32appinfo.c" />
+    <ClCompile Include="..\gio\gwin32mount.c" />
+    <ClCompile Include="..\gio\gwin32registrykey.c" />
+    <ClCompile Include="..\gio\gwin32volumemonitor.c" />
+    <ClCompile Include="..\gio\gzlibcompressor.c" />
+    <ClCompile Include="..\gio\gzlibdecompressor.c" />
+    <ClCompile Include="..\gio\thumbnail-verify.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\gio\gaction.h" />
+    <ClInclude Include="..\gio\gactiongroup.h" />
+    <ClInclude Include="..\gio\gactiongroupexporter.h" />
+    <ClInclude Include="..\gio\gactionmap.h" />
+    <ClInclude Include="..\gio\gapplication.h" />
+    <ClInclude Include="..\gio\gapplicationcommandline.h" />
+    <ClInclude Include="..\gio\gapplicationimpl.h" />
+    <ClInclude Include="..\gio\gasynchelper.h" />
+    <ClInclude Include="..\gio\gbytesicon.h" />
+    <ClInclude Include="..\gio\gcontenttypeprivate.h" />
+    <ClInclude Include="..\gio\gcontextspecificgroup.h" />
+    <ClInclude Include="..\gio\gcredentials.h" />
+    <ClInclude Include="..\gio\gdatagrambased.h" />
+    <ClInclude Include="..\gio\gdbusactiongroup-private.h" />
+    <ClInclude Include="..\gio\gdbusactiongroup.h" />
+    <ClInclude Include="..\gio\gdbusaddress.h" />
+    <ClInclude Include="..\gio\gdbusauth.h" />
+    <ClInclude Include="..\gio\gdbusauthmechanism.h" />
+    <ClInclude Include="..\gio\gdbusauthmechanismanon.h" />
+    <ClInclude Include="..\gio\gdbusauthmechanismexternal.h" />
+    <ClInclude Include="..\gio\gdbusauthmechanismsha1.h" />
+    <ClInclude Include="..\gio\gdbusauthobserver.h" />
+    <ClInclude Include="..\gio\gdbusconnection.h" />
+    <ClInclude Include="..\gio\gdbusdaemon.h" />
+    <ClInclude Include="..\gio\gdbuserror.h" />
+    <ClInclude Include="..\gio\gdbusinterface.h" />
+    <ClInclude Include="..\gio\gdbusinterfaceskeleton.h" />
+    <ClInclude Include="..\gio\gdbusintrospection.h" />
+    <ClInclude Include="..\gio\gdbusmenumodel.h" />
+    <ClInclude Include="..\gio\gdbusmessage.h" />
+    <ClInclude Include="..\gio\gdbusmethodinvocation.h" />
+    <ClInclude Include="..\gio\gdbusnameowning.h" />
+    <ClInclude Include="..\gio\gdbusnamewatching.h" />
+    <ClInclude Include="..\gio\gdbusobject.h" />
+    <ClInclude Include="..\gio\gdbusobjectmanager.h" />
+    <ClInclude Include="..\gio\gdbusobjectmanagerclient.h" />
+    <ClInclude Include="..\gio\gdbusobjectmanagerserver.h" />
+    <ClInclude Include="..\gio\gdbusobjectproxy.h" />
+    <ClInclude Include="..\gio\gdbusobjectskeleton.h" />
+    <ClInclude Include="..\gio\gdbusprivate.h" />
+    <ClInclude Include="..\gio\gdbusproxy.h" />
+    <ClInclude Include="..\gio\gdbusserver.h" />
+    <ClInclude Include="..\gio\gdbusutils.h" />
+    <ClInclude Include="..\gio\gdelayedsettingsbackend.h" />
+    <ClInclude Include="..\gio\gdesktopappinfo.h" />
+    <ClInclude Include="..\gio\gdtlsclientconnection.h" />
+    <ClInclude Include="..\gio\gdtlsconnection.h" />
+    <ClInclude Include="..\gio\gdtlsserverconnection.h" />
+    <ClInclude Include="..\gio\gdummyfile.h" />
+    <ClInclude Include="..\gio\gdummyproxyresolver.h" />
+    <ClInclude Include="..\gio\gdummytlsbackend.h" />
+    <ClInclude Include="..\gio\gemblem.h" />
+    <ClInclude Include="..\gio\gemblemedicon.h" />
+    <ClInclude Include="..\gio\gfileattribute-priv.h" />
+    <ClInclude Include="..\gio\gfiledescriptorbased.h" />
+    <ClInclude Include="..\gio\gfileinfo-priv.h" />
+    <ClInclude Include="..\gio\ghttpproxy.h" />
+    <ClInclude Include="..\gio\ginetaddress.h" />
+    <ClInclude Include="..\gio\ginetaddressmask.h" />
+    <ClInclude Include="..\gio\gio-autocleanups.h" />
+    <ClInclude Include="..\gio\gio-marshal.h" />
+    <ClInclude Include="..\gio\gioenums.h" />
+    <ClInclude Include="..\gio\gioenumtypes.h" />
+    <ClInclude Include="..\gio\giomodule-priv.h" />
+    <ClInclude Include="..\gio\glistmodel.h" />
+    <ClInclude Include="..\gio\gliststore.h" />
+    <ClInclude Include="..\gio\glocalfile.h" />
+    <ClInclude Include="..\gio\glocalfileenumerator.h" />
+    <ClInclude Include="..\gio\glocalfileinfo.h" />
+    <ClInclude Include="..\gio\glocalfileinputstream.h" />
+    <ClInclude Include="..\gio\glocalfileiostream.h" />
+    <ClInclude Include="..\gio\glocalfilemonitor.h" />
+    <ClInclude Include="..\gio\glocalfileoutputstream.h" />
+    <ClInclude Include="..\gio\glocalvfs.h" />
+    <ClInclude Include="..\gio\gmenu.h" />
+    <ClInclude Include="..\gio\gmenuexporter.h" />
+    <ClInclude Include="..\gio\gmenumodel.h" />
+    <ClInclude Include="..\gio\gmountprivate.h" />
+    <ClInclude Include="..\gio\gnativesocketaddress.h" />
+    <ClInclude Include="..\gio\gnativevolumemonitor.h" />
+    <ClInclude Include="..\gio\gnetworking.h" />
+    <ClInclude Include="..\gio\gnetworkingprivate.h" />
+    <ClInclude Include="..\gio\gnetworkmonitor.h" />
+    <ClInclude Include="..\gio\gnetworkmonitorbase.h" />
+    <ClInclude Include="..\gio\gnotification.h" />
+    <ClInclude Include="..\gio\gnotificationbackend.h" />
+    <ClInclude Include="..\gio\gpermission.h" />
+    <ClInclude Include="..\gio\gpollableinputstream.h" />
+    <ClInclude Include="..\gio\gpollableoutputstream.h" />
+    <ClInclude Include="..\gio\gpollableutils.h" />
+    <ClInclude Include="..\gio\gpollfilemonitor.h" />
+    <ClInclude Include="..\gio\gpropertyaction.h" />
+    <ClInclude Include="..\gio\gproxy.h" />
+    <ClInclude Include="..\gio\gproxyaddress.h" />
+    <ClInclude Include="..\gio\gproxyaddressenumerator.h" />
+    <ClInclude Include="..\gio\gproxyresolver.h" />
+    <ClInclude Include="..\gio\gregistrysettingsbackend.h" />
+    <ClInclude Include="..\gio\gremoteactiongroup.h" />
+    <ClInclude Include="..\gio\gresource.h" />
+    <ClInclude Include="..\gio\gresourcefile.h" />
+    <ClInclude Include="..\gio\gsettings-mapping.h" />
+    <ClInclude Include="..\gio\gsettings.h" />
+    <ClInclude Include="..\gio\gsettingsbackend.h" />
+    <ClInclude Include="..\gio\gsettingsschema.h" />
+    <ClInclude Include="..\gio\gsimpleaction.h" />
+    <ClInclude Include="..\gio\gsimpleactiongroup.h" />
+    <ClInclude Include="..\gio\gsimpleiostream.h" />
+    <ClInclude Include="..\gio\gsimplepermission.h" />
+    <ClInclude Include="..\gio\gsocketinputstream.h" />
+    <ClInclude Include="..\gio\gsocketoutputstream.h" />
+    <ClInclude Include="..\gio\gsocks4aproxy.h" />
+    <ClInclude Include="..\gio\gsocks4proxy.h" />
+    <ClInclude Include="..\gio\gsocks5proxy.h" />
+    <ClInclude Include="..\gio\gsubprocess.h" />
+    <ClInclude Include="..\gio\gsubprocesslauncher.h" />
+    <ClInclude Include="..\gio\gtask.h" />
+    <ClInclude Include="..\gio\gtcpwrapperconnection.h" />
+    <ClInclude Include="..\gio\gtestdbus.h" />
+    <ClInclude Include="..\gio\gthreadedresolver.h" />
+    <ClInclude Include="..\gio\gtlsbackend.h" />
+    <ClInclude Include="..\gio\gtlscertificate.h" />
+    <ClInclude Include="..\gio\gtlsclientconnection.h" />
+    <ClInclude Include="..\gio\gtlsconnection.h" />
+    <ClInclude Include="..\gio\gtlsdatabase.h" />
+    <ClInclude Include="..\gio\gtlsfiledatabase.h" />
+    <ClInclude Include="..\gio\gtlsinteraction.h" />
+    <ClInclude Include="..\gio\gtlspassword.h" />
+    <ClInclude Include="..\gio\gtlsserverconnection.h" />
+    <ClInclude Include="..\gio\gunionvolumemonitor.h" />
+    <ClInclude Include="..\gio\gunixconnection.h" />
+    <ClInclude Include="..\gio\gunixfdlist.h" />
+    <ClInclude Include="..\gio\gunixfdmessage.h" />
+    <ClInclude Include="..\gio\gunixinputstream.h" />
+    <ClInclude Include="..\gio\gunixmount.h" />
+    <ClInclude Include="..\gio\gunixmounts.h" />
+    <ClInclude Include="..\gio\gunixoutputstream.h" />
+    <ClInclude Include="..\gio\gunixresolver.h" />
+    <ClInclude Include="..\gio\gunixsocketaddress.h" />
+    <ClInclude Include="..\gio\gunixvolume.h" />
+    <ClInclude Include="..\gio\gunixvolumemonitor.h" />
+    <ClInclude Include="..\gio\gvdb\gvdb-builder.h" />
+    <ClInclude Include="..\gio\gvdb\gvdb-format.h" />
+    <ClInclude Include="..\gio\gvdb\gvdb-reader.h" />
+    <ClInclude Include="..\gio\gwin32appinfo.h" />
+    <ClInclude Include="..\gio\gwin32mount.h" />
+    <ClInclude Include="..\gio\gwin32networking.h" />
+    <ClInclude Include="..\gio\gwin32registrykey.h" />
+    <ClInclude Include="..\gio\gwin32volumemonitor.h" />
+    <ClInclude Include="..\gio\libasyncns\asyncns.h" />
+    <ClInclude Include="..\gio\resource.h" />
+    <ClInclude Include="..\gio\thumbnail-verify.h" />
+    <ClInclude Include="..\gio\xdgmime\xdgmime.h" />
+    <ClInclude Include="..\glib\glibintl.h" />
+    <ClInclude Include="..\glib\gstdio.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\gio\gio.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\gio\resource" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
