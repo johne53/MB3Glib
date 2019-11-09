@@ -45,7 +45,13 @@ sub process_file
 	    s/\@Release32TestSuiteFolder@/$release32_testsuite_folder/g;
 	    s/\@Debug32TargetFolder@/$debug32_target_folder/g;
 	    s/\@Release32TargetFolder@/$release32_target_folder/g;
-	    s/\@TargetSxSFolder@/$target_sxs_folder/g;
+	    s/\@GenericWin64LibraryFolder@/$generic_win64_library_folder/g;
+	    s/\@GenericWin64BinaryFolder@/$generic_win64_binary_folder/g;
+	    s/\@Debug64TestSuiteFolder@/$debug64_testsuite_folder/g;
+	    s/\@Release64TestSuiteFolder@/$release64_testsuite_folder/g;
+	    s/\@Debug64TargetFolder@/$debug64_target_folder/g;
+	    s/\@Release64TargetFolder@/$release64_target_folder/g;
+		s/\@TargetSxSFolder@/$target_sxs_folder/g;
 	    s/\@prefix@/$gdbus_prefix/g;
 	    s/\@exec_prefix@/$exec_prefix/g;
 	    s/\@includedir@/$generic_include_folder/g;
@@ -56,11 +62,6 @@ sub process_file
 	}
 }
 
-process_file ("config.h.win32");
-process_file ("glib/glibconfig.h.win32");
-process_file ("gobject/glib-mkenums");
-process_file ("gobject/glib-genmarshal");
-process_file ("gio/gdbus-2.0/codegen/config.py");
 process_file ("gio-windows-2.0.pc");
 process_file ("gio-2.0.pc");
 process_file ("glib-2.0.pc");
@@ -70,10 +71,16 @@ process_file ("gobject-2.0.pc");
 
 my $command=join(' ',@ARGV);
 if ($command eq -buildall) {
+	process_file ("config.h.win32");
+	process_file ("glib/glibconfig.h.win32");
+	process_file ("gobject/glib-mkenums");
+	process_file ("gobject/glib-genmarshal");
+	process_file ("gio/gdbus-2.0/codegen/config.py");
 	process_file ("gio/gio.rc");
 	process_file ("glib/glib.rc");
 	process_file ("gmodule/gmodule.rc");
 	process_file ("gobject/gobject.rc");
 	process_file ("gthread/gthread.rc");
 	process_file ("msvc/glib.vsprops");
+	process_file ("msvc/glib.props");
 }
