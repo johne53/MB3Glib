@@ -22,20 +22,20 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -115,7 +115,7 @@ copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glib
       <Command />
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;ole32.lib;winmm.lib;intl64D.lib;libcharset64D.lib;libgnulib64D.lib;libpcre64D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32$(LibraryExt);ole32$(LibraryExt);winmm$(LibraryExt);intl64D$(LibraryExt);$(DllPrefix)charset64D$(LibraryExt);$(DllPrefix)gnulib64D$(LibraryExt);$(DllPrefix)pcre64D$(LibraryExt);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\$(Platform)\$(Configuration)\lib;F:\pthread-win32\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -125,16 +125,16 @@ copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glib
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TargetFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TestSuiteFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+      <Command>copy /Y "$(TargetPath)" "$(Debug64TargetFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(TargetPath)" "$(Debug64TestSuiteFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(OutDir)$(TargetName)$(LibraryExt)" "$(GenericWin64LibraryFolder)\$(TargetName)$(LibraryExt)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
       <Message>Prepare configuration files</Message>
-      <Command>cd ..
+      <Command>cd..
 copy /Y "config.h.win32" "config.h"
 copy /Y "glib\glibconfig.h.win32" "glibconfig.h"
 copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glibconfig.h"
@@ -167,7 +167,7 @@ copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glib
       <Command />
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;ole32.lib;winmm.lib;intl64.lib;libcharset64.lib;libgnulib64.lib;libpcre64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32$(LibraryExt);ole32$(LibraryExt);winmm$(LibraryExt);intl64$(LibraryExt);$(DllPrefix)charset64$(LibraryExt);$(DllPrefix)gnulib64$(LibraryExt);$(DllPrefix)pcre64$(LibraryExt);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\$(Platform)\$(Configuration)\lib;F:\pthread-win32\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <SubSystem>Windows</SubSystem>
@@ -177,9 +177,9 @@ copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glib
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TargetFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+      <Command>copy /Y "$(TargetPath)" "$(Release64TargetFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(TargetPath)" "$(Release64TestSuiteFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(OutDir)$(TargetName)$(LibraryExt)" "$(GenericWin64LibraryFolder)\$(TargetName)$(LibraryExt)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -220,7 +220,7 @@ copy /Y "glib\glibconfig.h.win32" "$(GenericLibraryFolder)\glib-2.0\include\glib
       <Command />
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;ole32.lib;winmm.lib;intl64RDC.lib;libcharset64RDC.lib;libgnulib64RDC.lib;libpcre64RDC.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32$(LibraryExt);ole32$(LibraryExt);winmm$(LibraryExt);intl64RDC$(LibraryExt);$(DllPrefix)charset64RDC$(LibraryExt);$(DllPrefix)gnulib64RDC$(LibraryExt);$(DllPrefix)pcre64RDC$(LibraryExt);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\$(Platform)\$(Configuration)\lib;F:\pthread-win32\Pre-built.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -238,9 +238,9 @@ copy /Y "..\glib\deprecated\*.h" "$(GenericIncludeFolder)\glib-2.0\glib\deprecat
 copy /Y "..\glib\*.h" "$(GenericIncludeFolder)\glib-2.0\glib\"
 copy /Y "..\glib\glib.h" "$(GenericIncludeFolder)\glib-2.0\"
 copy /Y "..\glib\glib-object.h" "$(GenericIncludeFolder)\glib-2.0\"
-copy /Y "$(OutDir)$(TargetName).dll" "$(GenericWin64BinaryFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+copy /Y "$(TargetPath)" "$(GenericWin64BinaryFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(TargetPath)" "$(Release64TestSuiteFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(OutDir)$(TargetName)$(LibraryExt)" "$(GenericWin64LibraryFolder)\$(TargetName)$(LibraryExt)"
 copy /Y "..\glib-2.0.pc" "$(GenericLibraryFolder)\pkgconfig"
 </Command>
     </PostBuildEvent>

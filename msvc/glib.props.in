@@ -21,6 +21,7 @@
     <Debug64TargetFolder>@Debug64TargetFolder@</Debug64TargetFolder>
     <Release64TargetFolder>@Release64TargetFolder@</Release64TargetFolder>
     <TargetSxSFolder>@TargetSxSFolder@</TargetSxSFolder>
+    <LibraryExt>@LibraryExt@</LibraryExt>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
@@ -77,6 +78,9 @@
     </BuildMacro>
     <BuildMacro Include="TargetSxSFolder">
       <Value>$(TargetSxSFolder)</Value>
+    </BuildMacro>
+    <BuildMacro Include="LibraryExt">
+      <Value>$(LibraryExt)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

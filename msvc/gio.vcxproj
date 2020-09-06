@@ -22,20 +22,20 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release with Debugging Capability|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -121,7 +121,7 @@ copy /Y "..\gio\gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\
       <Command />
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)D.lib;$(DllPrefix)gobject64$(DllSuffix)D.lib;$(DllPrefix)gmodule64$(DllSuffix)D.lib;libgiowin64D.lib;ws2_32.lib;intl64D.lib;zlib64D.lib;shlwapi.lib;dnsapi.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)D$(LibraryExt);$(DllPrefix)gobject64$(DllSuffix)D$(LibraryExt);$(DllPrefix)gmodule64$(DllSuffix)D$(LibraryExt);libgiowin64D$(LibraryExt);ws2_32$(LibraryExt);intl64D$(LibraryExt);zlib64D$(LibraryExt);shlwapi$(LibraryExt);dnsapi$(LibraryExt);iphlpapi$(LibraryExt);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\x64\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -132,9 +132,9 @@ copy /Y "..\gio\gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\
       <OutputFile>.\Debug\libgio_2_0/libgio_2_0.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TargetFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).dll" "$(Debug64TestSuiteFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+      <Command>copy /Y "$(TargetPath)" "$(Debug64TargetFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(TargetPath)" "$(Debug64TestSuiteFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(OutDir)$(TargetName)$(LibraryExt)" "$(GenericWin64LibraryFolder)\$(TargetName)$(LibraryExt)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -170,7 +170,7 @@ copy /Y "..\gio\gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\
       <Command />
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix).lib;$(DllPrefix)gobject64$(DllSuffix).lib;$(DllPrefix)gmodule64$(DllSuffix).lib;libgiowin64.lib;ws2_32.lib;intl64.lib;zlib64.lib;shlwapi.lib;dnsapi.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)$(LibraryExt);$(DllPrefix)gobject64$(DllSuffix)$(LibraryExt);$(DllPrefix)gmodule64$(DllSuffix)$(LibraryExt);libgiowin64$(LibraryExt);ws2_32$(LibraryExt);intl64$(LibraryExt);zlib64$(LibraryExt);shlwapi$(LibraryExt);dnsapi$(LibraryExt);iphlpapi$(LibraryExt);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\x64\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <SubSystem>Windows</SubSystem>
@@ -181,9 +181,9 @@ copy /Y "..\gio\gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\
       <OutputFile>.\Release\libgio_2_0/libgio_2_0.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TargetFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+      <Command>copy /Y "$(TargetPath)" "$(Release64TargetFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(TargetPath)" "$(Release64TestSuiteFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(OutDir)$(TargetName)$(LibraryExt)" "$(GenericWin64LibraryFolder)\$(TargetName)$(LibraryExt)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -225,7 +225,7 @@ copy /Y "gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\gdbus-d
       <Command />
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)RDC.lib;$(DllPrefix)gobject64$(DllSuffix)RDC.lib;$(DllPrefix)gmodule64$(DllSuffix)RDC.lib;libgiowin64RDC.lib;ws2_32.lib;intl64RDC.lib;zlib64RDC.lib;shlwapi.lib;dnsapi.lib;iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(DllPrefix)glib64$(DllSuffix)RDC$(LibraryExt);$(DllPrefix)gobject64$(DllSuffix)RDC$(LibraryExt);$(DllPrefix)gmodule64$(DllSuffix)RDC$(LibraryExt);libgiowin64RDC$(LibraryExt);ws2_32$(LibraryExt);intl64RDC$(LibraryExt);zlib64RDC$(LibraryExt);shlwapi$(LibraryExt);dnsapi$(LibraryExt);iphlpapi$(LibraryExt);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)\x64\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile />
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -239,8 +239,8 @@ copy /Y "gdbus-daemon-generated.h" "$(GenericIncludeFolder)\glib-2.0\gio\gdbus-d
       <Command>mkdir "$(GenericLibraryFolder)\pkgconfig" 2&gt; NUL
 mkdir "$(GenericIncludeFolder)\glib-2.0\gio" 2&gt; NUL
 copy /Y "..\gio\*.h" "$(GenericIncludeFolder)\glib-2.0\gio\"
-copy /Y "$(OutDir)$(TargetName).dll" "$(Release64TestSuiteFolder)\$(TargetName).dll"
-copy /Y "$(OutDir)$(TargetName).lib" "$(GenericWin64LibraryFolder)\$(TargetName).lib"
+copy /Y "$(TargetPath)" "$(Release64TestSuiteFolder)\$(TargetName)$(TargetExt)"
+copy /Y "$(OutDir)$(TargetName)$(LibraryExt)" "$(GenericWin64LibraryFolder)\$(TargetName)$(LibraryExt)"
 copy /Y "..\gio-2.0.pc" "$(GenericLibraryFolder)\pkgconfig"
 </Command>
     </PostBuildEvent>

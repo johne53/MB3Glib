@@ -51,7 +51,8 @@ sub process_file
 	    s/\@Release64TestSuiteFolder@/$release64_testsuite_folder/g;
 	    s/\@Debug64TargetFolder@/$debug64_target_folder/g;
 	    s/\@Release64TargetFolder@/$release64_target_folder/g;
-		s/\@TargetSxSFolder@/$target_sxs_folder/g;
+	    s/\@TargetSxSFolder@/$target_sxs_folder/g;
+	    s/\@LibraryExt@/$library_ext/g;
 	    s/\@prefix@/$gdbus_prefix/g;
 	    s/\@exec_prefix@/$exec_prefix/g;
 	    s/\@includedir@/$generic_include_folder/g;
@@ -62,6 +63,14 @@ sub process_file
 	}
 }
 
+my $command=join(' ',@ARGV);
+
+if (-1 != index($command, "-linux")) {
+	$library_ext = ".a";
+} else {
+	$library_ext = ".lib";
+}
+
 process_file ("gio-windows-2.0.pc");
 process_file ("gio-2.0.pc");
 process_file ("glib-2.0.pc");
@@ -69,8 +78,7 @@ process_file ("gthread-2.0.pc");
 process_file ("gmodule-2.0.pc");
 process_file ("gobject-2.0.pc");
 
-my $command=join(' ',@ARGV);
-if ($command eq -buildall) {
+if (-1 != index($command, "-buildall")) {
 	process_file ("config.h.win32");
 	process_file ("glib/glibconfig.h.win32");
 	process_file ("gobject/glib-mkenums");
